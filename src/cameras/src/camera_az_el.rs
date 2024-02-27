@@ -242,7 +242,7 @@ pub fn camera_builder(
 
         commands.spawn((SpatialBundle::default(), listener.clone()))
         //Uncomment this if you want to have a mesh represent the Audio Listeners
-        /* 
+        /*
         .with_children(|parent| {
             // left ear indicator
             parent.spawn(PbrBundle {
@@ -261,6 +261,7 @@ pub fn camera_builder(
             });
         
         })*/.set_parent(camera);
+        
 
 
         commands.init_resource::<PointerOverUi>()

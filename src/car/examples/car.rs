@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use bevy_integrator::{SimTime, Solver};
 use car::{
-    build::{build_car, car_startup_system},
+    build::{build_car, car_startup_system, update_engine_speed, update_engine_audio},
     environment::build_environment,
     setup::{camera_setup, simulation_setup},
 };
@@ -23,5 +23,6 @@ fn main() {
         .insert_resource(car_definition)
         .add_systems(Startup, car_startup_system)
         .add_systems(Startup, build_environment)
+        .add_systems(Update, (update_engine_speed, update_engine_audio))
         .run();
 }
