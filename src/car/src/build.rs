@@ -14,7 +14,7 @@ use rigid_body::{
 
 use crate::{
     physics::{
-        BrakeWheel, DriveType, DrivenWheel, DrivenWheelLookup, SteeringCurvature, SteeringType,
+        BrakeWheel, DriveType, DrivenWheelLookup, SteeringCurvature, SteeringType,
         SuspensionComponent,
     },
     tire::PointTire,
@@ -355,21 +355,17 @@ pub fn update_engine_speed(
     for (joint, _brake_wheel) in joints.iter() {
         first += 1;
         //We only need to grab one, so get the first one
-        if(first == 1) {
+        if first == 1 {
             //Joint.qd = q dirivitive -> radians/second
             //Can convert that by (joint.qd * wheel.radius) -> meters/second
-
             let qd = joint.qd.abs();
             let radius = car.wheel.radius;
-            //println!("qd: {qd} radius: {radius}");
 
             //Update the speed
             let mut engine = engine_q.single_mut();
             engine.speed = f64_to_f32(qd * radius); 
         }
-        
     }
-
 }
 
 //Used to update the playback speed of the engine audio sink
@@ -384,7 +380,7 @@ pub fn update_engine_audio(
             let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
                 engine.curve.point_at_pos(                                          //Get the position from the bezier curve
                     (( (engine.speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
-                ).y()                                                               //Grab the Y-value of fromt his position on the bezier curve
+                ).y()                                                               //Grab the Y-value of from this position on the bezier curve
             );
 
             //Calculate the offset
@@ -395,10 +391,7 @@ pub fn update_engine_audio(
 
             //Set the playback speed to our calculated speed_curve
             sink.set_speed(speed_curve);
-            //println!("Engine Speed: {}", engine.speed);
         }
-        //println!("Sink Speed: {}", sink.speed());
-        
     }
 }
 
