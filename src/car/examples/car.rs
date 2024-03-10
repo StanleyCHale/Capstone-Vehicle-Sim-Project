@@ -1,5 +1,8 @@
 use bevy::prelude::*;
 
+// Use the main menu plugin
+use car::main_menu::MainMenuPlugin;
+
 use bevy_integrator::{SimTime, Solver};
 use car::{
     build::{build_car, car_startup_system, update_engine_speed, update_engine_audio},
@@ -13,6 +16,7 @@ fn main() {
     let car_definition = build_car();
     // Create App
     App::new()
+        .add_plugins(MainMenuPlugin)
         .add_plugins(RigidBodyPlugin {
             time: SimTime::new(0.002, 0.0, None),
             solver: Solver::RK4,

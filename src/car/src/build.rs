@@ -298,7 +298,6 @@ impl Chassis {
                 ..default()
             });
 
-            //todo!("Engine Audio Needs to be hooked up to the A joint's speed");
             //Setup audio emitter for our engine audio and parent it to our chassis
             rx_e.insert((
                 AudioBundle {
