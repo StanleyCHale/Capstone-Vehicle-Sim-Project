@@ -48,7 +48,7 @@ pub fn build_environment(
 
     commands.insert_resource(DirectionalLightShadowMap { size: 4 * 1024 });
 
-    let size = 160.0; // must be the same for all grid elements
+    let size = 1600.0; // must be the same for all grid elements
 
     let height = 2.;
     let table_elements = table_top(size, height);
@@ -59,7 +59,8 @@ pub fn build_environment(
 
     //let step_elements = steps(size, vec![0.2, 0.4, 0.6]);
 
-    let perlin_elements = perlin_plane(size, 256.0);
+    // 256
+    let perlin_elements = perlin_plane(size, 1000.0);
 
     // merge the two grid terrains
     let mut elements =  perlin_elements;//table_elements;

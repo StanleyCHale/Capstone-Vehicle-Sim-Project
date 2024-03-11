@@ -1,4 +1,5 @@
 use std::f64::consts::PI as PI64;
+use rand::Rng;
 
 use crate::{
     function::Function, mirror::Mirror, plane::Plane, rotate::Rotate, step::Step,
@@ -166,8 +167,10 @@ pub fn wave(size: f64, height: f64, wave_length: f64) -> Vec<Vec<Box<dyn GridEle
 pub fn perlin_plane(size: f64, subdivisions: f64) -> Vec<Vec<Box<dyn GridElement + 'static>>> {
     let mut grid_elements: Vec<Vec<Box<dyn GridElement + 'static>>> = Vec::new();
     
+    let mut rng = rand::thread_rng();
+    let seed = rng.gen();
     
-    let fbm = Fbm::<PerlinNoise>::new(2348961); // FIX hard coded seed
+    let fbm = Fbm::<PerlinNoise>::new(seed); // FIX hard coded seed
 
     let perlin_noise = PlaneMapBuilder::<_, 2>::new(&fbm)
         .set_size((subdivisions + 2.0) as usize, (subdivisions + 2.0) as usize)
