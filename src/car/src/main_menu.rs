@@ -1,3 +1,4 @@
+use bevy::prelude::Resource;
 //This is a bevy plugin for the main menu of the game
 
 use bevy::{prelude::*, ui::FocusPolicy};
@@ -6,15 +7,11 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, main_menu_setup);
+        app.add_systems(Startup, main_menu_setup)
+            .add_systems(Update, handle_start_button);
     }
 }
 
-//Manages the assets that need to be loaded for the main menu UI
-struct UiAssets {
-    button: Handle<Image>,
-    button_pressed: Handle<Image>,
-}
 
 fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>,) {
     let ui_assets= UiAssets {
@@ -71,5 +68,61 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>,) {
     
     });
 
-
+    //Insert our UI resource
+    commands.insert_resource(ui_assets);
+    
 }
+
+
+//Manages the assets that need to be loaded for the main menu UI
+struct UiAssets {
+    button: Handle<Image>,
+    button_pressed: Handle<Image>,
+}
+
+impl Resource for UiAssets {}
+
+//Runs when the start button is pushed
+fn handle_start_button(
+    mut commands: Commands, 
+    interaction_query: Query<(&Children, &Interaction), Changed<Interaction>>,
+    mut image_query: Query<&mut UiImage>,
+    ui_assests: Res<UiAssets>,
+    button_query: Query<Entity, With<Button>>
+) {
+    for (children, interaction) in interaction_query.iter() {
+        let child = children.iter().next().unwrap();
+        let mut image = image_query.get_mut(*child).unwrap();
+
+        match interaction {
+            Interaction::Pressed => {
+                println!("Start Game Button Clicked");
+
+                //Change the image to the pressed image
+                image.texture = ui_assests.button_pressed.clone();
+
+                //Need to do all of the setup for starting the game here
+
+                //despawn the menu
+                button_query.iter().for_each(|entity| {
+                    commands.entity(entity).despawn_recursive();
+                });
+
+                //commands.spawn_bundle(StartGameBundle);
+            }
+            Interaction::Hovered => {
+                println!("Start Game Button Hovered");
+            }
+            _ => {}
+        }
+    }
+}
+
+//Function to despawn the main menu
+/* 
+fn despawn_main_menu(mut commands: Commands, button_query: Query<Entity, With<Button>>) {
+    for entity in button_query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+*/
