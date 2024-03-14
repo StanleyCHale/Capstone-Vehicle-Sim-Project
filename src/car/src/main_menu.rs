@@ -54,21 +54,23 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>,) {
     }).with_children(|parent| {
 
         //Spawn a button bundle for the Start Game button
-        parent.spawn(ButtonBundle {
-            style: Style {
-                align_self: AlignSelf::Center,
-                align_content: AlignContent::Center,
-                justify_content: JustifyContent::Center,
-                margin: UiRect::all(Val::Px(20.0)),
-                min_width: Val::Vw(20.0),
-                min_height: Val::Vh(6.0),
+        parent.spawn((
+            ButtonBundle {
+                style: Style {
+                    align_self: AlignSelf::Center,
+                    align_content: AlignContent::Center,
+                    justify_content: JustifyContent::Center,
+                    margin: UiRect::all(Val::Px(20.0)),
+                    min_width: Val::Vw(20.0),
+                    min_height: Val::Vh(6.0),
+                    ..Default::default()
+                },
+                background_color: BackgroundColor(Color::NONE),
                 ..Default::default()
             },
-            background_color: BackgroundColor(Color::NONE),
-            ..Default::default()
-        })
+            MenuButtonAction::Play,
+        ))
         .with_children(|parent| {
-            //parent.spawn(MenuButtonAction::Play);
             parent.spawn(ImageBundle {
                 style: Style {
                     max_width: Val::Percent(100.0),
@@ -100,19 +102,22 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>,) {
         });
 
         //Spawn a button bundle for the Settings button
-        parent.spawn(ButtonBundle {
-            style: Style {
-                align_self: AlignSelf::Center,
-                align_content: AlignContent::Center,
-                justify_content: JustifyContent::Center,
-                margin: UiRect::all(Val::Px(20.0)),
-                min_width: Val::Vw(20.0),
-                min_height: Val::Vh(6.0),
+        parent.spawn((
+            ButtonBundle {
+                style: Style {
+                    align_self: AlignSelf::Center,
+                    align_content: AlignContent::Center,
+                    justify_content: JustifyContent::Center,
+                    margin: UiRect::all(Val::Px(20.0)),
+                    min_width: Val::Vw(20.0),
+                    min_height: Val::Vh(6.0),
+                    ..Default::default()
+                },
+                background_color: BackgroundColor(Color::NONE),
                 ..Default::default()
             },
-            background_color: BackgroundColor(Color::NONE),
-            ..Default::default()
-        })
+            MenuButtonAction::Settings,
+        ))
         .with_children(|parent| {
             parent.spawn(ImageBundle {
                 style: Style {
@@ -128,7 +133,6 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>,) {
             })
             .insert(FocusPolicy::Pass)
             .with_children(|parent| {
-                //parent.spawn(MenuButtonAction::Settings);
                 parent.spawn(TextBundle {
                     text: Text::from_section(
                         "Settings", 
@@ -160,9 +164,8 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>,) {
             background_color: BackgroundColor(Color::NONE),
             ..Default::default()
             },
-            //MenuButtonAction::Quit,
+            MenuButtonAction::Quit,
         ))
-        //
         .with_children(|parent| {
             parent.spawn(ImageBundle {
                 style: Style {
@@ -216,21 +219,19 @@ impl Resource for UiAssets {}
 fn handle_menu_buttons(
     mut commands: Commands, 
     interaction_query: Query<(&Children, &Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
-    interaction_query2: Query<(&Children, &Interaction), Changed<Interaction>>,
     mut background_query: Query<&mut BackgroundColor>,
     mut image_query: Query<&mut UiImage>,
     ui_assests: Res<UiAssets>,
     button_query: Query<Entity, With<Button>>,
     mut app_exit_events: EventWriter<AppExit>,
 ) {
-    // 
-        //
-        for (children, interaction, menu_button_action) in &interaction_query {
-            let child = children.iter().next().unwrap();
-            let mut image = image_query.get_mut(*child).unwrap();
-            println!("A Button was clicked!");
+    //For every button interaction found, we will run this code
+    for (children, interaction, menu_button_action) in &interaction_query {
+        let child = children.iter().next().unwrap();
+        let mut image = image_query.get_mut(*child).unwrap();
 
-            //
+        //
+        if(interaction == &Interaction::Pressed) {
             match menu_button_action {
                 MenuButtonAction::Quit => {
                     image.texture = ui_assests.button_pressed.clone();
@@ -240,64 +241,32 @@ fn handle_menu_buttons(
                 MenuButtonAction::Play => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Play Game Button Clicked");
-
+    
                     //set background colour to none
                     background_query.iter_mut().for_each(|mut background| {
                         background.0 = Color::NONE;
                     });
-
+    
                     //despawn the menu
                     button_query.iter().for_each(|entity| {
                         commands.entity(entity).despawn_recursive();
                     });
                 }
-                MenuButtonAction::Settings => println!("Settings Button Clicked"),
+                MenuButtonAction::Settings => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Settings Button Clicked");
+    
+                    //Change visibility of quit button to invisible
+
+                    //Change visibility of settings buttons to visible
+                }
                 MenuButtonAction::SettingsSound => println!("Sound Button Clicked"),
                 MenuButtonAction::BackToMainMenu => println!("Back to Main Menu Button Clicked"),
                 MenuButtonAction::BackToSettings => println!("Back to Settings Button Clicked"),
             }
             //
-        }
-        //
-
-        //
-        for (children, interaction) in &interaction_query2 {
-            let child = children.iter().next().unwrap();
-            let mut image = image_query.get_mut(*child).unwrap();
-            //
-            match interaction {
-                Interaction::Pressed => {
-                    println!("Button Clicked");
-
-                    //Change the image to the pressed image
-                    image.texture = ui_assests.button_pressed.clone();
-
-                    //Need to do all of the setup for starting the game here
-
-                    //despawn the menu
-                    button_query.iter().for_each(|entity| {
-                        commands.entity(entity).despawn_recursive();
-                    });
-
-                    //set background colour to none
-                    background_query.iter_mut().for_each(|mut background| {
-                        background.0 = Color::NONE;
-                    });
-
-                    //Exit the app
-                    //app_exit_events.send(AppExit);
-
-                    //commands.spawn_bundle(StartGameBundle);
-                }
-                Interaction::Hovered => {
-                    println!("Button Hovered");
-                }
-                _ => {}
-            }
-            //
-        }
-        //
-        
+        }    
+    }
 }
 
 //Function to despawn the main menu
