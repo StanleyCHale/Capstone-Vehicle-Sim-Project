@@ -207,7 +207,7 @@ pub fn camera_builder(
     up_direction: UpDirection,
     
 ) -> impl Fn(Commands, ResMut<Assets<Mesh>>, ResMut<Assets<StandardMaterial>>) -> () {
-    let spawn_camera = move |mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials: ResMut<Assets<StandardMaterial>>| {
+    let spawn_camera = move |mut commands: Commands, mut _meshes: ResMut<Assets<Mesh>>, mut _materials: ResMut<Assets<StandardMaterial>>| {
         let rotation = az_el_rotation(az, el, &up_direction);
         let translation = az_el_translation(focus, rotation, radius);
         let transform = Transform {
