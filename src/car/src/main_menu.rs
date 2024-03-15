@@ -214,8 +214,6 @@ struct UiAssets {
 
 impl Resource for UiAssets {}
 
-//Runs when the start button is pushed
-//Currently handles all of the buttons atm//
 fn handle_menu_buttons(
     mut commands: Commands, 
     interaction_query: Query<(&Children, &Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
@@ -256,7 +254,10 @@ fn handle_menu_buttons(
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Settings Button Clicked");
     
-                    //Change visibility of quit button to invisible
+                    //Change visibility of quit button to be invisible
+                    button_query.iter().for_each(|entity| {
+                        //entity
+                    });
 
                     //Change visibility of settings buttons to visible
                 }
