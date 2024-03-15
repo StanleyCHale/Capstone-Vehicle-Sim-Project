@@ -128,38 +128,44 @@ impl NormalMap {
 
         // Adjust indices to match the original array
         //Some(Vec3{x: 0.0, y: 0.0, z: 1.0})
-        Some(self.normal[x_ind][y_ind])
+        // Some(self.normal[x_ind][y_ind])
 
         // FIX THIS -- SHOULD RETURN A INTERPOLATED NORMAL??? MAYBE??
 
 
-        // let x_ind_next = x_ind + 1;
-        // let y_ind_next = y_ind + 1;
+        let x_ind_next = x_ind + 1;
+        let y_ind_next = y_ind + 1;
 
-        // let q11 = self.normal[x_ind][y_ind];
-        // let q12 = self.normal[x_ind][y_ind_next];
-        // let q21 = self.normal[x_ind_next][y_ind];
-        // let q22 = self.normal[x_ind_next][y_ind_next];
+        let q11 = self.normal[x_ind][y_ind];
+        let q12 = self.normal[x_ind][y_ind_next];
+        let q21 = self.normal[x_ind_next][y_ind];
+        let q22 = self.normal[x_ind_next][y_ind_next];
 
-        // let x1 = self.x[x_ind] as f32;
-        // let x2 = self.x[x_ind_next] as f32;
-        // let y1 = self.y[y_ind] as f32;
-        // let y2 = self.y[y_ind_next] as f32;
+        let x1 = self.x[x_ind] as f32;
+        let x2 = self.x[x_ind_next] as f32;
+        let y1 = self.y[y_ind] as f32;
+        let y2 = self.y[y_ind_next] as f32;
 
-        // let x_vec = vec3(x as f32, x as f32, x as f32);
-        // let x1_vec = vec3(x1, x1, x1);
-        // let x2_vec = vec3(x2, x2, x2);
+        let x_vec = vec3(x as f32, x as f32, x as f32);
+        let x1_vec = vec3(x1, x1, x1);
+        let x2_vec = vec3(x2, x2, x2);
 
-        // let y_vec = vec3(y as f32, y as f32, y as f32);
-        // let y1_vec = vec3(y1, y1, y1);
-        // let y2_vec = vec3(y2, y2, y2);
+        let y_vec = vec3(y as f32, y as f32, y as f32);
+        let y1_vec = vec3(y1, y1, y1);
+        let y2_vec = vec3(y2, y2, y2);
 
-        
 
-        // let r1 = ((x2_vec - x_vec) / (x2_vec - x1_vec)) * q11 + ((x_vec - x1_vec) / (x2_vec - x1_vec)) * q21;
-        // let r2 = ((x2_vec - x_vec) / (x2_vec - x1_vec)) * q12 + ((x_vec - x1_vec) / (x2_vec - x1_vec)) * q22;
+        let r1 = ((x2_vec - x_vec) / (x2_vec - x1_vec)) * q11 + ((x_vec - x1_vec) / (x2_vec - x1_vec)) * q21;
+        let r2 = ((x2_vec - x_vec) / (x2_vec - x1_vec)) * q12 + ((x_vec - x1_vec) / (x2_vec - x1_vec)) * q22;
 
-        // Some(((y2_vec - y_vec) / (y2_vec - y1_vec)) * r1 + ((y_vec - y1_vec) / (y2_vec - y1_vec)) * r2)
+        let mut interpolated_normal = ((y2_vec - y_vec) / (y2_vec - y1_vec)) * r1 + ((y_vec - y1_vec) / (y2_vec - y1_vec)) * r2;
+
+        let length = (interpolated_normal.x.powi(2) + interpolated_normal.y.powi(2) + interpolated_normal.z.powi(2)).sqrt();
+        interpolated_normal.x /= length;
+        interpolated_normal.y /= length;
+        interpolated_normal.z /= length;
+
+        Some(interpolated_normal)
     }
 }
 
@@ -234,8 +240,13 @@ impl GridElement for Perlin {
                 positions.push([x_pos as f32, y_pos as f32, z_pos as f32]);
 
                 // Build normals
-                // Per vertex - Up vector
-                // FIX THIS, edge cases not yet covered
+
+                // let normal_array = self.normal.normal[x as usize][y as usize];
+                // normals.push([normal_array.x, normal_array.y, normal_array.z]);
+
+                // // Per vertex - Up vector
+                // // FIX THIS, edge cases not yet covered
+
                 if x == x_vertices - 1  && y == y_vertices - 1 {
                     normals.push([0.0, 0.0, -1.0]);
                 }
