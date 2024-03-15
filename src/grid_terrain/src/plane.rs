@@ -4,7 +4,18 @@ use bevy::{
 };
 use rigid_body::sva::Vector;
 
+use rand::Rng;
+fn main() {
+    let mut rng = rand::thread_rng();
 
+    let n1: u8 = rng.gen();
+    let n2: u16 = rng.gen();
+    println!("Random u8: {}", n1);
+    println!("Random u16: {}", n2);
+    println!("Random u32: {}", rng.gen::<u32>());
+    println!("Random i32: {}", rng.gen::<i32>());
+    println!("Random float: {}", rng.gen::<f64>());
+}
 
 //use bevy::render::mesh::Indices;
 //use bevy::render::render_resource::PrimitiveTopology;
@@ -87,14 +98,7 @@ impl GridElement for Plane {
 
 fn create_plane_mesh(size: f32, subdivisions: i32) -> Mesh {
 
-    //Ezra Code Start
-    use noise::{Fbm, Perlin};
-    use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
-    use std::io::{stdout, Write};
-    use image::{GenericImageView, DynamicImage, Luma};
-    //Ezra Code End    
 
-    let fbm = Fbm::<Perlin>::new(2348956);
 
     PlaneMapBuilder::<_, 2>::new(&fbm)
         .set_size(130, 130)
@@ -116,17 +120,8 @@ fn create_plane_mesh(size: f32, subdivisions: i32) -> Mesh {
     let mut indices: Vec<u32> = Vec::with_capacity(tot_indices);
 
 
-    // Ezra Code Start
-    // Load the image of hightmap (FIX THIS!!!!!)
-    let img_path = r"C:\rustbevy\Capstone-Vehicle-Sim-Project-Team3\src\example_images\fbm.png";
-
-    let img = image::open(img_path).expect("Failed to open image");
         
-    // Extract pixel values as f32 numbers
-    let perlin_values: Vec<f32> = img
-        .pixels()
-        .map(|(_, _, pixel)| pixel[0] as f32 / 255.0)
-        .collect();
+
 
     // Keep track of position in vector
     let mut index = 0;
