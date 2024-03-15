@@ -2,8 +2,13 @@ use std::f64::consts::PI as PI64;
 
 use crate::{
     function::Function, mirror::Mirror, plane::Plane, rotate::Rotate, step::Step,
-    step_slope::StepSlope, GridElement,
+    step_slope::StepSlope, perlin::{Perlin, HeightMap}, GridElement,
 };
+
+
+use noise::{Fbm, Perlin as PerlinNoise};
+use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
+
 
 pub fn table_top(size: f64, height: f64) -> Vec<Vec<Box<dyn GridElement + 'static>>> {
     let grid_elements: Vec<Vec<Box<dyn GridElement + 'static>>> = vec![
@@ -153,6 +158,65 @@ pub fn wave(size: f64, height: f64, wave_length: f64) -> Vec<Vec<Box<dyn GridEle
             }),
         ],
     ];
+
+    grid_elements
+}
+
+
+pub fn perlin_plane(size: f64, subdivisions: f64) -> Vec<Vec<Box<dyn GridElement + 'static>>> {
+    let mut grid_elements: Vec<Vec<Box<dyn GridElement + 'static>>> = Vec::new();
+    
+    
+    let fbm = Fbm::<PerlinNoise>::new(2348961); // FIX hard coded seed
+
+    let perlin_noise = PlaneMapBuilder::<_, 2>::new(&fbm)
+        .set_size((subdivisions + 2.0) as usize, (subdivisions + 2.0) as usize)
+        .set_x_bounds(-1.0, 1.0)
+        .set_y_bounds(-1.0, 1.0)
+        .build();
+
+    let x_vertices = subdivisions + 2.0;
+    let y_vertices = subdivisions + 2.0;
+
+    let x_factor = size / x_vertices;
+    let y_factor = size / y_vertices;
+    let z_factor = size * 0.05;
+
+    let mut xs: Vec<f64> = vec![];
+    let mut ys: Vec<f64> = vec![];
+    let mut zs: Vec<Vec<f64>> = vec![];
+
+
+    for x in 0..x_vertices as u32 {
+        xs.push(x as f64 * x_factor);
+    }
+
+    for y in 0..y_vertices as u32 {
+        ys.push(y as f64 * y_factor);
+    }
+
+    for x in 0..x_vertices as u32 {
+        let mut temp: Vec<f64> = vec![];
+        for y in 0..y_vertices as u32 {
+            temp.push(perlin_noise.get_value(x as usize, y as usize) * z_factor);
+        }
+        zs.push(temp)
+    }
+
+    let perlin_height_map = HeightMap {
+        x: xs, 
+        y: ys, 
+        z: zs,
+    };
+
+    grid_elements.push(vec![
+        Box::new(Perlin {
+            size: [size, size],
+            subdivisions: subdivisions as u32,
+            heightmap: perlin_height_map,
+        }),
+
+    ]);
 
     grid_elements
 }

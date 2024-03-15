@@ -2,9 +2,12 @@ use bevy::prelude::*;
 
 // Some of the following code adapted from example code: https://github.com/johanhelsing/matchbox/tree/main/examples/bevy_ggrs
 
+// Use the main menu plugin
+use car::main_menu::MainMenuPlugin;
+
 use bevy_integrator::{SimTime, Solver};
 use car::{
-    build::{build_car, car_startup_system, CarList},
+    build::{build_car, car_startup_system, CarList, update_engine_speed, update_engine_audio},
     control::ControlType,
     environment::build_environment,
     setup::{camera_setup, simulation_setup},
@@ -24,6 +27,7 @@ fn main() {
 
     // Create App
     App::new()
+        .add_plugins(MainMenuPlugin)
         .add_plugins(RigidBodyPlugin {
             time: SimTime::new(0.002, 0.0, None),
             solver: Solver::RK4,
@@ -34,5 +38,6 @@ fn main() {
         .insert_resource(players)
         .add_systems(Startup, car_startup_system)
         .add_systems(Startup, build_environment)
+        .add_systems(Update, (update_engine_speed, update_engine_audio))
         .run();
 }
