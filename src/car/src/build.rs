@@ -435,11 +435,16 @@ pub fn update_engine_audio(
     engine_q: Query<&Engine>,
 ) {
 
-    //for loop for each audio sink
-    for sink in music_controller.iter() {
-        //Just grabs both engines and updates them.
-        for engine in &engine_q {
+    let mut engine_list = Vec::new();
 
+    //Add all of our engine components to our engine list (should probably make this into a resource list of engine component to audio sink in the future) doesnt actually work rn btw
+    for engine in &engine_q {
+        engine_list.push(engine);
+    }
+
+
+    //for loop for each audio sink and engine component
+    for (sink, engine) in music_controller.iter().zip(&engine_list) {
             //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
             let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
                 engine.curve.point_at_pos(                                          //Get the position from the bezier curve
@@ -455,7 +460,6 @@ pub fn update_engine_audio(
 
             //Set the playback speed to our calculated speed_curve
             sink.set_speed(speed_curve);
-        }
     }
 }
 
