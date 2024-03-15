@@ -1,7 +1,5 @@
 use bevy::{
-    prelude::{Mesh, Vec3},
-    render::{mesh::Indices, render_resource::PrimitiveTopology},
-    math,
+    math::{self, vec3}, prelude::{Mesh, Vec3}, render::{mesh::Indices, render_resource::PrimitiveTopology}
 };
 use rigid_body::sva::Vector;
 
@@ -99,11 +97,78 @@ fn find(array: &[f64], target: f64) -> Option<usize> {
     return None;
 }
 
+pub struct NormalMap {
+    pub x: Vec<f64>,
+    pub y: Vec<f64>,
+    pub normal: Vec<Vec<Vec3>>,
+}
+
+impl NormalMap {
+    pub fn normal(&self, x: f64, y: f64) -> Option<Vec3> {
+        // Bilinear interpolation
+        let find_x = find(&(self.x), x);
+        let find_y = find(&(self.y), y);
+
+        let x_ind: usize;
+        let y_ind: usize;
+
+        match find_x {
+            Some(x) => x_ind = x,
+            None => {
+                return None;
+            }
+        }
+
+        match find_y {
+            Some(y) => y_ind = y,
+            None => {
+                return None;
+            }
+        }
+
+        // Adjust indices to match the original array
+        //Some(Vec3{x: 0.0, y: 0.0, z: 1.0})
+        Some(self.normal[x_ind][y_ind])
+
+        // FIX THIS -- SHOULD RETURN A INTERPOLATED NORMAL??? MAYBE??
+
+
+        // let x_ind_next = x_ind + 1;
+        // let y_ind_next = y_ind + 1;
+
+        // let q11 = self.normal[x_ind][y_ind];
+        // let q12 = self.normal[x_ind][y_ind_next];
+        // let q21 = self.normal[x_ind_next][y_ind];
+        // let q22 = self.normal[x_ind_next][y_ind_next];
+
+        // let x1 = self.x[x_ind] as f32;
+        // let x2 = self.x[x_ind_next] as f32;
+        // let y1 = self.y[y_ind] as f32;
+        // let y2 = self.y[y_ind_next] as f32;
+
+        // let x_vec = vec3(x as f32, x as f32, x as f32);
+        // let x1_vec = vec3(x1, x1, x1);
+        // let x2_vec = vec3(x2, x2, x2);
+
+        // let y_vec = vec3(y as f32, y as f32, y as f32);
+        // let y1_vec = vec3(y1, y1, y1);
+        // let y2_vec = vec3(y2, y2, y2);
+
+        
+
+        // let r1 = ((x2_vec - x_vec) / (x2_vec - x1_vec)) * q11 + ((x_vec - x1_vec) / (x2_vec - x1_vec)) * q21;
+        // let r2 = ((x2_vec - x_vec) / (x2_vec - x1_vec)) * q12 + ((x_vec - x1_vec) / (x2_vec - x1_vec)) * q22;
+
+        // Some(((y2_vec - y_vec) / (y2_vec - y1_vec)) * r1 + ((y_vec - y1_vec) / (y2_vec - y1_vec)) * r2)
+    }
+}
+
 
 pub struct Perlin {
     pub size: [f64; 2],
     pub subdivisions: u32,
     pub heightmap: HeightMap, // 2D lookup table of z height vs x and y
+    pub normal: NormalMap,
 }
 
 impl GridElement for Perlin {
@@ -112,10 +177,19 @@ impl GridElement for Perlin {
 
         let ground_height: f64;
         let find_ground_height = self.heightmap.height(point.x, point.y);
+        let normal_array: [f32; 3];
+        let find_normal = self.normal.normal(point.x, point.y);
 
 
         match find_ground_height {
             Some(x) => ground_height = x,
+            None => {
+                return None
+            }
+        }
+        
+        match find_normal {
+            Some(x) => normal_array = x.to_array(),
             None => {
                 return None
             }
@@ -125,7 +199,8 @@ impl GridElement for Perlin {
             return Some(Interference {
                 magnitude: ground_height - point.z,
                 position: Vector::new(point.x, point.y, ground_height),
-                normal: Vector::z(), // FIX THIS to real normal
+                normal: Vector::new(normal_array[0] as f64, normal_array[1] as f64, normal_array[2] as f64),
+                // normal: Vector::z(), // FIX THIS to real normal
             });
         } else {
             return None;

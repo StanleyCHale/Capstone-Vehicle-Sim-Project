@@ -2,10 +2,11 @@ use std::f64::consts::PI as PI64;
 
 use crate::{
     function::Function, mirror::Mirror, plane::Plane, rotate::Rotate, step::Step,
-    step_slope::StepSlope, perlin::{Perlin, HeightMap}, GridElement,
+    step_slope::StepSlope, perlin::{Perlin, HeightMap, NormalMap}, GridElement,
 };
 
 
+use bevy::math::{vec3, Vec3};
 use noise::{Fbm, Perlin as PerlinNoise};
 use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
 
@@ -187,6 +188,7 @@ pub fn perlin_plane(size: f64, subdivisions: f64) -> Vec<Vec<Box<dyn GridElement
     let mut zs: Vec<Vec<f64>> = vec![];
 
 
+    // HeightMap
     for x in 0..x_vertices as u32 {
         xs.push(x as f64 * x_factor);
     }
@@ -204,9 +206,57 @@ pub fn perlin_plane(size: f64, subdivisions: f64) -> Vec<Vec<Box<dyn GridElement
     }
 
     let perlin_height_map = HeightMap {
-        x: xs, 
-        y: ys, 
-        z: zs,
+        x: xs.clone(), 
+        y: ys.clone(), 
+        z: zs.clone(),
+    };
+
+    let mut ns: Vec<Vec<Vec3>> = vec![];
+    
+    // NormalMap
+    for x in 0..x_vertices as u32 {
+        let mut temp: Vec<Vec3> = vec![];
+        for y in 0..y_vertices as u32 {
+
+
+            // FIX THIS, edge cases not yet covered
+            if x == x_vertices as u32 - 1  && y == y_vertices as u32 - 1 {
+                temp.push(vec3(0.0, 0.0, -1.0));
+            }
+            else if x == x_vertices as u32 - 1 {
+                temp.push(vec3(0.0, 0.0, -1.0));
+            }
+            else if y == y_vertices as u32 - 1 {
+                temp.push(vec3(0.0, 0.0, -1.0));
+            }
+            else {
+
+                let x_pos = xs[x as usize];
+                let y_pos = ys[y as usize];
+                let z_pos = zs[x as usize][y as usize];
+
+
+                let p1 = Vec3{x: x_pos as f32, y: y_pos as f32, z: z_pos as f32};
+                let p2 = Vec3{x: xs[(x + 1) as usize] as f32, y: y_pos as f32, z: zs[(x + 1) as usize][y as usize] as f32};
+                let p3 = Vec3{x: x_pos as f32, y: ys[(y + 1) as usize] as f32, z: zs[x as usize][(y + 1) as usize] as f32};
+            
+                let v = p3 - p1;
+                let u = p2 - p1;
+
+                let n1 = u[1] * v[2] - u[2] * v[1];
+                let n2 = u[2] * v[0] - u[0] * v[2];
+                let n3 = u[0] * v[1] - u[1] * v[0];
+
+                temp.push(vec3(n1, n2, n3));
+            }
+        }
+        ns.push(temp)
+    }
+
+    let normal_map = NormalMap {
+        x: xs,
+        y: ys,
+        normal: ns,
     };
 
     grid_elements.push(vec![
@@ -214,6 +264,7 @@ pub fn perlin_plane(size: f64, subdivisions: f64) -> Vec<Vec<Box<dyn GridElement
             size: [size, size],
             subdivisions: subdivisions as u32,
             heightmap: perlin_height_map,
+            normal: normal_map,
         }),
 
     ]);
