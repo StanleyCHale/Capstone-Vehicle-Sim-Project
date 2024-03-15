@@ -434,7 +434,10 @@ pub fn update_engine_audio(
     music_controller: Query<&SpatialAudioSink, With<Engine>>, 
     engine_q: Query<&Engine>,
 ) {
-    if let Ok(sink) = music_controller.get_single() {
+
+    //for loop for each audio sink
+    for sink in music_controller.iter() {
+        //Just grabs both engines and updates them.
         for engine in &engine_q {
 
             //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
