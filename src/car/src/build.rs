@@ -225,6 +225,7 @@ pub fn car_startup_system(mut commands: Commands, asset_server: Res<AssetServer>
             &mut commands,
             Color::rgb(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()),
             base_id,
+            &asset_server,
         );
         let chassis_id = chassis_ids[3]; // ids are not ordered by parent child order!!! "3" is rx, the last joint in the chain
 
@@ -253,6 +254,8 @@ pub fn car_startup_system(mut commands: Commands, asset_server: Res<AssetServer>
                 car.drives[ind].clone(),
                 braked_wheel.clone(),
                 0.,
+                &asset_server,
+                ind,
             );
 
             // Fill the brake_wheel_ids vector with the ids of the BrakeWheels of this car
@@ -286,7 +289,7 @@ pub struct Chassis {
 }
 
 impl Chassis {
-    pub fn build(&self, commands: &mut Commands, color: Color, parent_id: Entity) -> Vec<Entity> {
+    pub fn build(&self, commands: &mut Commands, color: Color, parent_id: Entity, asset_server: &Res<AssetServer>) -> Vec<Entity> {
         // x degree of freedom (absolute coordinate system, not relative to car)
         let mut px = Joint::px("chassis_px".to_string(), Inertia::zero(), Xform::identity());
         px.q = self.initial_position[0];
@@ -398,27 +401,32 @@ fn f64_to_f32(x: f64) -> f32 {
 //Function to update the engine speed's component using the driven wheel's q dirivitive and the wheel's radius
 pub fn update_engine_speed(
     joints: Query<(&Joint, &BrakeWheel)>,
-    car: ResMut<CarDefinition>,
+    mut players: ResMut<CarList>,
     mut engine_q: Query<&mut Engine>,
 ) {
 
     let mut first = 0;
+ 
+    for car in &mut players.cars {
+        //Grab the driven wheel joints
+        for (joint, _brake_wheel) in joints.iter() {
+            first += 1;
+            //We only need to grab one, so get the first one
+            if first == 1 {
+                //Joint.qd = q dirivitive -> radians/second
+                //Can convert that by (joint.qd * wheel.radius) -> meters/second
+                let qd = joint.qd.abs();
+                let radius = car.wheel.radius;
 
-    //Grab the driven wheel joints
-    for (joint, _brake_wheel) in joints.iter() {
-        first += 1;
-        //We only need to grab one, so get the first one
-        if first == 1 {
-            //Joint.qd = q dirivitive -> radians/second
-            //Can convert that by (joint.qd * wheel.radius) -> meters/second
-            let qd = joint.qd.abs();
-            let radius = car.wheel.radius;
-
-            //Update the speed
-            let mut engine = engine_q.single_mut();
-            engine.speed = f64_to_f32(qd * radius); 
+                //Update the speed
+                for mut engine in engine_q.iter_mut() {
+                    engine.speed = f64_to_f32(qd * radius); 
+                }
+                
+            }
         }
     }
+     
 }
 
 //Used to update the playback speed of the engine audio sink
@@ -546,7 +554,9 @@ impl Wheel {
         parent_id: Entity,
         driven_wheel: DriveType,
         braked_wheel: Option<BrakeWheel>,
-        initial_speed: f64
+        initial_speed: f64,
+        asset_server: &Res<AssetServer>,
+        index: usize,
     ) -> Entity {
         // wheel inertia
         let inertia = Inertia::new(
