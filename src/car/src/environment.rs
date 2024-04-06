@@ -1,19 +1,20 @@
 use std::f32::consts::PI;
 
 use bevy::{
-    pbr::{CascadeShadowConfigBuilder, DirectionalLightShadowMap},
-    prelude::*,
+    a11y::accesskit::CustomAction, pbr::{CascadeShadowConfigBuilder, DirectionalLightShadowMap}, prelude::*
 };
 
 use grid_terrain::{
-    examples::{steps, table_top, wave, perlin_plane},
-    GridTerrain,
+    examples::{perlin_plane, steps, table_top, wave}, 
+    CustomMaterial, 
+    GridTerrain
 };
 
 pub fn build_environment(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<CustomMaterial>>,
+    // mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     commands.insert_resource(AmbientLight {
         color: Color::rgb(0.9, 0.9, 1.0),
@@ -48,7 +49,7 @@ pub fn build_environment(
 
     commands.insert_resource(DirectionalLightShadowMap { size: 4 * 1024 });
 
-    let size = 1600.0; // must be the same for all grid elements
+    let size = 160.0; // must be the same for all grid elements
 
     let height = 2.;
     let table_elements = table_top(size, height);
@@ -60,10 +61,10 @@ pub fn build_environment(
     //let step_elements = steps(size, vec![0.2, 0.4, 0.6]);
 
     // 256
-    let perlin_elements = perlin_plane(size, 1000.0);
+    let perlin_elements = perlin_plane(size, 512.0); //1000
 
     // merge the two grid terrains
-    let mut elements =  perlin_elements;//table_elements;
+    let mut elements =  perlin_elements; //table_elements;
     //elements.extend(wave_elements);
     //elements.extend(step_elements);
     //elements.extend(perlin_elements);

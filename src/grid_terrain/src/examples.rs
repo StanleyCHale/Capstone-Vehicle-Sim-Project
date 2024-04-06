@@ -170,8 +170,9 @@ pub fn perlin_plane(size: f64, subdivisions: f64) -> Vec<Vec<Box<dyn GridElement
     
     let mut rng = rand::thread_rng();
     let seed = rng.gen();
+    // let seed = 2348961;
     
-    let fbm = Fbm::<PerlinNoise>::new(seed); // FIX hard coded seed
+    let fbm = Fbm::<PerlinNoise>::new(seed); 
 
     let perlin_noise = PlaneMapBuilder::<_, 2>::new(&fbm)
         .set_size((subdivisions + 2.0) as usize, (subdivisions + 2.0) as usize)
