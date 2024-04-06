@@ -25,6 +25,10 @@ use bevy::{
     },
 };
 
+
+pub const PLANESIZE: f32 = 160.0;
+
+
 pub struct Interference {
     pub magnitude: f64,
     pub position: Vector,
@@ -185,6 +189,7 @@ impl GridTerrain {
                     // material: material.clone(),
                     material: materials.add(CustomMaterial {
                         color: Color::WHITE,
+                        z_max: PLANESIZE * 0.05,
                     }),
                     ..default()
                 });
@@ -216,6 +221,7 @@ impl GridTerrain {
                     // material: material.clone(),
                     material: materials.add(CustomMaterial {
                         color: Color::WHITE,
+                        z_max: PLANESIZE * 0.05,
                     }),
                     ..default()
                 });
@@ -227,11 +233,15 @@ impl GridTerrain {
 
 
 
+
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct CustomMaterial {
     #[uniform(0)]
     color: Color,
+    #[uniform(1)]
+    z_max: f32,
 }
+
 
 
 impl Material for CustomMaterial {

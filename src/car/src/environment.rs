@@ -7,8 +7,10 @@ use bevy::{
 use grid_terrain::{
     examples::{perlin_plane, steps, table_top, wave}, 
     CustomMaterial, 
-    GridTerrain
+    GridTerrain,
 };
+
+use grid_terrain::PLANESIZE;
 
 pub fn build_environment(
     mut commands: Commands,
@@ -49,10 +51,10 @@ pub fn build_environment(
 
     commands.insert_resource(DirectionalLightShadowMap { size: 4 * 1024 });
 
-    let size = 160.0; // must be the same for all grid elements
+    let size = PLANESIZE;//160.0; // must be the same for all grid elements
 
     let height = 2.;
-    let table_elements = table_top(size, height);
+    let table_elements = table_top(size as f64, height);
 
     //let height = 0.3;
     //let wave_length = 4.;
@@ -61,7 +63,7 @@ pub fn build_environment(
     //let step_elements = steps(size, vec![0.2, 0.4, 0.6]);
 
     // 256
-    let perlin_elements = perlin_plane(size, 512.0); //1000
+    let perlin_elements = perlin_plane(size as f64, 1024.0); //1000
 
     // merge the two grid terrains
     let mut elements =  perlin_elements; //table_elements;
@@ -69,7 +71,7 @@ pub fn build_environment(
     //elements.extend(step_elements);
     //elements.extend(perlin_elements);
 
-    let grid_terrain = GridTerrain::new(elements, [size, size]);
+    let grid_terrain = GridTerrain::new(elements, [size as f64, size as f64]);
     let empty_parent = commands.spawn(SpatialBundle::default()).id();
 
     grid_terrain.build_meshes(&mut commands, &mut meshes, &mut materials, empty_parent);
