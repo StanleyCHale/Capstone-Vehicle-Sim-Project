@@ -15,7 +15,7 @@ impl Plugin for MainMenuPlugin {
         // Systems to handle the settings menu screen
         .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
         .add_systems(OnExit(MenuState::Settings), despawn_screen::<OnSettingsMenuScreen>)
-        
+
         .add_systems(Update, handle_menu_buttons);
     }
 }
@@ -23,6 +23,10 @@ impl Plugin for MainMenuPlugin {
 // Tag component used to tag entities added on the main menu screen
 #[derive(Component)]
 struct OnMainMenuScreen;
+
+// Tag component used to tag entities added on the settings menu screen
+#[derive(Component)]
+struct OnSettingsMenuScreen;
 
 // All actions that can be triggered from a button click
 #[derive(Component)]
@@ -243,7 +247,185 @@ fn settings_menu_setup(
     asset_server: Res<AssetServer>,
     mut menu_state: ResMut<NextState<MenuState>>,
 ) {
+    let ui_assets= UiAssets {
+        button: asset_server.load("textures/ui/buttons/button.png"),
+        button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
+    };
 
+    //Print statement
+    println!("Settings Menu Setup");
+
+    //Spawn a camera for our 2d bundle
+    //commands.spawn(UiCameraConfig::default());
+
+    //This is a node bundle that will be the parent of all of our UI elements
+    commands.spawn((NodeBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                // Place children in a column
+                flex_direction: FlexDirection::Column,
+                // Center children
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            background_color: BackgroundColor(Color::ALICE_BLUE),
+            ..default()
+        },
+        //Tag this node as being the main menu screen
+        OnSettingsMenuScreen,   
+    )).with_children(|parent| {
+
+        //Spawn a button bundle for the Start Game button
+        parent.spawn((
+            ButtonBundle {
+                style: Style {
+                    align_self: AlignSelf::Center,
+                    align_content: AlignContent::Center,
+                    justify_content: JustifyContent::Center,
+                    margin: UiRect::all(Val::Px(20.0)),
+                    min_width: Val::Vw(20.0),
+                    min_height: Val::Vh(6.0),
+                    ..Default::default()
+                },
+                background_color: BackgroundColor(Color::NONE),
+                ..Default::default()
+            },
+            //MenuButtonAction::Play,
+        ))
+        .with_children(|parent| {
+            parent.spawn(ImageBundle {
+                style: Style {
+                    max_width: Val::Percent(100.0),
+                    max_height: Val::Percent(100.0),
+                    margin: UiRect::all(Val::Percent(0.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                image: ui_assets.button.clone().into(),
+                ..Default::default()
+            })
+            .insert(FocusPolicy::Pass)
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        "Modify Audio", 
+                        TextStyle {
+                            font_size: 40.0,
+                            color: Color::WHITE,
+                            ..Default::default()
+                        },
+                    ),
+                    focus_policy: FocusPolicy::Pass,
+                    ..Default::default()
+                });
+            });
+        
+        });
+
+        //Spawn a button bundle for the Settings button
+        parent.spawn((
+            ButtonBundle {
+                style: Style {
+                    align_self: AlignSelf::Center,
+                    align_content: AlignContent::Center,
+                    justify_content: JustifyContent::Center,
+                    margin: UiRect::all(Val::Px(20.0)),
+                    min_width: Val::Vw(20.0),
+                    min_height: Val::Vh(6.0),
+                    ..Default::default()
+                },
+                background_color: BackgroundColor(Color::NONE),
+                ..Default::default()
+            },
+            //MenuButtonAction::Settings,
+        ))
+        .with_children(|parent| {
+            parent.spawn(ImageBundle {
+                style: Style {
+                    max_width: Val::Percent(100.0),
+                    max_height: Val::Percent(100.0),
+                    margin: UiRect::all(Val::Percent(0.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                image: ui_assets.button.clone().into(),
+                ..Default::default()
+            })
+            .insert(FocusPolicy::Pass)
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        "Settings", 
+                        TextStyle {
+                            font_size: 40.0,
+                            color: Color::WHITE,
+                            ..Default::default()
+                        },
+                    ),
+                    focus_policy: FocusPolicy::Pass,
+                    ..Default::default()
+                });
+            });
+        
+        });
+
+        //Spawn a button bundle for the Exit button
+        parent.spawn((
+            ButtonBundle {
+            style: Style {
+                align_self: AlignSelf::Center,
+                align_content: AlignContent::Center,
+                justify_content: JustifyContent::Center,
+                margin: UiRect::all(Val::Px(20.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                ..Default::default()
+            },
+            background_color: BackgroundColor(Color::NONE),
+            ..Default::default()
+            },
+            MenuButtonAction::BackToMainMenu,
+        ))
+        .with_children(|parent| {
+            parent.spawn(ImageBundle {
+                style: Style {
+                    max_width: Val::Percent(100.0),
+                    max_height: Val::Percent(100.0),
+                    margin: UiRect::all(Val::Percent(0.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                image: ui_assets.button.clone().into(),
+                ..Default::default()
+            })
+            .insert(FocusPolicy::Pass)
+            //
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        "Back to Main Menu", 
+                        TextStyle {
+                            font_size: 40.0,
+                            color: Color::WHITE,
+                            ..Default::default()
+                        },
+                    ),
+                    focus_policy: FocusPolicy::Pass,
+                    ..Default::default()
+                });
+            });
+            //
+        });
+        //
+    }); 
+
+    //Insert our UI resource
+    commands.insert_resource(ui_assets);
 }
 
 
@@ -293,7 +475,13 @@ fn handle_menu_buttons(
                     menu_state.set(MenuState::Settings);
                 }
                 MenuButtonAction::SettingsSound => println!("Sound Button Clicked"),
-                MenuButtonAction::BackToMainMenu => println!("Back to Main Menu Button Clicked"),
+                MenuButtonAction::BackToMainMenu =>  {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Back to Main Menu Button Clicked");
+
+                    //Change main menu state to be Main Menu
+                    menu_state.set(MenuState::Main);
+                },
                 MenuButtonAction::BackToSettings => println!("Back to Settings Button Clicked"),
                 MenuButtonAction::SettingsDisplay => println!("Display Button Clicked"),
             }
