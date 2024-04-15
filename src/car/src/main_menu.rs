@@ -8,10 +8,21 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, main_menu_setup)
-            .add_systems(Update, handle_menu_buttons);
+        app.add_state::<MenuState>()
+        // Systems to handle the main menu screen
+        .add_systems(OnEnter(MenuState::Main), main_menu_setup)
+        .add_systems(OnExit(MenuState::Main), despawn_screen::<OnMainMenuScreen>)
+        // Systems to handle the settings menu screen
+        .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
+        .add_systems(OnExit(MenuState::Settings), despawn_screen::<OnSettingsMenuScreen>)
+        
+        .add_systems(Update, handle_menu_buttons);
     }
 }
+
+// Tag component used to tag entities added on the main menu screen
+#[derive(Component)]
+struct OnMainMenuScreen;
 
 // All actions that can be triggered from a button click
 #[derive(Component)]
@@ -19,13 +30,31 @@ enum MenuButtonAction {
     Play,
     Settings,
     SettingsSound,
+    SettingsDisplay,
     BackToMainMenu,
     BackToSettings,
     Quit,
 }
 
+// State used for the current menu screen
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+enum MenuState {
+    #[default]
+    Main,
+    Settings,
+    SettingsSound,
+    Disabled,
+}
 
-fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>,) {
+//Function for setting up the main menu UI of the game
+fn main_menu_setup(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>,
+    mut menu_state: ResMut<NextState<MenuState>>,
+) {
+    //Set the menu state to be the main menu
+    menu_state.set(MenuState::Main);
+
     let ui_assets= UiAssets {
         button: asset_server.load("textures/ui/buttons/button.png"),
         button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
@@ -38,20 +67,23 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>,) {
     //commands.spawn(UiCameraConfig::default());
 
     //This is a node bundle that will be the parent of all of our UI elements
-    commands.spawn(NodeBundle {
-        style: Style {
-            width: Val::Percent(100.0),
-            height: Val::Percent(100.0),
-            // Place children in a column
-            flex_direction: FlexDirection::Column,
-            // Center children
-            align_items: AlignItems::Center,
-            justify_content: JustifyContent::Center,
+    commands.spawn((NodeBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                // Place children in a column
+                flex_direction: FlexDirection::Column,
+                // Center children
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            background_color: BackgroundColor(Color::ALICE_BLUE),
             ..default()
         },
-        background_color: BackgroundColor(Color::ALICE_BLUE),
-        ..default()
-    }).with_children(|parent| {
+        //Tag this node as being the main menu screen
+        OnMainMenuScreen,   
+    )).with_children(|parent| {
 
         //Spawn a button bundle for the Start Game button
         parent.spawn((
@@ -205,6 +237,15 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>,) {
     
 }
 
+//Function for setting up the settings menu UI of the game
+fn settings_menu_setup(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>,
+    mut menu_state: ResMut<NextState<MenuState>>,
+) {
+
+}
+
 
 //Manages the assets that need to be loaded for the main menu UI
 struct UiAssets {
@@ -217,6 +258,7 @@ impl Resource for UiAssets {}
 fn handle_menu_buttons(
     mut commands: Commands, 
     interaction_query: Query<(&Children, &Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
+    mut menu_state: ResMut<NextState<MenuState>>,
     mut background_query: Query<&mut BackgroundColor>,
     mut image_query: Query<&mut UiImage>,
     ui_assests: Res<UiAssets>,
@@ -229,7 +271,7 @@ fn handle_menu_buttons(
         let mut image = image_query.get_mut(*child).unwrap();
 
         //
-        if(interaction == &Interaction::Pressed) {
+        if interaction == &Interaction::Pressed {
             match menu_button_action {
                 MenuButtonAction::Quit => {
                     image.texture = ui_assests.button_pressed.clone();
@@ -240,41 +282,29 @@ fn handle_menu_buttons(
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Play Game Button Clicked");
     
-                    //set background colour to none
-                    background_query.iter_mut().for_each(|mut background| {
-                        background.0 = Color::NONE;
-                    });
-    
-                    //despawn the menu
-                    button_query.iter().for_each(|entity| {
-                        commands.entity(entity).despawn_recursive();
-                    });
+                    //Change main menu state to be disabled
+                    menu_state.set(MenuState::Disabled);
                 }
                 MenuButtonAction::Settings => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Settings Button Clicked");
     
-                    //Change visibility of quit button to be invisible
-                    button_query.iter().for_each(|entity| {
-                        //entity
-                    });
-
-                    //Change visibility of settings buttons to visible
+                    //Change menu state to be in settings
+                    menu_state.set(MenuState::Settings);
                 }
                 MenuButtonAction::SettingsSound => println!("Sound Button Clicked"),
                 MenuButtonAction::BackToMainMenu => println!("Back to Main Menu Button Clicked"),
                 MenuButtonAction::BackToSettings => println!("Back to Settings Button Clicked"),
+                MenuButtonAction::SettingsDisplay => println!("Display Button Clicked"),
             }
             //
         }    
     }
 }
 
-//Function to despawn the main menu
-/* 
-fn despawn_main_menu(mut commands: Commands, button_query: Query<Entity, With<Button>>) {
-    for entity in button_query.iter() {
+// Generic system that takes a component as a parameter, and will despawn all entities with that component
+fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+    for entity in &to_despawn {
         commands.entity(entity).despawn_recursive();
     }
 }
-*/
