@@ -80,7 +80,7 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
 
     let chassis = Chassis {
         mass,
-        cg_position: startposition,
+        cg_position: [0., 0., 0.],
         moi,
         dimensions,
         position: startposition, // position: [0., 0., 0.],
@@ -283,7 +283,7 @@ pub fn car_startup_system(
 #[derive(Clone)]
 pub struct Chassis {
     pub mass: f64,
-    pub cg_position: [f64; 3],
+    pub cg_position: [f64; 3], // Center of Gravity P
     pub moi: [f64; 3],
     pub dimensions: [f64; 3],
     pub position: [f64; 3],
