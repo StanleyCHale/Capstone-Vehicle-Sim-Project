@@ -99,10 +99,10 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
 
     let suspension_names = ["fl", "fr", "rl", "rr"].map(|name| name.to_string());
     let suspension_locations = [
-        [1.25 + xpos, 0.75 + ypos, -0.2 + zpos],
-        [1.25 + xpos, -0.75 + ypos, -0.2 + zpos],
-        [-1.25 + xpos, 0.75 + ypos, -0.2 + zpos],
-        [-1.25 + xpos, -0.75 + ypos, -0.2 + zpos],
+        [1.25, 0.75, -0.2],
+        [1.25, -0.75, -0.2],
+        [-1.25, 0.75, -0.2],
+        [-1.25, -0.75, -0.2],
     ];
 
     let suspension: Vec<Suspension> = suspension_locations
@@ -220,7 +220,7 @@ pub fn car_startup_system(
         println!("Starting up car with id: {}", car.id);
 
         let control = CarControl::default();
-        let control_id = commands.spawn((control,)).id();
+        let control_id = commands.spawn((control,)).insert(TransformBundle::from(Transform::from_xyz(5.0, 5.0, 0.0))).id();
 
         let mut rng = rand::thread_rng();
 
@@ -347,6 +347,8 @@ impl Chassis {
             Vector::new(cg_position[0], cg_position[1], cg_position[2]),
             Matrix::from_diagonal(&Vector::new(moi[0], moi[1], moi[2])),
         );
+
+        println!("Position: {} {} {}.", position[0], position[1], position[2]);
 
         let mut rx = Joint::rx("chassis_rx".to_string(), inertia, Xform::identity());
         rx.q = self.initial_orientation[0];

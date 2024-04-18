@@ -224,7 +224,7 @@ pub fn brake_wheel_system(
         for wheel_id in &control.brake_wheels {
             // wheel addresses
             match joints.get_mut(*wheel_id) {
-                // joint OBJECTS
+                // joint objects
                 Ok((mut joint, brake_wheel)) => {
                     joint.tau +=
                         -control.brake as f64 * brake_wheel.max_torque * joint.qd.min(1.).max(-1.)
