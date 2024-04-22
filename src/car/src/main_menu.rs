@@ -15,7 +15,10 @@ impl Plugin for MainMenuPlugin {
         // Systems to handle the settings menu screen
         .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
         .add_systems(OnExit(MenuState::Settings), despawn_screen::<OnSettingsMenuScreen>)
-
+        //Systems to handle the audio settings menu screen
+        .add_systems(OnEnter(MenuState::SettingsAudio), settingsaudio_menu_setup)
+        .add_systems(OnExit(MenuState::SettingsAudio), despawn_screen::<OnAudioMenuScreen>)
+        
         .add_systems(Update, handle_menu_buttons);
     }
 }
@@ -28,12 +31,17 @@ struct OnMainMenuScreen;
 #[derive(Component)]
 struct OnSettingsMenuScreen;
 
+//Tag componenet used to tahe entities added on the audio settings screen
+#[derive(Component)]
+struct OnAudioMenuScreen;
+
+
 // All actions that can be triggered from a button click
 #[derive(Component)]
 enum MenuButtonAction {
     Play,
     Settings,
-    SettingsSound,
+    SettingsAudio,
     SettingsDisplay,
     BackToMainMenu,
     BackToSettings,
@@ -46,7 +54,7 @@ enum MenuState {
     #[default]
     Main,
     Settings,
-    SettingsSound,
+    SettingsAudio,
     Disabled,
 }
 
@@ -277,7 +285,7 @@ fn settings_menu_setup(
         OnSettingsMenuScreen,   
     )).with_children(|parent| {
 
-        //Spawn a button bundle for the Start Game button
+        //Spawn a button bundle for the Audio settings button
         parent.spawn((
             ButtonBundle {
                 style: Style {
@@ -292,7 +300,7 @@ fn settings_menu_setup(
                 background_color: BackgroundColor(Color::NONE),
                 ..Default::default()
             },
-            //MenuButtonAction::Play,
+            MenuButtonAction::SettingsAudio,
         ))
         .with_children(|parent| {
             parent.spawn(ImageBundle {
@@ -311,7 +319,7 @@ fn settings_menu_setup(
             .with_children(|parent| {
                 parent.spawn(TextBundle {
                     text: Text::from_section(
-                        "Modify Audio", 
+                        "Audio Settings", 
                         TextStyle {
                             font_size: 40.0,
                             color: Color::WHITE,
@@ -428,6 +436,144 @@ fn settings_menu_setup(
     commands.insert_resource(ui_assets);
 }
 
+//Function for setting up the audio settings menu UI of the game
+fn settingsaudio_menu_setup(
+    mut commands: Commands, 
+    asset_server: Res<AssetServer>,
+    mut menu_state: ResMut<NextState<MenuState>>,
+) {
+    let ui_assets= UiAssets {
+        button: asset_server.load("textures/ui/buttons/button.png"),
+        button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
+    };
+
+    //Print statement
+    println!("Audio Settings Menu Setup");
+
+    //This is a node bundle that will be the parent of all of our UI elements
+    commands.spawn((NodeBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                // Place children in a column
+                flex_direction: FlexDirection::Column,
+                // Center children
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            background_color: BackgroundColor(Color::ALICE_BLUE),
+            ..default()
+        },
+        //Tag this node as being the main menu screen
+        OnAudioMenuScreen,   
+    )).with_children(|parent| {
+
+        //Spawn a button bundle for the Audio settings button
+        parent.spawn((
+            ButtonBundle {
+                style: Style {
+                    align_self: AlignSelf::Center,
+                    align_content: AlignContent::Center,
+                    justify_content: JustifyContent::Center,
+                    margin: UiRect::all(Val::Px(20.0)),
+                    min_width: Val::Vw(20.0),
+                    min_height: Val::Vh(6.0),
+                    ..Default::default()
+                },
+                background_color: BackgroundColor(Color::NONE),
+                ..Default::default()
+            },
+            MenuButtonAction::SettingsAudio,
+        ))
+        .with_children(|parent| {
+            parent.spawn(ImageBundle {
+                style: Style {
+                    max_width: Val::Percent(100.0),
+                    max_height: Val::Percent(100.0),
+                    margin: UiRect::all(Val::Percent(0.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                image: ui_assets.button.clone().into(),
+                ..Default::default()
+            })
+            .insert(FocusPolicy::Pass)
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        "Audio Settings", 
+                        TextStyle {
+                            font_size: 40.0,
+                            color: Color::WHITE,
+                            ..Default::default()
+                        },
+                    ),
+                    focus_policy: FocusPolicy::Pass,
+                    ..Default::default()
+                });
+            });
+        
+        });
+
+
+        //Spawn a button bundle for getting back to the settings menu
+        parent.spawn((
+            ButtonBundle {
+            style: Style {
+                align_self: AlignSelf::Center,
+                align_content: AlignContent::Center,
+                justify_content: JustifyContent::Center,
+                margin: UiRect::all(Val::Px(20.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                ..Default::default()
+            },
+            background_color: BackgroundColor(Color::NONE),
+            ..Default::default()
+            },
+            MenuButtonAction::BackToSettings,
+        ))
+        .with_children(|parent| {
+            parent.spawn(ImageBundle {
+                style: Style {
+                    max_width: Val::Percent(100.0),
+                    max_height: Val::Percent(100.0),
+                    margin: UiRect::all(Val::Percent(0.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                image: ui_assets.button.clone().into(),
+                ..Default::default()
+            })
+            .insert(FocusPolicy::Pass)
+            //
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        "Back to Settings", 
+                        TextStyle {
+                            font_size: 40.0,
+                            color: Color::WHITE,
+                            ..Default::default()
+                        },
+                    ),
+                    focus_policy: FocusPolicy::Pass,
+                    ..Default::default()
+                });
+            });
+            //
+        });
+        //
+    }); 
+
+    //Insert our UI resource
+    commands.insert_resource(ui_assets);
+
+}
+
 
 //Manages the assets that need to be loaded for the main menu UI
 struct UiAssets {
@@ -474,7 +620,13 @@ fn handle_menu_buttons(
                     //Change menu state to be in settings
                     menu_state.set(MenuState::Settings);
                 }
-                MenuButtonAction::SettingsSound => println!("Sound Button Clicked"),
+                MenuButtonAction::SettingsAudio => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Sound Button Clicked");
+
+                    //Change menu state to be in settings
+                    menu_state.set(MenuState::SettingsAudio);
+                }
                 MenuButtonAction::BackToMainMenu =>  {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Back to Main Menu Button Clicked");
@@ -482,7 +634,13 @@ fn handle_menu_buttons(
                     //Change main menu state to be Main Menu
                     menu_state.set(MenuState::Main);
                 },
-                MenuButtonAction::BackToSettings => println!("Back to Settings Button Clicked"),
+                MenuButtonAction::BackToSettings =>  {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Back to Settings Button Clicked");
+
+                    //Change main menu state to be Settings Menu
+                    menu_state.set(MenuState::Settings);
+                }
                 MenuButtonAction::SettingsDisplay => println!("Display Button Clicked"),
             }
             //
