@@ -42,9 +42,14 @@ enum MenuButtonAction {
     Play,
     Settings,
     SettingsAudio,
-    SettingsDisplay,
     BackToMainMenu,
     BackToSettings,
+    VolumeSet0,
+    VolumeSet2,
+    VolumeSet4,
+    VolumeSet6,
+    VolumeSet8,
+    VolumeSet10,
     Quit,
 }
 
@@ -70,6 +75,7 @@ fn main_menu_setup(
     let ui_assets= UiAssets {
         button: asset_server.load("textures/ui/buttons/button.png"),
         button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
+        button_yellow: asset_server.load("textures/ui/buttons/button_yellow.png"),
     };
 
     //Print statement
@@ -258,6 +264,7 @@ fn settings_menu_setup(
     let ui_assets= UiAssets {
         button: asset_server.load("textures/ui/buttons/button.png"),
         button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
+        button_yellow: asset_server.load("textures/ui/buttons/button_yellow.png"),
     };
 
     //Print statement
@@ -445,6 +452,7 @@ fn settingsaudio_menu_setup(
     let ui_assets= UiAssets {
         button: asset_server.load("textures/ui/buttons/button.png"),
         button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
+        button_yellow: asset_server.load("textures/ui/buttons/button_yellow.png"),
     };
 
     //Print statement
@@ -460,63 +468,346 @@ fn settingsaudio_menu_setup(
                 // Center children
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
+                margin: UiRect::all(Val::Percent(0.0)),
                 ..default()
             },
             background_color: BackgroundColor(Color::ALICE_BLUE),
             ..default()
         },
-        //Tag this node as being the main menu screen
+        //Tag this node as being the audio settings screen
         OnAudioMenuScreen,   
     )).with_children(|parent| {
 
-        //Spawn a button bundle for the Audio settings button
-        parent.spawn((
-            ButtonBundle {
-                style: Style {
-                    align_self: AlignSelf::Center,
-                    align_content: AlignContent::Center,
-                    justify_content: JustifyContent::Center,
-                    margin: UiRect::all(Val::Px(20.0)),
-                    min_width: Val::Vw(20.0),
-                    min_height: Val::Vh(6.0),
-                    ..Default::default()
-                },
-                background_color: BackgroundColor(Color::NONE),
+        //Spawn text for the title of the audio settings
+        parent.spawn(ImageBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                margin: UiRect::all(Val::Percent(0.0)),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..Default::default()
             },
-            MenuButtonAction::SettingsAudio,
-        ))
+            image: ui_assets.button_yellow.clone().into(),
+            ..Default::default()
+        })
+        .insert(FocusPolicy::Pass)
         .with_children(|parent| {
-            parent.spawn(ImageBundle {
-                style: Style {
-                    max_width: Val::Percent(100.0),
-                    max_height: Val::Percent(100.0),
-                    margin: UiRect::all(Val::Percent(0.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
+            parent.spawn(TextBundle {
+                text: Text::from_section(
+                    "Audio Settings", 
+                    TextStyle {
+                        font_size: 40.0,
+                        color: Color::WHITE,
+                        ..Default::default()
+                    },
+                ),
+                focus_policy: FocusPolicy::Pass,
+                ..Default::default()
+            });
+        });
+
+        //Node for the volume options
+        parent.spawn(NodeBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                // Place children in a column
+                flex_direction: FlexDirection::Row,
+                // Center children
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            background_color: BackgroundColor(Color::ALICE_BLUE),
+            ..default()
+        }
+        ).with_children(|parent| {
+            //Spawn a button for 0 volume
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(20.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                image: ui_assets.button.clone().into(),
-                ..Default::default()
-            })
-            .insert(FocusPolicy::Pass)
+                MenuButtonAction::VolumeSet0,
+            ))
             .with_children(|parent| {
-                parent.spawn(TextBundle {
-                    text: Text::from_section(
-                        "Audio Settings", 
-                        TextStyle {
-                            font_size: 40.0,
-                            color: Color::WHITE,
-                            ..Default::default()
-                        },
-                    ),
-                    focus_policy: FocusPolicy::Pass,
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
                     ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 0 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
                 });
+            });
+
+            //Spawn a button for 2 volume
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(20.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::VolumeSet2,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 2 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 4 volume
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(20.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::VolumeSet4,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 4 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 6 volume
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(20.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::VolumeSet6,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 6 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 8 volume
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(20.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::VolumeSet8,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 8 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 10 volume (Max)
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(20.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::VolumeSet10,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 10 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            
             });
         
         });
-
+        
 
         //Spawn a button bundle for getting back to the settings menu
         parent.spawn((
@@ -579,6 +870,7 @@ fn settingsaudio_menu_setup(
 struct UiAssets {
     button: Handle<Image>,
     button_pressed: Handle<Image>,
+    button_yellow: Handle<Image>,
 }
 
 impl Resource for UiAssets {}
@@ -641,7 +933,33 @@ fn handle_menu_buttons(
                     //Change main menu state to be Settings Menu
                     menu_state.set(MenuState::Settings);
                 }
-                MenuButtonAction::SettingsDisplay => println!("Display Button Clicked"),
+
+                //Volume settings
+                MenuButtonAction::VolumeSet0 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.0");
+                }
+                MenuButtonAction::VolumeSet2 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.2");
+                }
+                MenuButtonAction::VolumeSet4 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.4");
+                }
+                MenuButtonAction::VolumeSet6 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.6");
+                }
+                MenuButtonAction::VolumeSet8 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.8");
+                }
+                MenuButtonAction::VolumeSet10 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 1.0");
+                }
+
             }
             //
         }    
