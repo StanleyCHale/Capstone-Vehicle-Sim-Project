@@ -217,8 +217,6 @@ pub fn car_startup_system(
     let mut camera_parent_list = Vec::new();
     camera_parent_list.push(base_id);
     for car in &mut players.cars {
-        println!("Starting up car with id: {}", car.id);
-
         let control = CarControl::default();
         let control_id = commands.spawn((control,)).insert(TransformBundle::from(Transform::from_xyz(5.0, 5.0, 0.0))).id();
 
@@ -267,7 +265,6 @@ pub fn car_startup_system(
             if let Some(wheel_id) = maybe_steer_id {
                 steer_wheel_ids.push(wheel_id);
             }
-            println!("Brake wheel found (build): {:?}", wheel_id);
         }
         car.carcontrol.brake_wheels = brake_wheel_ids; // update the car
         car.carcontrol.steer_wheels = steer_wheel_ids; // update the car
@@ -283,7 +280,7 @@ pub fn car_startup_system(
 #[derive(Clone)]
 pub struct Chassis {
     pub mass: f64,
-    pub cg_position: [f64; 3], // Center of Gravity P
+    pub cg_position: [f64; 3], // Center of Gravity Position
     pub moi: [f64; 3],
     pub dimensions: [f64; 3],
     pub position: [f64; 3],
@@ -347,8 +344,6 @@ impl Chassis {
             Vector::new(cg_position[0], cg_position[1], cg_position[2]),
             Matrix::from_diagonal(&Vector::new(moi[0], moi[1], moi[2])),
         );
-
-        println!("Position: {} {} {}.", position[0], position[1], position[2]);
 
         let mut rx = Joint::rx("chassis_rx".to_string(), inertia, Xform::identity());
         rx.q = self.initial_orientation[0];
