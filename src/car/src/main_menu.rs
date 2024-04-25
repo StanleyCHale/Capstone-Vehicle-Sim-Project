@@ -18,6 +18,9 @@ impl Plugin for MainMenuPlugin {
         //Systems to handle the audio settings menu screen
         .add_systems(OnEnter(MenuState::SettingsAudio), settingsaudio_menu_setup)
         .add_systems(OnExit(MenuState::SettingsAudio), despawn_screen::<OnAudioMenuScreen>)
+        //SYstem to handle the vehicle settings menu screen
+        .add_systems(OnEnter(MenuState::SettingsVehicle), settingsvehicle_menu_setup)
+        .add_systems(OnExit(MenuState::SettingsVehicle), despawn_screen::<OnVehicleMenuScreen>)
         
         .add_systems(Update, handle_menu_buttons);
     }
@@ -35,6 +38,10 @@ struct OnSettingsMenuScreen;
 #[derive(Component)]
 struct OnAudioMenuScreen;
 
+//Tag componenet used to tahe entities added on the audio settings screen
+#[derive(Component)]
+struct OnVehicleMenuScreen;
+
 
 // All actions that can be triggered from a button click
 #[derive(Component)]
@@ -42,6 +49,7 @@ enum MenuButtonAction {
     Play,
     Settings,
     SettingsAudio,
+    SettingsVehicle,
     BackToMainMenu,
     BackToSettings,
     VolumeSet0,
@@ -50,6 +58,18 @@ enum MenuButtonAction {
     VolumeSet6,
     VolumeSet8,
     VolumeSet10,
+    Mass500,
+    Mass1000,
+    Mass2000,
+    GravityMoon,
+    GravityEarth,
+    GravityJupiter,
+    MaxSpeed25,
+    MaxSpeed75,
+    MaxSpeed150,
+    CarAcceleration6,
+    CarAcceleration10,
+    CarAcceleration15,
     Quit,
 }
 
@@ -60,6 +80,7 @@ enum MenuState {
     Main,
     Settings,
     SettingsAudio,
+    SettingsVehicle,
     Disabled,
 }
 
@@ -76,13 +97,11 @@ fn main_menu_setup(
         button: asset_server.load("textures/ui/buttons/button.png"),
         button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
         button_yellow: asset_server.load("textures/ui/buttons/button_yellow.png"),
+        button_grey: asset_server.load("textures/ui/buttons/button_grey.png"),
     };
 
     //Print statement
     println!("Main Menu Setup");
-
-    //Spawn a camera for our 2d bundle
-    //commands.spawn(UiCameraConfig::default());
 
     //This is a node bundle that will be the parent of all of our UI elements
     commands.spawn((NodeBundle {
@@ -102,6 +121,37 @@ fn main_menu_setup(
         //Tag this node as being the main menu screen
         OnMainMenuScreen,   
     )).with_children(|parent| {
+
+        //Main title of the game
+        parent.spawn(ImageBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                margin: UiRect::all(Val::Px(20.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            image: ui_assets.button_yellow.clone().into(),
+            ..Default::default()
+        })
+        .insert(FocusPolicy::Pass)
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                text: Text::from_section(
+                    "Driver's Altitude", 
+                    TextStyle {
+                        font_size: 40.0,
+                        color: Color::WHITE,
+                        ..Default::default()
+                    },
+                ),
+                focus_policy: FocusPolicy::Pass,
+                ..Default::default()
+            });
+        });
 
         //Spawn a button bundle for the Start Game button
         parent.spawn((
@@ -258,20 +308,11 @@ fn main_menu_setup(
 //Function for setting up the settings menu UI of the game
 fn settings_menu_setup(
     mut commands: Commands, 
-    asset_server: Res<AssetServer>,
-    mut menu_state: ResMut<NextState<MenuState>>,
+    ui_assets: Res<UiAssets>,
 ) {
-    let ui_assets= UiAssets {
-        button: asset_server.load("textures/ui/buttons/button.png"),
-        button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
-        button_yellow: asset_server.load("textures/ui/buttons/button_yellow.png"),
-    };
 
     //Print statement
     println!("Settings Menu Setup");
-
-    //Spawn a camera for our 2d bundle
-    //commands.spawn(UiCameraConfig::default());
 
     //This is a node bundle that will be the parent of all of our UI elements
     commands.spawn((NodeBundle {
@@ -292,6 +333,39 @@ fn settings_menu_setup(
         OnSettingsMenuScreen,   
     )).with_children(|parent| {
 
+
+        //Settings menu title
+        parent.spawn(ImageBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                margin: UiRect::all(Val::Px(20.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            image: ui_assets.button_yellow.clone().into(),
+            ..Default::default()
+        })
+        .insert(FocusPolicy::Pass)
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                text: Text::from_section(
+                    "Settings Menu", 
+                    TextStyle {
+                        font_size: 40.0,
+                        color: Color::WHITE,
+                        ..Default::default()
+                    },
+                ),
+                focus_policy: FocusPolicy::Pass,
+                ..Default::default()
+            });
+        });
+
+        
         //Spawn a button bundle for the Audio settings button
         parent.spawn((
             ButtonBundle {
@@ -355,7 +429,7 @@ fn settings_menu_setup(
                 background_color: BackgroundColor(Color::NONE),
                 ..Default::default()
             },
-            //MenuButtonAction::Settings,
+            MenuButtonAction::SettingsVehicle,
         ))
         .with_children(|parent| {
             parent.spawn(ImageBundle {
@@ -374,7 +448,7 @@ fn settings_menu_setup(
             .with_children(|parent| {
                 parent.spawn(TextBundle {
                     text: Text::from_section(
-                        "Settings", 
+                        "Vehicle Settings", 
                         TextStyle {
                             font_size: 40.0,
                             color: Color::WHITE,
@@ -438,44 +512,34 @@ fn settings_menu_setup(
         });
         //
     }); 
-
-    //Insert our UI resource
-    commands.insert_resource(ui_assets);
 }
 
 //Function for setting up the audio settings menu UI of the game
 fn settingsaudio_menu_setup(
     mut commands: Commands, 
-    asset_server: Res<AssetServer>,
-    mut menu_state: ResMut<NextState<MenuState>>,
+    ui_assets: Res<UiAssets>,
 ) {
-    let ui_assets= UiAssets {
-        button: asset_server.load("textures/ui/buttons/button.png"),
-        button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
-        button_yellow: asset_server.load("textures/ui/buttons/button_yellow.png"),
-    };
 
     //Print statement
     println!("Audio Settings Menu Setup");
 
     //This is a node bundle that will be the parent of all of our UI elements
     commands.spawn((NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                // Place children in a column
-                flex_direction: FlexDirection::Column,
-                // Center children
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                margin: UiRect::all(Val::Percent(0.0)),
-                ..default()
-            },
-            background_color: BackgroundColor(Color::ALICE_BLUE),
+        style: Style {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            // Place children in a column
+            flex_direction: FlexDirection::Column,
+            // Center children
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
             ..default()
         },
-        //Tag this node as being the audio settings screen
-        OnAudioMenuScreen,   
+        background_color: BackgroundColor(Color::ALICE_BLUE),
+        ..default()
+    },
+    //Tag this node as being the main menu screen
+    OnAudioMenuScreen,   
     )).with_children(|parent| {
 
         //Spawn text for the title of the audio settings
@@ -483,7 +547,9 @@ fn settingsaudio_menu_setup(
             style: Style {
                 max_width: Val::Percent(100.0),
                 max_height: Val::Percent(100.0),
-                margin: UiRect::all(Val::Percent(0.0)),
+                margin: UiRect::all(Val::Px(20.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
                 ..Default::default()
@@ -507,12 +573,47 @@ fn settingsaudio_menu_setup(
             });
         });
 
+
+        //Spawn text for the title of the Mass of the car
+        parent.spawn(ImageBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                margin: UiRect::all(Val::Px(20.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            image: ui_assets.button_grey.clone().into(),
+            ..Default::default()
+        })
+        .insert(FocusPolicy::Pass)
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                text: Text::from_section(
+                    "Audio Volume", 
+                    TextStyle {
+                        font_size: 40.0,
+                        color: Color::BLACK,
+                        ..Default::default()
+                    },
+                ),
+                focus_policy: FocusPolicy::Pass,
+                ..Default::default()
+            });
+        });
+
         //Node for the volume options
         parent.spawn(NodeBundle {
             style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                // Place children in a column
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                margin: UiRect::all(Val::Px(20.0)),
+                // Place children in a row
                 flex_direction: FlexDirection::Row,
                 // Center children
                 align_items: AlignItems::Center,
@@ -860,29 +961,911 @@ fn settingsaudio_menu_setup(
         //
     }); 
 
-    //Insert our UI resource
-    commands.insert_resource(ui_assets);
-
 }
 
+fn settingsvehicle_menu_setup(
+    mut commands: Commands, 
+    ui_assets: Res<UiAssets>,
+) {
+
+
+    //Print statement
+    println!("Settings Vehicle Setup");
+
+    //This is a node bundle that will be the parent of all of our UI elements
+    commands.spawn((NodeBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                // Place children in a row
+                flex_direction: FlexDirection::Column,
+                // Center children
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            background_color: BackgroundColor(Color::ALICE_BLUE),
+            ..default()
+        },
+        //Tag this node as being the main menu screen
+        OnVehicleMenuScreen,   
+    )).with_children(|parent| {
+
+        //Spawn text for the title of the audio settings
+        parent.spawn(ImageBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                margin: UiRect::all(Val::Px(20.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            image: ui_assets.button_yellow.clone().into(),
+            ..Default::default()
+        })
+        .insert(FocusPolicy::Pass)
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                text: Text::from_section(
+                    "Vehicle Settings", 
+                    TextStyle {
+                        font_size: 40.0,
+                        color: Color::WHITE,
+                        ..Default::default()
+                    },
+                ),
+                focus_policy: FocusPolicy::Pass,
+                ..Default::default()
+            });
+        });
+
+
+        //Spawn text for the title of the Mass of the car
+        parent.spawn(ImageBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                margin: UiRect::all(Val::Px(10.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            image: ui_assets.button_grey.clone().into(),
+            ..Default::default()
+        })
+        .insert(FocusPolicy::Pass)
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                text: Text::from_section(
+                    "Mass (kg)", 
+                    TextStyle {
+                        font_size: 40.0,
+                        color: Color::BLACK,
+                        ..Default::default()
+                    },
+                ),
+                focus_policy: FocusPolicy::Pass,
+                ..Default::default()
+            });
+        });
+
+        //Node for the Mass options
+        parent.spawn(NodeBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                margin: UiRect::all(Val::Px(0.0)),
+                // Place children in a column
+                flex_direction: FlexDirection::Row,
+                // Center children
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            background_color: BackgroundColor(Color::ALICE_BLUE),
+            ..default()
+        }
+        ).with_children(|parent| {
+            //Spawn a button for 500 Mass
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::Mass500,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 500 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 1000 Mass
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::Mass1000,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 1000 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 2000 Mass
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::Mass2000,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 2000 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+        });
+
+        //Spawn text for the title of the Gravity
+        parent.spawn(ImageBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                margin: UiRect::all(Val::Px(10.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            image: ui_assets.button_grey.clone().into(),
+            ..Default::default()
+        })
+        .insert(FocusPolicy::Pass)
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                text: Text::from_section(
+                    "Gravity (m/s)", 
+                    TextStyle {
+                        font_size: 40.0,
+                        color: Color::BLACK,
+                        ..Default::default()
+                    },
+                ),
+                focus_policy: FocusPolicy::Pass,
+                ..Default::default()
+            });
+        });
+
+        //Node for the Gravity options
+        parent.spawn(NodeBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                margin: UiRect::all(Val::Px(0.0)),
+                // Place children in a column
+                flex_direction: FlexDirection::Row,
+                // Center children
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            background_color: BackgroundColor(Color::ALICE_BLUE),
+            ..default()
+        }
+        ).with_children(|parent| {
+            //Spawn a button for 1.62 (Moon Gravity)
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::GravityMoon,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " Moon 1.62 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 9.81 (Earth Gravity)
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::GravityEarth,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " Earth 9.81 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 24.79 (Jupiter Gravity)
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::GravityJupiter,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " Jupiter 24.79 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+        });
+
+
+        //Spawn text for the title of the Max speed of the car
+        parent.spawn(ImageBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                margin: UiRect::all(Val::Px(10.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            image: ui_assets.button_grey.clone().into(),
+            ..Default::default()
+        })
+        .insert(FocusPolicy::Pass)
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                text: Text::from_section(
+                    "Max Speed (m/s)", 
+                    TextStyle {
+                        font_size: 40.0,
+                        color: Color::BLACK,
+                        ..Default::default()
+                    },
+                ),
+                focus_policy: FocusPolicy::Pass,
+                ..Default::default()
+            });
+        });
+
+        //Node for the Mass options
+        parent.spawn(NodeBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                margin: UiRect::all(Val::Px(0.0)),
+                // Place children in a column
+                flex_direction: FlexDirection::Row,
+                // Center children
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            background_color: BackgroundColor(Color::ALICE_BLUE),
+            ..default()
+        }
+        ).with_children(|parent| {
+            //Spawn a button for 25 max speed
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::MaxSpeed25,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 25 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 75 max speed
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::MaxSpeed75,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 75 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 150 max speed
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::MaxSpeed150,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 150 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+        });
+
+
+        //Spawn text for the title of the acceleration of the car
+        parent.spawn(ImageBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                margin: UiRect::all(Val::Px(10.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            image: ui_assets.button_grey.clone().into(),
+            ..Default::default()
+        })
+        .insert(FocusPolicy::Pass)
+        .with_children(|parent| {
+            parent.spawn(TextBundle {
+                text: Text::from_section(
+                    "Car Acceleration (m/s^2)", 
+                    TextStyle {
+                        font_size: 40.0,
+                        color: Color::BLACK,
+                        ..Default::default()
+                    },
+                ),
+                focus_policy: FocusPolicy::Pass,
+                ..Default::default()
+            });
+        });
+
+        //Node for the Mass options
+        parent.spawn(NodeBundle {
+            style: Style {
+                max_width: Val::Percent(100.0),
+                max_height: Val::Percent(100.0),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                margin: UiRect::all(Val::Px(0.0)),
+                // Place children in a column
+                flex_direction: FlexDirection::Row,
+                // Center children
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            background_color: BackgroundColor(Color::ALICE_BLUE),
+            ..default()
+        }
+        ).with_children(|parent| {
+            //Spawn a button for 6 acc
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::CarAcceleration6,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 6 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 10 acc
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::CarAcceleration10,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 10 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+            //Spawn a button for 15 acc
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        align_self: AlignSelf::Center,
+                        align_content: AlignContent::Center,
+                        justify_content: JustifyContent::Center,
+                        margin: UiRect::all(Val::Px(10.0)),
+                        min_width: Val::Vw(5.0),
+                        min_height: Val::Vh(5.0),
+                        ..Default::default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    ..Default::default()
+                },
+                MenuButtonAction::CarAcceleration15,
+            ))
+            .with_children(|parent| {
+                parent.spawn(ImageBundle {
+                    style: Style {
+                        max_width: Val::Percent(100.0),
+                        max_height: Val::Percent(100.0),
+                        margin: UiRect::all(Val::Percent(0.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    image: ui_assets.button.clone().into(),
+                    ..Default::default()
+                })
+                .insert(FocusPolicy::Pass)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            " 15 ", 
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                ..Default::default()
+                            },
+                        ),
+                        focus_policy: FocusPolicy::Pass,
+                        ..Default::default()
+                    });
+                });
+            });
+
+        });
+        
+
+        //Spawn a button bundle for the Exit button
+        parent.spawn((
+            ButtonBundle {
+            style: Style {
+                align_self: AlignSelf::Center,
+                align_content: AlignContent::Center,
+                justify_content: JustifyContent::Center,
+                margin: UiRect::all(Val::Px(10.0)),
+                min_width: Val::Vw(20.0),
+                min_height: Val::Vh(6.0),
+                ..Default::default()
+            },
+            background_color: BackgroundColor(Color::NONE),
+            ..Default::default()
+            },
+            MenuButtonAction::BackToSettings,
+        ))
+        .with_children(|parent| {
+            parent.spawn(ImageBundle {
+                style: Style {
+                    max_width: Val::Percent(100.0),
+                    max_height: Val::Percent(100.0),
+                    margin: UiRect::all(Val::Percent(0.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                image: ui_assets.button.clone().into(),
+                ..Default::default()
+            })
+            .insert(FocusPolicy::Pass)
+            //
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        "Back", 
+                        TextStyle {
+                            font_size: 40.0,
+                            color: Color::WHITE,
+                            ..Default::default()
+                        },
+                    ),
+                    focus_policy: FocusPolicy::Pass,
+                    ..Default::default()
+                });
+            });
+            //
+        });
+        //
+    }); 
+
+}
 
 //Manages the assets that need to be loaded for the main menu UI
 struct UiAssets {
     button: Handle<Image>,
     button_pressed: Handle<Image>,
     button_yellow: Handle<Image>,
+    button_grey: Handle<Image>,
 }
 
 impl Resource for UiAssets {}
 
 fn handle_menu_buttons(
-    mut commands: Commands, 
     interaction_query: Query<(&Children, &Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
     mut menu_state: ResMut<NextState<MenuState>>,
-    mut background_query: Query<&mut BackgroundColor>,
     mut image_query: Query<&mut UiImage>,
     ui_assests: Res<UiAssets>,
-    button_query: Query<Entity, With<Button>>,
     mut app_exit_events: EventWriter<AppExit>,
 ) {
     //For every button interaction found, we will run this code
@@ -918,6 +1901,13 @@ fn handle_menu_buttons(
 
                     //Change menu state to be in settings
                     menu_state.set(MenuState::SettingsAudio);
+                }
+                MenuButtonAction::SettingsVehicle => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Vehicle Button Clicked");
+
+                    //Change menu state to be in settings
+                    menu_state.set(MenuState::SettingsVehicle);
                 }
                 MenuButtonAction::BackToMainMenu =>  {
                     image.texture = ui_assests.button_pressed.clone();
@@ -958,6 +1948,62 @@ fn handle_menu_buttons(
                 MenuButtonAction::VolumeSet10 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 1.0");
+                }
+
+                //Mass settings
+                MenuButtonAction::Mass500 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Mass Set to 500");
+                }
+                MenuButtonAction::Mass1000 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Mass Set to 1000");
+                }
+                MenuButtonAction::Mass2000 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Mass Set to 2000");
+                }
+
+                //Gravity settings
+                MenuButtonAction::GravityMoon => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Gravity Set to Moon");
+                }
+                MenuButtonAction::GravityEarth => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Gravity Set to Earth");
+                }
+                MenuButtonAction::GravityJupiter => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Gravity Set to Jupiter");
+                }   
+
+                //Max Speed settings
+                MenuButtonAction::MaxSpeed25 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Max Speed Set to 25");
+                }   
+                MenuButtonAction::MaxSpeed75 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Max Speed Set to 75");
+                }
+                MenuButtonAction::MaxSpeed150 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Max Speed Set to 150");
+                }
+
+                //Car Acceleration settings
+                MenuButtonAction::CarAcceleration6 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Car Acceleration Set to 6");
+                }
+                MenuButtonAction::CarAcceleration10 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Car Acceleration Set to 10");
+                }
+                MenuButtonAction::CarAcceleration15 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Car Acceleration Set to 15");
                 }
 
             }

@@ -111,7 +111,7 @@ pub fn build_car() -> CarDefinition {
     let wheel = build_wheel();
 
     // // Drive and Brake
-    let drive_speeds = vec![0., 25., 50., 75.];
+    let drive_speeds = vec![0., 25., 50., 75. /* <-- Max Speed*/];
     let drive_torques = vec![1000., 1000., 600., 250.];
 
     let rear_drive = DriveType::DrivenWheelLookup(DrivenWheelLookup::new(
