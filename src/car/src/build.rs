@@ -218,7 +218,10 @@ pub fn car_startup_system(
     camera_parent_list.push(base_id);
     for car in &mut players.cars {
         let control = CarControl::default();
-        let control_id = commands.spawn((control,)).insert(TransformBundle::from(Transform::from_xyz(5.0, 5.0, 0.0))).id();
+        let control_id = commands
+            .spawn((control,))
+            .insert(TransformBundle::from(Transform::from_xyz(5.0, 5.0, 0.0)))
+            .id();
 
         let mut rng = rand::thread_rng();
 

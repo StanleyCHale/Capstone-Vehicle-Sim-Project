@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 use bevy::app::AppExit;
-use bevy::prelude::Resource;
 //This is a bevy plugin for the main menu of the game
 
 use bevy::{prelude::*, ui::FocusPolicy};
