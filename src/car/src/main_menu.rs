@@ -336,58 +336,38 @@ fn main_menu_setup(
                 background_color: BackgroundColor(Color::NONE),
                 ..Default::default()
             },
-            background_color: BackgroundColor(Color::ALICE_BLUE),
-            ..default()
-        })
+            MenuButtonAction::Play,
+        ))
         .with_children(|parent| {
-            //Spawn a button bundle for the Start Game button
-            parent
-                .spawn((
-                    ButtonBundle {
-                        style: Style {
-                            align_self: AlignSelf::Center,
-                            align_content: AlignContent::Center,
-                            justify_content: JustifyContent::Center,
-                            margin: UiRect::all(Val::Px(20.0)),
-                            min_width: Val::Vw(20.0),
-                            min_height: Val::Vh(6.0),
+            parent.spawn(ImageBundle {
+                style: Style {
+                    max_width: Val::Percent(100.0),
+                    max_height: Val::Percent(100.0),
+                    margin: UiRect::all(Val::Percent(0.0)),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                image: ui_assets.button.clone().into(),
+                ..Default::default()
+            })
+            .insert(FocusPolicy::Pass)
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        "Start Game", 
+                        TextStyle {
+                            font_size: 40.0,
+                            color: Color::WHITE,
                             ..Default::default()
                         },
-                        background_color: BackgroundColor(Color::NONE),
-                        ..Default::default()
-                    },
-                    MenuButtonAction::Play,
-                ))
-                .with_children(|parent| {
-                    parent
-                        .spawn(ImageBundle {
-                            style: Style {
-                                max_width: Val::Percent(100.0),
-                                max_height: Val::Percent(100.0),
-                                margin: UiRect::all(Val::Percent(0.0)),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..Default::default()
-                            },
-                            image: ui_assets.button.clone().into(),
-                            ..Default::default()
-                        })
-                        .insert(FocusPolicy::Pass)
-                        .with_children(|parent| {
-                            parent.spawn(TextBundle {
-                                text: Text::from_section(
-                                    "Start Game",
-                                    TextStyle {
-                                        font_size: 40.0,
-                                        color: Color::WHITE,
-                                        ..Default::default()
-                                    },
-                                ),
-                                focus_policy: FocusPolicy::Pass,
-                                ..Default::default()
-                            });
-                        });
+                    ),
+                    focus_policy: FocusPolicy::Pass,
+                    ..Default::default()
                 });
+            });
+        
+        });
 
             //Spawn a button bundle for the Settings button
             parent
