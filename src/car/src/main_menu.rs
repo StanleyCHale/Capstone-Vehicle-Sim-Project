@@ -8,7 +8,9 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<MenuState>()
+        app
+        .add_state::<GameState>()
+        .add_state::<MenuState>()
         // Systems to handle the main menu screen
         .add_systems(OnEnter(MenuState::Main), main_menu_setup)
         .add_systems(OnExit(MenuState::Main), despawn_screen::<OnMainMenuScreen>)
@@ -18,12 +20,29 @@ impl Plugin for MainMenuPlugin {
         //Systems to handle the audio settings menu screen
         .add_systems(OnEnter(MenuState::SettingsAudio), settingsaudio_menu_setup)
         .add_systems(OnExit(MenuState::SettingsAudio), despawn_screen::<OnAudioMenuScreen>)
-        //SYstem to handle the vehicle settings menu screen
+        //System to handle the vehicle settings menu screen
         .add_systems(OnEnter(MenuState::SettingsVehicle), settingsvehicle_menu_setup)
         .add_systems(OnExit(MenuState::SettingsVehicle), despawn_screen::<OnVehicleMenuScreen>)
         
         .add_systems(Update, handle_menu_buttons);
     }
+}
+
+// Enum that will be used as a global state for the game
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+pub enum GameState {
+    #[default]
+    Menu,
+    Game,
+}
+//RESOURCE
+//Manages the assets that need to be loaded for the main menu UI
+impl Resource for UiAssets {}
+struct UiAssets {
+    button: Handle<Image>,
+    button_pressed: Handle<Image>,
+    button_yellow: Handle<Image>,
+    button_grey: Handle<Image>,
 }
 
 // Tag component used to tag entities added on the main menu screen
@@ -84,12 +103,17 @@ enum MenuState {
     Disabled,
 }
 
+
 //Function for setting up the main menu UI of the game
 fn main_menu_setup(
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
     mut menu_state: ResMut<NextState<MenuState>>,
+    mut game_state: ResMut<NextState<GameState>>,
 ) {
+    //Set the game state to be the menu
+    game_state.set(GameState::Menu);
+
     //Set the menu state to be the main menu
     menu_state.set(MenuState::Main);
 
@@ -1851,22 +1875,13 @@ fn settingsvehicle_menu_setup(
 
 }
 
-//Manages the assets that need to be loaded for the main menu UI
-struct UiAssets {
-    button: Handle<Image>,
-    button_pressed: Handle<Image>,
-    button_yellow: Handle<Image>,
-    button_grey: Handle<Image>,
-}
-
-impl Resource for UiAssets {}
-
 fn handle_menu_buttons(
     interaction_query: Query<(&Children, &Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
     mut menu_state: ResMut<NextState<MenuState>>,
     mut image_query: Query<&mut UiImage>,
     ui_assests: Res<UiAssets>,
     mut app_exit_events: EventWriter<AppExit>,
+    mut game_state: ResMut<NextState<GameState>>,
 ) {
     //For every button interaction found, we will run this code
     for (children, interaction, menu_button_action) in &interaction_query {
@@ -1884,7 +1899,10 @@ fn handle_menu_buttons(
                 MenuButtonAction::Play => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Play Game Button Clicked");
-    
+
+                    //Change game state to be in game
+                    game_state.set(GameState::Game);
+
                     //Change main menu state to be disabled
                     menu_state.set(MenuState::Disabled);
                 }
