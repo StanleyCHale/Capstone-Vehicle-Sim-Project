@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 use std::f32::consts::PI;
 
 use bevy::{
@@ -6,7 +8,7 @@ use bevy::{
 };
 
 use grid_terrain::{
-    examples::{steps, table_top, wave, perlin_plane},
+    examples::{perlin_plane, table_top},
     GridTerrain,
 };
 
@@ -50,8 +52,8 @@ pub fn build_environment(
 
     let size = 160.0; // must be the same for all grid elements
 
-    let height = 2.;
-    let table_elements = table_top(size, height);
+    // let height = 2.;
+    // let table_elements = table_top(size, height);
 
     //let height = 0.3;
     //let wave_length = 4.;
@@ -62,10 +64,10 @@ pub fn build_environment(
     let perlin_elements = perlin_plane(size, 256.0);
 
     // merge the two grid terrains
-    let mut elements =  perlin_elements;//table_elements;
-    //elements.extend(wave_elements);
-    //elements.extend(step_elements);
-    //elements.extend(perlin_elements);
+    let elements = perlin_elements; //table_elements;
+                                    //elements.extend(wave_elements);
+                                    //elements.extend(step_elements);
+                                    //elements.extend(perlin_elements);
 
     let grid_terrain = GridTerrain::new(elements, [size, size]);
     let empty_parent = commands.spawn(SpatialBundle::default()).id();

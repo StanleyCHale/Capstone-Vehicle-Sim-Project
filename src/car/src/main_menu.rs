@@ -1,5 +1,5 @@
+#![allow(dead_code)]
 use bevy::app::AppExit;
-use bevy::prelude::Resource;
 //This is a bevy plugin for the main menu of the game
 
 use bevy::{prelude::*, ui::FocusPolicy};
@@ -259,6 +259,7 @@ fn main_menu_setup(
     menu_state.set(MenuState::Main);
 
     let ui_assets= UiAssets {
+
         button: asset_server.load("textures/ui/buttons/button.png"),
         button_pressed: asset_server.load("textures/ui/buttons/button_pressed.png"),
         button_yellow: asset_server.load("textures/ui/buttons/button_yellow.png"),
@@ -270,6 +271,7 @@ fn main_menu_setup(
 
     //This is a node bundle that will be the parent of all of our UI elements
     commands.spawn((NodeBundle {
+
             style: Style {
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
@@ -279,6 +281,7 @@ fn main_menu_setup(
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
                 ..default()
+
             },
             background_color: BackgroundColor(Color::ALICE_BLUE),
             ..default()
@@ -333,141 +336,163 @@ fn main_menu_setup(
                 background_color: BackgroundColor(Color::NONE),
                 ..Default::default()
             },
-            MenuButtonAction::Play,
-        ))
+            background_color: BackgroundColor(Color::ALICE_BLUE),
+            ..default()
+        })
         .with_children(|parent| {
-            parent.spawn(ImageBundle {
-                style: Style {
-                    max_width: Val::Percent(100.0),
-                    max_height: Val::Percent(100.0),
-                    margin: UiRect::all(Val::Percent(0.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..Default::default()
-                },
-                image: ui_assets.button.clone().into(),
-                ..Default::default()
-            })
-            .insert(FocusPolicy::Pass)
-            .with_children(|parent| {
-                parent.spawn(TextBundle {
-                    text: Text::from_section(
-                        "Start Game", 
-                        TextStyle {
-                            font_size: 40.0,
-                            color: Color::WHITE,
+            //Spawn a button bundle for the Start Game button
+            parent
+                .spawn((
+                    ButtonBundle {
+                        style: Style {
+                            align_self: AlignSelf::Center,
+                            align_content: AlignContent::Center,
+                            justify_content: JustifyContent::Center,
+                            margin: UiRect::all(Val::Px(20.0)),
+                            min_width: Val::Vw(20.0),
+                            min_height: Val::Vh(6.0),
                             ..Default::default()
                         },
-                    ),
-                    focus_policy: FocusPolicy::Pass,
-                    ..Default::default()
+                        background_color: BackgroundColor(Color::NONE),
+                        ..Default::default()
+                    },
+                    MenuButtonAction::Play,
+                ))
+                .with_children(|parent| {
+                    parent
+                        .spawn(ImageBundle {
+                            style: Style {
+                                max_width: Val::Percent(100.0),
+                                max_height: Val::Percent(100.0),
+                                margin: UiRect::all(Val::Percent(0.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..Default::default()
+                            },
+                            image: ui_assets.button.clone().into(),
+                            ..Default::default()
+                        })
+                        .insert(FocusPolicy::Pass)
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle {
+                                text: Text::from_section(
+                                    "Start Game",
+                                    TextStyle {
+                                        font_size: 40.0,
+                                        color: Color::WHITE,
+                                        ..Default::default()
+                                    },
+                                ),
+                                focus_policy: FocusPolicy::Pass,
+                                ..Default::default()
+                            });
+                        });
                 });
-            });
-        
-        });
 
-        //Spawn a button bundle for the Settings button
-        parent.spawn((
-            ButtonBundle {
-                style: Style {
-                    align_self: AlignSelf::Center,
-                    align_content: AlignContent::Center,
-                    justify_content: JustifyContent::Center,
-                    margin: UiRect::all(Val::Px(20.0)),
-                    min_width: Val::Vw(20.0),
-                    min_height: Val::Vh(6.0),
-                    ..Default::default()
-                },
-                background_color: BackgroundColor(Color::NONE),
-                ..Default::default()
-            },
-            MenuButtonAction::Settings,
-        ))
-        .with_children(|parent| {
-            parent.spawn(ImageBundle {
-                style: Style {
-                    max_width: Val::Percent(100.0),
-                    max_height: Val::Percent(100.0),
-                    margin: UiRect::all(Val::Percent(0.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..Default::default()
-                },
-                image: ui_assets.button.clone().into(),
-                ..Default::default()
-            })
-            .insert(FocusPolicy::Pass)
-            .with_children(|parent| {
-                parent.spawn(TextBundle {
-                    text: Text::from_section(
-                        "Settings", 
-                        TextStyle {
-                            font_size: 40.0,
-                            color: Color::WHITE,
+            //Spawn a button bundle for the Settings button
+            parent
+                .spawn((
+                    ButtonBundle {
+                        style: Style {
+                            align_self: AlignSelf::Center,
+                            align_content: AlignContent::Center,
+                            justify_content: JustifyContent::Center,
+                            margin: UiRect::all(Val::Px(20.0)),
+                            min_width: Val::Vw(20.0),
+                            min_height: Val::Vh(6.0),
                             ..Default::default()
                         },
-                    ),
-                    focus_policy: FocusPolicy::Pass,
-                    ..Default::default()
+                        background_color: BackgroundColor(Color::NONE),
+                        ..Default::default()
+                    },
+                    MenuButtonAction::Settings,
+                ))
+                .with_children(|parent| {
+                    parent
+                        .spawn(ImageBundle {
+                            style: Style {
+                                max_width: Val::Percent(100.0),
+                                max_height: Val::Percent(100.0),
+                                margin: UiRect::all(Val::Percent(0.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..Default::default()
+                            },
+                            image: ui_assets.button.clone().into(),
+                            ..Default::default()
+                        })
+                        .insert(FocusPolicy::Pass)
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle {
+                                text: Text::from_section(
+                                    "Settings",
+                                    TextStyle {
+                                        font_size: 40.0,
+                                        color: Color::WHITE,
+                                        ..Default::default()
+                                    },
+                                ),
+                                focus_policy: FocusPolicy::Pass,
+                                ..Default::default()
+                            });
+                        });
                 });
-            });
-        
-        });
 
-        //Spawn a button bundle for the Exit button
-        parent.spawn((
-            ButtonBundle {
-            style: Style {
-                align_self: AlignSelf::Center,
-                align_content: AlignContent::Center,
-                justify_content: JustifyContent::Center,
-                margin: UiRect::all(Val::Px(20.0)),
-                min_width: Val::Vw(20.0),
-                min_height: Val::Vh(6.0),
-                ..Default::default()
-            },
-            background_color: BackgroundColor(Color::NONE),
-            ..Default::default()
-            },
-            MenuButtonAction::Quit,
-        ))
-        .with_children(|parent| {
-            parent.spawn(ImageBundle {
-                style: Style {
-                    max_width: Val::Percent(100.0),
-                    max_height: Val::Percent(100.0),
-                    margin: UiRect::all(Val::Percent(0.0)),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..Default::default()
-                },
-                image: ui_assets.button.clone().into(),
-                ..Default::default()
-            })
-            .insert(FocusPolicy::Pass)
-            //
-            .with_children(|parent| {
-                parent.spawn(TextBundle {
-                    text: Text::from_section(
-                        "Quit Game", 
-                        TextStyle {
-                            font_size: 40.0,
-                            color: Color::WHITE,
+            //Spawn a button bundle for the Exit button
+            parent
+                .spawn((
+                    ButtonBundle {
+                        style: Style {
+                            align_self: AlignSelf::Center,
+                            align_content: AlignContent::Center,
+                            justify_content: JustifyContent::Center,
+                            margin: UiRect::all(Val::Px(20.0)),
+                            min_width: Val::Vw(20.0),
+                            min_height: Val::Vh(6.0),
                             ..Default::default()
                         },
-                    ),
-                    focus_policy: FocusPolicy::Pass,
-                    ..Default::default()
+                        background_color: BackgroundColor(Color::NONE),
+                        ..Default::default()
+                    },
+                    MenuButtonAction::Quit,
+                ))
+                .with_children(|parent| {
+                    parent
+                        .spawn(ImageBundle {
+                            style: Style {
+                                max_width: Val::Percent(100.0),
+                                max_height: Val::Percent(100.0),
+                                margin: UiRect::all(Val::Percent(0.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..Default::default()
+                            },
+                            image: ui_assets.button.clone().into(),
+                            ..Default::default()
+                        })
+                        .insert(FocusPolicy::Pass)
+                        //
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle {
+                                text: Text::from_section(
+                                    "Quit Game",
+                                    TextStyle {
+                                        font_size: 40.0,
+                                        color: Color::WHITE,
+                                        ..Default::default()
+                                    },
+                                ),
+                                focus_policy: FocusPolicy::Pass,
+                                ..Default::default()
+                            });
+                        });
+                    //
                 });
-            });
             //
         });
-        //
-    }); 
 
     //Insert our UI resource
     commands.insert_resource(ui_assets);
-    
 }
 
 //Function for setting up the settings menu UI of the game
@@ -497,7 +522,6 @@ fn settings_menu_setup(
         //Tag this node as being the main menu screen
         OnSettingsMenuScreen,   
     )).with_children(|parent| {
-
 
         //Settings menu title
         parent.spawn(ImageBundle {
@@ -2015,3 +2039,4 @@ fn settingsvehicle_menu_setup(
     }); 
 
 }
+

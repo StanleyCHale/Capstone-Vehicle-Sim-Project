@@ -1,21 +1,21 @@
+#![allow(unused_imports)]
 use bevy::prelude::*;
 use bevy::render::mesh::Indices;
 use bevy::render::render_resource::PrimitiveTopology;
 
 //Ezra Code Start
-use noise::{Fbm, Perlin};
+use image::{DynamicImage, GenericImageView, Luma};
 use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
+use noise::{Fbm, Perlin};
 use std::io::{stdout, Write};
-use image::{GenericImageView, DynamicImage, Luma};
 //Ezra Code End
 
-fn main() 
-{
+fn main() {
     //Ezra Code Start
     // Print to terminal
     let mut lock = stdout().lock();
     writeln!(lock, "hello world").unwrap();
-    
+
     // Generate height map
     let fbm = Fbm::<Perlin>::new(2348956);
     /*
@@ -27,11 +27,11 @@ fn main()
     .write_to_file("fbm.png");
     */
     PlaneMapBuilder::<_, 2>::new(&fbm)
-            .set_size(130, 130)
-            .set_x_bounds(-1.0, 1.0)
-            .set_y_bounds(-1.0, 1.0)
-            .build()
-            .write_to_file("fbm.png");
+        .set_size(130, 130)
+        .set_x_bounds(-1.0, 1.0)
+        .set_y_bounds(-1.0, 1.0)
+        .build()
+        .write_to_file("fbm.png");
 
     //Ezra Code End
 
@@ -41,14 +41,11 @@ fn main()
         .run();
 }
 
-
-
 fn setup(
     mut commands: Commands,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut meshes: ResMut<Assets<Mesh>>,) 
-    
-    {
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
     let red_material_handle = materials.add(StandardMaterial {
         base_color: Color::rgba(1.0, 0.0, 0.0, 0.5),
         alpha_mode: AlphaMode::Blend,
@@ -61,15 +58,13 @@ fn setup(
 
     let plane_mesh_handle: Handle<Mesh> = meshes.add(create_plane_mesh(plane_size, subdivisions));
 
-    commands.spawn((
-        PbrBundle {
-            mesh: plane_mesh_handle,
-            material: red_material_handle,
-            //transform: Transform::from_xyz(-plane_size/2.0, 0.0, 0.0),
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            ..default()
-        },
-    ));
+    commands.spawn((PbrBundle {
+        mesh: plane_mesh_handle,
+        material: red_material_handle,
+        //transform: Transform::from_xyz(-plane_size/2.0, 0.0, 0.0),
+        transform: Transform::from_xyz(0.0, 0.0, 0.0),
+        ..default()
+    },));
 
     commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(0.1, 2.0, -5.0).looking_at(Vec3::ZERO, Vec3::Y),
@@ -78,7 +73,6 @@ fn setup(
 }
 
 fn create_plane_mesh(size: f32, subdivisions: i32) -> Mesh {
-
     let x_vertices = subdivisions + 2;
     let z_vertices = subdivisions + 2;
     let tot_vertices = (x_vertices * z_vertices) as usize;
@@ -89,13 +83,12 @@ fn create_plane_mesh(size: f32, subdivisions: i32) -> Mesh {
     let mut uvs: Vec<[f32; 2]> = Vec::with_capacity(tot_vertices);
     let mut indices: Vec<u32> = Vec::with_capacity(tot_indices);
 
-
     // Ezra Code Start
     // Load the image of hightmap (FIX THIS!!!!!)
     let img_path = r"C:\rustbevy\Capstone-Vehicle-Sim-Project-Team3\src\example_images\fbm.png";
 
     let img = image::open(img_path).expect("Failed to open image");
-        
+
     // Extract pixel values as f32 numbers
     let perlin_values: Vec<f32> = img
         .pixels()
@@ -109,7 +102,6 @@ fn create_plane_mesh(size: f32, subdivisions: i32) -> Mesh {
     // if x_vertices = 2;  ----- do 0, 1
     for x in 0..x_vertices {
         for z in 0..z_vertices {
-
             // Ezra Code Start
             let current_value = perlin_values[index];
             // Ezra Code End
@@ -121,7 +113,6 @@ fn create_plane_mesh(size: f32, subdivisions: i32) -> Mesh {
             // Ezra Code Start
             let yi = current_value as f32;
             // Ezra Code End
-
 
             // Edge on origin
             // new_x, new_z = [0, size]
@@ -135,7 +126,7 @@ fn create_plane_mesh(size: f32, subdivisions: i32) -> Mesh {
 
             // Ezra Code Start
             //y_pos needs to be a pretty small number to not spike wild style
-            let y_pos = (yi - 0.5);
+            let y_pos = yi - 0.5;
             //Ezra Code End
 
             // build vertices/positions via set of squares
@@ -163,15 +154,14 @@ fn create_plane_mesh(size: f32, subdivisions: i32) -> Mesh {
         }
     }
 
-    for x in 0..x_vertices-1 {
-        for z in 0..z_vertices-1 {
-
+    for x in 0..x_vertices - 1 {
+        for z in 0..z_vertices - 1 {
             // build indices
             let bl = (x * z_vertices) + z;
             let tl = bl + 1;
             let br = bl + z_vertices;
             let tr = br + 1;
-            
+
             // Triangle 1 xz 00-11-10
             indices.push((bl) as u32);
             indices.push((tr) as u32);
@@ -183,21 +173,15 @@ fn create_plane_mesh(size: f32, subdivisions: i32) -> Mesh {
             indices.push((tr) as u32);
         }
     }
-        
+
     let mut plane_mesh = Mesh::new(PrimitiveTopology::TriangleList);
     plane_mesh.set_indices(Some(Indices::U32(indices)));
 
-    plane_mesh.insert_attribute(
-        Mesh::ATTRIBUTE_POSITION, 
-        positions);
+    plane_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
 
-    plane_mesh.insert_attribute(
-        Mesh::ATTRIBUTE_NORMAL, 
-        normals);
+    plane_mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
 
-    plane_mesh.insert_attribute(
-        Mesh::ATTRIBUTE_UV_0, 
-        uvs);
+    plane_mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
 
     plane_mesh
 }
