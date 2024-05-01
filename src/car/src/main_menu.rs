@@ -26,24 +26,30 @@ impl Plugin for MainMenuPlugin {
     }
 }
 
+//RESOURCE
+//Manages the assets that need to be loaded for the main menu UI
+impl Resource for UiAssets {}
+struct UiAssets {
+    button: Handle<Image>,
+    button_pressed: Handle<Image>,
+    button_yellow: Handle<Image>,
+    button_grey: Handle<Image>,
+}
+
 // Tag component used to tag entities added on the main menu screen
 #[derive(Component)]
 struct OnMainMenuScreen;
-
 // Tag component used to tag entities added on the settings menu screen
 #[derive(Component)]
 struct OnSettingsMenuScreen;
-
-//Tag componenet used to tahe entities added on the audio settings screen
+//Tag componenet used to tag entities added on the audio settings screen
 #[derive(Component)]
 struct OnAudioMenuScreen;
-
-//Tag componenet used to tahe entities added on the audio settings screen
+//Tag componenet used to tag entities added on the audio settings screen
 #[derive(Component)]
 struct OnVehicleMenuScreen;
 
-
-// All actions that can be triggered from a button click
+// Menu action tags for signifying what to do when a button is pressed
 #[derive(Component)]
 enum MenuButtonAction {
     Play,
@@ -82,6 +88,165 @@ enum MenuState {
     SettingsAudio,
     SettingsVehicle,
     Disabled,
+}
+
+// Generic system that takes a component as a parameter, and will despawn all entities with that component
+fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+    for entity in &to_despawn {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+// System to handle the main menu state
+// This system will catch each interaction event and uses a component to decide what to do
+fn handle_menu_buttons(
+    interaction_query: Query<(&Children, &Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
+    mut menu_state: ResMut<NextState<MenuState>>,
+    mut image_query: Query<&mut UiImage>,
+    ui_assests: Res<UiAssets>,
+    mut app_exit_events: EventWriter<AppExit>,
+) {
+    //For every button interaction found, we will run this code
+    for (children, interaction, menu_button_action) in &interaction_query {
+        let child = children.iter().next().unwrap();
+        let mut image = image_query.get_mut(*child).unwrap();
+
+        //
+        if interaction == &Interaction::Pressed {
+            match menu_button_action {
+                MenuButtonAction::Quit => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Quit Button Clicked");
+                    app_exit_events.send(AppExit);
+                }
+                MenuButtonAction::Play => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Play Game Button Clicked");
+    
+                    //Change main menu state to be disabled
+                    menu_state.set(MenuState::Disabled);
+                }
+                MenuButtonAction::Settings => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Settings Button Clicked");
+    
+                    //Change menu state to be in settings
+                    menu_state.set(MenuState::Settings);
+                }
+                MenuButtonAction::SettingsAudio => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Sound Button Clicked");
+
+                    //Change menu state to be in settings
+                    menu_state.set(MenuState::SettingsAudio);
+                }
+                MenuButtonAction::SettingsVehicle => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Vehicle Button Clicked");
+
+                    //Change menu state to be in settings
+                    menu_state.set(MenuState::SettingsVehicle);
+                }
+                MenuButtonAction::BackToMainMenu =>  {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Back to Main Menu Button Clicked");
+
+                    //Change main menu state to be Main Menu
+                    menu_state.set(MenuState::Main);
+                },
+                MenuButtonAction::BackToSettings =>  {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Back to Settings Button Clicked");
+
+                    //Change main menu state to be Settings Menu
+                    menu_state.set(MenuState::Settings);
+                }
+
+                //Volume settings
+                MenuButtonAction::VolumeSet0 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.0");
+                }
+                MenuButtonAction::VolumeSet2 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.2");
+                }
+                MenuButtonAction::VolumeSet4 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.4");
+                }
+                MenuButtonAction::VolumeSet6 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.6");
+                }
+                MenuButtonAction::VolumeSet8 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 0.8");
+                }
+                MenuButtonAction::VolumeSet10 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Volume Set to 1.0");
+                }
+
+                //Mass settings
+                MenuButtonAction::Mass500 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Mass Set to 500");
+                }
+                MenuButtonAction::Mass1000 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Mass Set to 1000");
+                }
+                MenuButtonAction::Mass2000 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Mass Set to 2000");
+                }
+
+                //Gravity settings
+                MenuButtonAction::GravityMoon => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Gravity Set to Moon");
+                }
+                MenuButtonAction::GravityEarth => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Gravity Set to Earth");
+                }
+                MenuButtonAction::GravityJupiter => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Gravity Set to Jupiter");
+                }   
+
+                //Max Speed settings
+                MenuButtonAction::MaxSpeed25 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Max Speed Set to 25");
+                }   
+                MenuButtonAction::MaxSpeed75 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Max Speed Set to 75");
+                }
+                MenuButtonAction::MaxSpeed150 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Max Speed Set to 150");
+                }
+
+                //Car Acceleration settings
+                MenuButtonAction::CarAcceleration6 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Car Acceleration Set to 6");
+                }
+                MenuButtonAction::CarAcceleration10 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Car Acceleration Set to 10");
+                }
+                MenuButtonAction::CarAcceleration15 => {
+                    image.texture = ui_assests.button_pressed.clone();
+                    println!("Car Acceleration Set to 15");
+                }
+
+            }
+        }    
+    }
 }
 
 //Function for setting up the main menu UI of the game
@@ -1849,172 +2014,4 @@ fn settingsvehicle_menu_setup(
         //
     }); 
 
-}
-
-//Manages the assets that need to be loaded for the main menu UI
-struct UiAssets {
-    button: Handle<Image>,
-    button_pressed: Handle<Image>,
-    button_yellow: Handle<Image>,
-    button_grey: Handle<Image>,
-}
-
-impl Resource for UiAssets {}
-
-fn handle_menu_buttons(
-    interaction_query: Query<(&Children, &Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
-    mut menu_state: ResMut<NextState<MenuState>>,
-    mut image_query: Query<&mut UiImage>,
-    ui_assests: Res<UiAssets>,
-    mut app_exit_events: EventWriter<AppExit>,
-) {
-    //For every button interaction found, we will run this code
-    for (children, interaction, menu_button_action) in &interaction_query {
-        let child = children.iter().next().unwrap();
-        let mut image = image_query.get_mut(*child).unwrap();
-
-        //
-        if interaction == &Interaction::Pressed {
-            match menu_button_action {
-                MenuButtonAction::Quit => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Quit Button Clicked");
-                    app_exit_events.send(AppExit);
-                }
-                MenuButtonAction::Play => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Play Game Button Clicked");
-    
-                    //Change main menu state to be disabled
-                    menu_state.set(MenuState::Disabled);
-                }
-                MenuButtonAction::Settings => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Settings Button Clicked");
-    
-                    //Change menu state to be in settings
-                    menu_state.set(MenuState::Settings);
-                }
-                MenuButtonAction::SettingsAudio => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Sound Button Clicked");
-
-                    //Change menu state to be in settings
-                    menu_state.set(MenuState::SettingsAudio);
-                }
-                MenuButtonAction::SettingsVehicle => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Vehicle Button Clicked");
-
-                    //Change menu state to be in settings
-                    menu_state.set(MenuState::SettingsVehicle);
-                }
-                MenuButtonAction::BackToMainMenu =>  {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Back to Main Menu Button Clicked");
-
-                    //Change main menu state to be Main Menu
-                    menu_state.set(MenuState::Main);
-                },
-                MenuButtonAction::BackToSettings =>  {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Back to Settings Button Clicked");
-
-                    //Change main menu state to be Settings Menu
-                    menu_state.set(MenuState::Settings);
-                }
-
-                //Volume settings
-                MenuButtonAction::VolumeSet0 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Volume Set to 0.0");
-                }
-                MenuButtonAction::VolumeSet2 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Volume Set to 0.2");
-                }
-                MenuButtonAction::VolumeSet4 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Volume Set to 0.4");
-                }
-                MenuButtonAction::VolumeSet6 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Volume Set to 0.6");
-                }
-                MenuButtonAction::VolumeSet8 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Volume Set to 0.8");
-                }
-                MenuButtonAction::VolumeSet10 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Volume Set to 1.0");
-                }
-
-                //Mass settings
-                MenuButtonAction::Mass500 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Mass Set to 500");
-                }
-                MenuButtonAction::Mass1000 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Mass Set to 1000");
-                }
-                MenuButtonAction::Mass2000 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Mass Set to 2000");
-                }
-
-                //Gravity settings
-                MenuButtonAction::GravityMoon => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Gravity Set to Moon");
-                }
-                MenuButtonAction::GravityEarth => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Gravity Set to Earth");
-                }
-                MenuButtonAction::GravityJupiter => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Gravity Set to Jupiter");
-                }   
-
-                //Max Speed settings
-                MenuButtonAction::MaxSpeed25 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Max Speed Set to 25");
-                }   
-                MenuButtonAction::MaxSpeed75 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Max Speed Set to 75");
-                }
-                MenuButtonAction::MaxSpeed150 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Max Speed Set to 150");
-                }
-
-                //Car Acceleration settings
-                MenuButtonAction::CarAcceleration6 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 6");
-                }
-                MenuButtonAction::CarAcceleration10 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 10");
-                }
-                MenuButtonAction::CarAcceleration15 => {
-                    image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 15");
-                }
-
-            }
-            //
-        }    
-    }
-}
-
-// Generic system that takes a component as a parameter, and will despawn all entities with that component
-fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
-    for entity in &to_despawn {
-        commands.entity(entity).despawn_recursive();
-    }
 }
