@@ -434,11 +434,12 @@ pub fn update_engine_speed(
 
                 //Update the speed
                 for mut engine in engine_q.iter_mut() {
-                    engine.speed = f64_to_f32(qd * radius);
+                    engine.speed = f64_to_f32(qd * radius); 
                 }
             }
         }
     }
+     
 }
 
 //Used to update the playback speed of the engine audio sink
