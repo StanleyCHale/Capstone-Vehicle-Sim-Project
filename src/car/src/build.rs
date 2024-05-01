@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use rand::Rng;
 
 //Flo Curves is used for the creation of bezier curves
-use flo_curves::*;
 use flo_curves::bezier;
 use flo_curves::bezier::Curve;
+use flo_curves::*;
 
 use cameras::control::CameraParentList;
 use rigid_body::{
@@ -80,11 +80,11 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
 
     let chassis = Chassis {
         mass,
-        cg_position: startposition,
+        cg_position: [0., 0., 0.],
         moi,
         dimensions,
-        position: startposition,  // position: [0., 0., 0.],
-        initial_position: [-5. + xpos, 20. + ypos, 0.3 + 0.25 + zpos],  // initial_position: [-5., 20., 0.3 + 0.25],
+        position: startposition, // position: [0., 0., 0.],
+        initial_position: [-5. + xpos, 20. + ypos, 0.3 + 0.25 + zpos], // initial_position: [-5., 20., 0.3 + 0.25],
         initial_orientation: [0., 0., 1.57],
         mesh_file: Some("models/vehicle/chassis/car_chassisV2.glb#Scene0".to_string()),
     };
@@ -99,10 +99,10 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
 
     let suspension_names = ["fl", "fr", "rl", "rr"].map(|name| name.to_string());
     let suspension_locations = [
-        [1.25 + xpos, 0.75 + ypos, -0.2 + zpos],
-        [1.25 + xpos, -0.75 + ypos, -0.2 + zpos],
-        [-1.25 + xpos, 0.75 + ypos, -0.2 + zpos],
-        [-1.25 + xpos, -0.75 + ypos, -0.2 + zpos],
+        [1.25, 0.75, -0.2],
+        [1.25, -0.75, -0.2],
+        [-1.25, 0.75, -0.2],
+        [-1.25, -0.75, -0.2],
     ];
 
     let suspension: Vec<Suspension> = suspension_locations
@@ -205,18 +205,23 @@ pub fn build_wheel() -> Wheel {
     }
 }
 
-pub fn car_startup_system(mut commands: Commands, asset_server: Res<AssetServer>, mut players: ResMut<CarList>) {
-    //Motion here is for gravity   (9.81 m/s)  
+pub fn car_startup_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut players: ResMut<CarList>,
+) {
+    //Motion here is for gravity   (9.81 m/s)
     let base = Joint::base(Motion::new([0., 0., 9.81], [0., 0., 0.]));
     let base_id = commands.spawn((base, Base)).id();
 
     let mut camera_parent_list = Vec::new();
     camera_parent_list.push(base_id);
     for car in &mut players.cars {
-        println!("Starting up car with id: {}", car.id);
-
         let control = CarControl::default();
-        let control_id = commands.spawn((control,)).id();
+        let control_id = commands
+            .spawn((control,))
+            .insert(TransformBundle::from(Transform::from_xyz(5.0, 5.0, 0.0)))
+            .id();
 
         let mut rng = rand::thread_rng();
 
@@ -263,7 +268,6 @@ pub fn car_startup_system(mut commands: Commands, asset_server: Res<AssetServer>
             if let Some(wheel_id) = maybe_steer_id {
                 steer_wheel_ids.push(wheel_id);
             }
-            println!("Brake wheel found (build): {:?}", wheel_id);
         }
         car.carcontrol.brake_wheels = brake_wheel_ids; // update the car
         car.carcontrol.steer_wheels = steer_wheel_ids; // update the car
@@ -279,7 +283,7 @@ pub fn car_startup_system(mut commands: Commands, asset_server: Res<AssetServer>
 #[derive(Clone)]
 pub struct Chassis {
     pub mass: f64,
-    pub cg_position: [f64; 3],
+    pub cg_position: [f64; 3], // Center of Gravity Position
     pub moi: [f64; 3],
     pub dimensions: [f64; 3],
     pub position: [f64; 3],
@@ -289,7 +293,13 @@ pub struct Chassis {
 }
 
 impl Chassis {
-    pub fn build(&self, commands: &mut Commands, color: Color, parent_id: Entity, asset_server: &Res<AssetServer>) -> Vec<Entity> {
+    pub fn build(
+        &self,
+        commands: &mut Commands,
+        color: Color,
+        parent_id: Entity,
+        asset_server: &Res<AssetServer>,
+    ) -> Vec<Entity> {
         // x degree of freedom (absolute coordinate system, not relative to car)
         let mut px = Joint::px("chassis_px".to_string(), Inertia::zero(), Xform::identity());
         px.q = self.initial_position[0];
@@ -344,12 +354,16 @@ impl Chassis {
         rx_e.set_parent(ry_id);
         let rx_id = rx_e.id();
 
-         //Create a bezier curve for curving playback audio
-        let sound_curve = bezier::Curve::from_points(Coord2(0.0, 0.6), (Coord2(1.0, 1.4), Coord2(0.84, 0.55)), Coord2(1.0, 1.0));
+        //Create a bezier curve for curving playback audio
+        let sound_curve = bezier::Curve::from_points(
+            Coord2(0.0, 0.6),
+            (Coord2(1.0, 1.4), Coord2(0.84, 0.55)),
+            Coord2(1.0, 1.0),
+        );
 
         //Insert the car chassis into the rx roll degree of freedom joint entity.
         if let Some(_chassis_file) = &self.mesh_file {
-             rx_e.insert(SceneBundle {
+            rx_e.insert(SceneBundle {
                 transform: (&TransformDef::from_position(position)).into(),
                 scene: asset_server.load("models/vehicle/chassis/car_chassis.glb#Scene0"),
                 ..default()
@@ -358,13 +372,15 @@ impl Chassis {
             //Setup audio emitter for our engine audio and parent it to our chassis
             rx_e.insert((
                 AudioBundle {
-                source: asset_server.load("sounds/engine_hum.ogg"),
-                settings: PlaybackSettings::LOOP.with_spatial(true),
-                ..default()
+                    source: asset_server.load("sounds/engine_hum.ogg"),
+                    settings: PlaybackSettings::LOOP.with_spatial(true),
+                    ..default()
                 },
-                Engine {speed: 0.0, curve: sound_curve},
+                Engine {
+                    speed: 0.0,
+                    curve: sound_curve,
+                },
             ));
-
         } else {
             rx_e.insert(MeshDef {
                 mesh_type: MeshTypeDef::Box {
@@ -385,7 +401,6 @@ impl Chassis {
     }
 }
 
-
 //Asserts wether or not an overflow to infinite occurs during conversion
 //Got this snippet from: https://stackoverflow.com/questions/72247741/how-to-convert-a-f64-to-a-f32
 fn f64_to_f32(x: f64) -> f32 {
@@ -404,9 +419,8 @@ pub fn update_engine_speed(
     mut players: ResMut<CarList>,
     mut engine_q: Query<&mut Engine>,
 ) {
-
     let mut first = 0;
- 
+
     for car in &mut players.cars {
         //Grab the driven wheel joints
         for (joint, _brake_wheel) in joints.iter() {
@@ -422,7 +436,6 @@ pub fn update_engine_speed(
                 for mut engine in engine_q.iter_mut() {
                     engine.speed = f64_to_f32(qd * radius); 
                 }
-                
             }
         }
     }
@@ -431,20 +444,23 @@ pub fn update_engine_speed(
 
 //Used to update the playback speed of the engine audio sink
 pub fn update_engine_audio(
-    music_controller: Query<&SpatialAudioSink, With<Engine>>, 
+    music_controller: Query<&SpatialAudioSink, With<Engine>>,
     engine_q: Query<&Engine>,
 ) {
-
     //for loop for each audio sink
     for sink in music_controller.iter() {
         //Just grabs both engines and updates them.
         for engine in &engine_q {
-
             //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
-            let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
-                engine.curve.point_at_pos(                                          //Get the position from the bezier curve
-                    (( (engine.speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
-                ).y()                                                               //Grab the Y-value of from this position on the bezier curve
+            let mut speed_curve = f64_to_f32(
+                //Convert from f64 to f32
+                engine
+                    .curve
+                    .point_at_pos(
+                        //Get the position from the bezier curve
+                        ((engine.speed * 0.05) % 1.0).into(), //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
+                    )
+                    .y(), //Grab the Y-value of from this position on the bezier curve
             );
 
             //Calculate the offset
@@ -583,10 +599,9 @@ impl Wheel {
                     transform: (&TransformDef::Identity).into(),
                     scene: asset_server.load("models/vehicle/wheel/wheelR.glb#Scene0"),
                     ..default()
-                }
+                },
             ));
-        }
-        else {
+        } else {
             wheel_e = commands.spawn((
                 ry,
                 //Assign the mesh of the wheel model
@@ -594,7 +609,7 @@ impl Wheel {
                     transform: (&TransformDef::Identity).into(),
                     scene: asset_server.load("models/vehicle/wheel/wheelL.glb#Scene0"),
                     ..default()
-                }
+                },
             ));
         }
 

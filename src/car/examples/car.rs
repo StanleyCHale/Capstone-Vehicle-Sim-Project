@@ -7,7 +7,7 @@ use car::main_menu::MainMenuPlugin;
 
 use bevy_integrator::{SimTime, Solver};
 use car::{
-    build::{build_car, car_startup_system, CarList, update_engine_speed, update_engine_audio},
+    build::{build_car, car_startup_system, update_engine_audio, update_engine_speed, CarList},
     control::ControlType,
     environment::build_environment,
     setup::{camera_setup, simulation_setup},
@@ -18,8 +18,8 @@ use rigid_body::plugin::RigidBodyPlugin;
 fn main() {
     // Create cars
     let mut car_definitions = Vec::new();
-    car_definitions.push(build_car([0., 0., 0.], ControlType::WASD, 0));
-    car_definitions.push(build_car([0., 2., 0.], ControlType::Arrow, 1)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
+    car_definitions.push(build_car([0., 4., 0.], ControlType::WASD, 0));
+    car_definitions.push(build_car([0., 0., 0.], ControlType::Arrow, 1)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
 
     let players = CarList {
         cars: car_definitions,
