@@ -7,6 +7,15 @@ use std::{
     ops::{Add, Mul},
 };
 
+//STATE
+// Enum that will be used as a global state for the game
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+pub enum GameState {
+    #[default]
+    InMenu,
+    InGame,
+}
+
 #[derive(Event)]
 pub struct ExitEvent;
 
@@ -220,7 +229,7 @@ impl PhysicsScheduleExt for Schedule {
                 //
                 SolverSet::Post,
             )
-                .chain(), // This defines the ordering of the system sets
+                .chain().run_if(in_state(GameState::InGame)), // This defines the ordering of the system sets
         )
         .add_systems(distribute_state::<T>.in_set(SolverSet::Pre))
         .add_systems(systems_init.in_set(PhysicsSet::Initialize))

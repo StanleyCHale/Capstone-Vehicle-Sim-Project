@@ -7,10 +7,11 @@ use crate::{
 };
 use bevy::{app::AppExit, prelude::*};
 use bevy_integrator::{
-    initialize_state, integrator_schedule, ExitEvent, PhysicsSchedule, PhysicsScheduleExt, SimTime,
-    Solver,
+    initialize_state, integrator_schedule, ExitEvent, GameState, PhysicsSchedule, PhysicsScheduleExt, SimTime, Solver
 };
 use bevy_obj::ObjPlugin;
+
+
 
 #[derive(Clone)]
 pub struct RigidBodyPlugin {
@@ -28,7 +29,7 @@ impl RigidBodyPlugin {
             .insert_resource(self.time.clone())
             .insert_resource(self.solver)
             .insert_resource(Time::<Fixed>::from_seconds(self.time.dt as f64))
-            .add_systems(FixedUpdate, integrator_schedule::<Joint>);
+            .add_systems(FixedUpdate, integrator_schedule::<Joint>.run_if(in_state(GameState::InGame)));
     }
 }
 

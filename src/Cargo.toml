@@ -13,23 +13,15 @@ resolver = "2"
 # bevy
 bevy = {version = "0.12", features = ["jpeg", "bevy_gltf"]} 
 bevy_obj = "0.12.0"
-
-
-
-car = { path = "./car" }
-data_viewer = { path = "./data_viewer" }
 rigid_body = {path = "./rigid_body"}
 bevy_integrator = { path = "./integrator" }
 cameras = {  path = "./cameras" }
-plane = { path = "./plane" }
 
 # physics
 grid_terrain = { path = "./grid_terrain" }
 
 # other
 rand = "0.8.4"
-
-itertools = "0.12.1"
 nalgebra = "0.32.2"
 
 # Enable only a small amount of optimization in debug mode

@@ -95,7 +95,9 @@ pub fn az_el_camera(
 
     // Handle user input here
     if input_mouse.pressed(orbit_button) {
+        
         rotation_move += delta * cursor_sensitivity;
+        println!("-- camera control mouse pressed!");
     } else if input_mouse.pressed(pan_button) {
         // Pan only if we're not rotating at the moment
         pan += delta * cursor_sensitivity;
@@ -107,6 +109,8 @@ pub fn az_el_camera(
     // update cameras
     for (mut az_el, mut transform, projection) in query.iter_mut() {
         let mut any_changes = false; // has anything changed?
+
+        println!("-- camera control Updating camera!");
 
         if rotation_move.length_squared() > 0.0 {
             any_changes = true;

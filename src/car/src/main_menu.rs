@@ -3,12 +3,16 @@ use bevy::app::AppExit;
 //This is a bevy plugin for the main menu of the game
 
 use bevy::{prelude::*, ui::FocusPolicy};
+use bevy_integrator::GameState;
+
 
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<MenuState>()
+        app
+        .add_state::<GameState>()
+        .add_state::<MenuState>()
         // Systems to handle the main menu screen
         .add_systems(OnEnter(MenuState::Main), main_menu_setup)
         .add_systems(OnExit(MenuState::Main), despawn_screen::<OnMainMenuScreen>)
@@ -21,6 +25,8 @@ impl Plugin for MainMenuPlugin {
         //SYstem to handle the vehicle settings menu screen
         .add_systems(OnEnter(MenuState::SettingsVehicle), settingsvehicle_menu_setup)
         .add_systems(OnExit(MenuState::SettingsVehicle), despawn_screen::<OnVehicleMenuScreen>)
+        //Camera system
+        .add_systems(OnEnter(MenuState::Disabled), despawn_screen::<MainMenuCamera>)
         
         .add_systems(Update, handle_menu_buttons);
     }
@@ -35,6 +41,10 @@ struct UiAssets {
     button_yellow: Handle<Image>,
     button_grey: Handle<Image>,
 }
+
+//Main menu camera
+#[derive(Component)]
+struct MainMenuCamera;
 
 // Tag component used to tag entities added on the main menu screen
 #[derive(Component)]
@@ -79,6 +89,8 @@ enum MenuButtonAction {
     Quit,
 }
 
+
+//STATE
 // State used for the current menu screen
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum MenuState {
@@ -102,6 +114,7 @@ fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands
 fn handle_menu_buttons(
     interaction_query: Query<(&Children, &Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
     mut menu_state: ResMut<NextState<MenuState>>,
+    mut game_state: ResMut<NextState<GameState>>,
     mut image_query: Query<&mut UiImage>,
     ui_assests: Res<UiAssets>,
     mut app_exit_events: EventWriter<AppExit>,
@@ -123,6 +136,9 @@ fn handle_menu_buttons(
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Play Game Button Clicked");
     
+                    //Change Game state to be in game
+                    game_state.set(GameState::InGame);
+
                     //Change main menu state to be disabled
                     menu_state.set(MenuState::Disabled);
                 }
@@ -254,7 +270,11 @@ fn main_menu_setup(
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
     mut menu_state: ResMut<NextState<MenuState>>,
+    mut game_state: ResMut<NextState<GameState>>
 ) {
+    //
+    game_state.set(GameState::InMenu);
+
     //Set the menu state to be the main menu
     menu_state.set(MenuState::Main);
 
@@ -268,6 +288,12 @@ fn main_menu_setup(
 
     //Print statement
     println!("Main Menu Setup");
+
+    //Create 2d camera
+    commands.spawn((
+        Camera2dBundle::default(),
+        MainMenuCamera
+    ));
 
     //This is a node bundle that will be the parent of all of our UI elements
     commands.spawn((NodeBundle {
