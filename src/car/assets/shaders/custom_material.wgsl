@@ -1,4 +1,9 @@
-#import bevy_pbr::mesh_functions::{get_model_matrix, mesh_position_local_to_clip}
+#import bevy_pbr::{
+    mesh_view_bindings::globals,
+    mesh_view_bindings as view_bindings,
+    mesh_functions::{get_model_matrix, mesh_position_local_to_clip},
+    prepass_utils
+}
 
 
 struct CustomMaterial {
@@ -68,6 +73,9 @@ struct FragmentInput {
 };
 
 @fragment
-fn fragment(input: FragmentInput) -> @location(0) vec4<f32> {
+fn fragment( 
+    input: FragmentInput
+    ) -> @location(0) vec4<f32> {
+        
     return material.color * input.blend_color;
 }

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{pbr::ExtendedMaterial, prelude::*};
 
 use bevy_integrator::{SimTime, Solver};
 use car::{
@@ -6,7 +6,7 @@ use car::{
     environment::build_environment,
     setup::{camera_setup, simulation_setup},
 };
-use grid_terrain::CustomMaterial;
+use grid_terrain::MyExtension;
 use rigid_body::plugin::RigidBodyPlugin;
 
 // Main function
@@ -21,10 +21,13 @@ fn main() {
             environment_setup: vec![camera_setup],
             name: "car_demo".to_string(),
         },
-            MaterialPlugin::<CustomMaterial>::default()
+            MaterialPlugin::<
+                ExtendedMaterial<StandardMaterial, MyExtension>,
+            >::default()
         ))
         .insert_resource(car_definition)
         .add_systems(Startup, car_startup_system)
         .add_systems(Startup, build_environment)
+        .insert_resource(Msaa::Off)
         .run();
 }

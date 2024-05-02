@@ -1,15 +1,8 @@
 use bevy::{
-    math::{self, vec3}, prelude::{Mesh, Vec3}, render::{mesh::Indices, render_resource::PrimitiveTopology}
+    math::vec3, prelude::{Mesh, Vec3}, render::{mesh::Indices, render_resource::PrimitiveTopology}
 };
 use rigid_body::sva::Vector;
 
-//use bevy::render::mesh::Indices;
-//use bevy::render::render_resource::PrimitiveTopology;
-
-use noise::{Fbm, Perlin as PerlinNoise};
-use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
-use std::io::{stdout, Write};
-use image::{GenericImageView, DynamicImage, Luma};
 use crate::{GridElement, Interference};
 
 pub struct HeightMap {

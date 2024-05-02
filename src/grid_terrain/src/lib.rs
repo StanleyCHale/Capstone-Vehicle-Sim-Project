@@ -8,25 +8,19 @@ pub mod slope;
 pub mod step;
 pub mod step_slope;
 
-use bevy::prelude::*;
 use mirror::Mirror;
 use rigid_body::sva::Vector;
 use rotate::{Rotate, RotationDirection};
 
 use bevy::{
-    pbr::{MaterialPipeline, MaterialPipelineKey},
+    pbr::{ExtendedMaterial, MaterialExtension, OpaqueRendererMethod},
     prelude::*,
     reflect::TypePath,
-    render::{
-        mesh::MeshVertexBufferLayout,
-        render_resource::{
-            AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError,
-        },
-    },
+    render::render_resource::{AsBindGroup, ShaderRef,},
 };
 
 
-pub const PLANESIZE: f32 = 160.0;
+pub const PLANESIZE: f32 = 1600.0;
 
 
 pub struct Interference {
@@ -149,8 +143,7 @@ impl GridTerrain {
         &self,
         commands: &mut Commands,
         meshes: &mut ResMut<Assets<Mesh>>,
-        // materials: &mut ResMut<Assets<StandardMaterial>>,
-        materials: &mut ResMut<Assets<CustomMaterial>>,
+        materials: &mut ResMut<Assets<ExtendedMaterial<StandardMaterial, MyExtension>>>,
         parent: Entity,
     ) {
         let x_grid_size = self.elements[0].len() as f64 * self.step[0];
@@ -168,11 +161,6 @@ impl GridTerrain {
                 if x_offsets[x_ind] == 0.0 && y_offsets[y_ind] == 0.0 {
                     continue;
                 }
-                // let material = materials.add(StandardMaterial {
-                //     base_color: Color::rgb_u8(140, 120, 100),
-                //     perceptual_roughness: 1.0,
-                //     ..default()
-                // });
                 let mut entity = commands.spawn(MaterialMeshBundle { // PbrBundle {
                     mesh: meshes.add(
                         plane::Plane {
@@ -186,10 +174,14 @@ impl GridTerrain {
                         y: y_offsets[y_ind] as f32,
                         z: 0.0,
                     }),
-                    // material: material.clone(),
-                    material: materials.add(CustomMaterial {
-                        color: Color::WHITE,
-                        z_max: PLANESIZE * 0.05,
+                    material: materials.add(ExtendedMaterial {
+                        base: StandardMaterial {
+                            base_color: Color::RED,
+                            perceptual_roughness: 1.0,
+                            opaque_render_method: OpaqueRendererMethod::Auto,
+                            ..Default::default()
+                        },
+                        extension: MyExtension { z_max: PLANESIZE * 0.05 },
                     }),
                     ..default()
                 });
@@ -197,14 +189,6 @@ impl GridTerrain {
             }
         }
 
-        // let material = materials.add(StandardMaterial {
-        //     base_color: Color::WHITE,
-        //     perceptual_roughness: 1.0,
-        //     ..default()
-        // });
-        // let material = materials.add(CustomMaterial {
-        //     color: Color::WHITE,
-        // });
         for (y_index, y_elements) in self.elements.iter().enumerate() {
             for (x_index, element) in y_elements.iter().enumerate() {
                 let x_offset = x_index as f32 * self.step[0] as f32;
@@ -218,10 +202,14 @@ impl GridTerrain {
                 let mut entity = commands.spawn(MaterialMeshBundle { // PbrBundle {
                     mesh: meshes.add(element.mesh()),
                     transform,
-                    // material: material.clone(),
-                    material: materials.add(CustomMaterial {
-                        color: Color::WHITE,
-                        z_max: PLANESIZE * 0.05,
+                    material: materials.add(ExtendedMaterial {
+                        base: StandardMaterial {
+                            base_color: Color::RED,
+                            perceptual_roughness: 1.0,
+                            opaque_render_method: OpaqueRendererMethod::Auto,
+                            ..Default::default()
+                        },
+                        extension: MyExtension { z_max: PLANESIZE * 0.05 },
                     }),
                     ..default()
                 });
@@ -232,61 +220,14 @@ impl GridTerrain {
 }
 
 
-
-
-#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-pub struct CustomMaterial {
-    #[uniform(0)]
-    color: Color,
-    #[uniform(1)]
+#[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
+pub struct MyExtension {
+    #[uniform(100)]
     z_max: f32,
 }
 
-
-
-impl Material for CustomMaterial {
-
-    fn vertex_shader() -> ShaderRef {
-        "shaders/custom_material.wgsl".into()
-    }
-    
+impl MaterialExtension for MyExtension {
     fn fragment_shader() -> ShaderRef {
-        "shaders/custom_material.wgsl".into()
+        "shaders/extended_material.wgsl".into()
     }
-
-    // fn specialize(
-    //     _pipeline: &MaterialPipeline<Self>,
-    //     descriptor: &mut RenderPipelineDescriptor,
-    //     layout: &MeshVertexBufferLayout,
-    //     _key: MaterialPipelineKey<Self>,
-    // ) -> Result<(), SpecializedMeshPipelineError> {
-    //     let vertex_layout = layout.get_layout(&[
-    //         Mesh::ATTRIBUTE_POSITION.at_shader_location(0),
-    //     ])?;
-    //     descriptor.vertex.buffers = vec![vertex_layout];
-    //     Ok(())
-    // }
-
-
-    // fn vertex_shader() -> ShaderRef {
-    //     "shaders/custom_material.vert".into()
-    // }
-    // fn fragment_shader() -> ShaderRef {
-    //     "shaders/custom_material.frag".into()
-    // }
-    
-    
-    // fn specialize(
-    //     _pipeline: &MaterialPipeline<Self>,
-    //     descriptor: &mut RenderPipelineDescriptor,
-    //     _layout: &MeshVertexBufferLayout,
-    //     _key: MaterialPipelineKey<Self>,
-    // ) -> Result<(), SpecializedMeshPipelineError> {
-    //     descriptor.vertex.entry_point = "main".into();
-    //     descriptor.fragment.as_mut().unwrap().entry_point = "main".into();
-    //     Ok(())
-    // }
-    
 }
-
-

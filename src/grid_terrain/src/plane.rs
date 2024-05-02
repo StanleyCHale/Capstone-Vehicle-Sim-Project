@@ -4,29 +4,6 @@ use bevy::{
 };
 use rigid_body::sva::Vector;
 
-use rand::Rng;
-fn main() {
-    let mut rng = rand::thread_rng();
-
-    let n1: u8 = rng.gen();
-    let n2: u16 = rng.gen();
-    println!("Random u8: {}", n1);
-    println!("Random u16: {}", n2);
-    println!("Random u32: {}", rng.gen::<u32>());
-    println!("Random i32: {}", rng.gen::<i32>());
-    println!("Random float: {}", rng.gen::<f64>());
-}
-
-//use bevy::render::mesh::Indices;
-//use bevy::render::render_resource::PrimitiveTopology;
-
-//Ezra Code Start
-use noise::{Fbm, Perlin};
-use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
-use std::io::{stdout, Write};
-use image::{GenericImageView, DynamicImage, Luma};
-//Ezra Code End
-
 
 use crate::{GridElement, Interference};
 
