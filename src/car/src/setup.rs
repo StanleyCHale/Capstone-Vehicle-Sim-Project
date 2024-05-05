@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use bevy::prelude::*;
 use bevy_integrator::{PhysicsSchedule, PhysicsSet};
 
@@ -12,7 +10,6 @@ use crate::{
     tire::point_tire_system,
 };
 
-use super::control::CarControl;
 use cameras::{
     camera_az_el::{self, camera_builder},
     control::camera_parent_system,
@@ -33,12 +30,12 @@ pub fn simulation_setup(app: &mut App) {
         )
             .in_set(PhysicsSet::Evaluate),
     )
-    .add_systems(Update, (user_control_system,))
-    .init_resource::<CarControl>();
+    .add_systems(Update, (user_control_system,));
 }
 
 pub fn camera_setup(app: &mut App) {
     app.add_systems(
+
         Startup,
         camera_builder(
             Vec3 {

@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 use std::f32::consts::PI;
 
 use bevy::{
@@ -67,7 +69,7 @@ pub fn build_environment(
     // merge the two grid terrains    
     // Change to below if more elements are being added
     // let mut elements
-    let elements =  perlin_elements; 
+    let elements = perlin_elements;
     //elements.extend(wave_elements);
 
     let grid_terrain = GridTerrain::new(elements, [size as f64, size as f64]);

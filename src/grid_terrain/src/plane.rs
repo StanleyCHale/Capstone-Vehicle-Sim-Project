@@ -1,9 +1,9 @@
+#![allow(unused_imports, dead_code)]
 use bevy::{
     prelude::{Mesh, Vec3},
     render::{mesh::Indices, render_resource::PrimitiveTopology},
 };
 use rigid_body::sva::Vector;
-
 
 use crate::{GridElement, Interference};
 
@@ -67,4 +67,3 @@ impl GridElement for Plane {
         mesh
     }
 }
-
