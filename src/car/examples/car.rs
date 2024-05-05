@@ -28,9 +28,8 @@ fn main() {
 
     // Create App
     App::new()
-        .add_plugins((RigidBodyPlugin {
         .add_plugins(MainMenuPlugin)
-
+        .add_plugins((RigidBodyPlugin {
             time: SimTime::new(0.002, 0.0, None),
             solver: Solver::RK4,
             simulation_setup: vec![simulation_setup],
