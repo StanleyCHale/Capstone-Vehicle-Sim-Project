@@ -1,16 +1,13 @@
 use bevy::prelude::*;
 
-// Some of the following code adapted from example code: https://github.com/johanhelsing/matchbox/tree/main/examples/bevy_ggrs
-
-// Use the main menu plugin
-use car::main_menu::MainMenuPlugin;
-
 use bevy_integrator::{SimTime, Solver};
 use car::{
     build::{build_car, car_startup_system, update_engine_audio, update_engine_speed, CarList},
     control::ControlType,
     environment::build_environment,
+    main_menu::MainMenuPlugin,  // Use the main menu plugin
     setup::{camera_setup, simulation_setup},
+    egui_main_menu::EguiMainMenuPlugin
 };
 use rigid_body::plugin::RigidBodyPlugin;
 
