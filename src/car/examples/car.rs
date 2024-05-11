@@ -1,13 +1,13 @@
 use bevy::prelude::*;
-
+use bevy_egui::EguiPlugin;
 use bevy_integrator::{SimTime, Solver};
 use car::{
     build::{build_car, car_startup_system, update_engine_audio, update_engine_speed, CarList},
     control::ControlType,
+    egui_main_menu::egui_main_menu,
     environment::build_environment,
-    main_menu::MainMenuPlugin,  // Use the main menu plugin
+    main_menu::MainMenuPlugin, // Use the main menu plugin
     setup::{camera_setup, simulation_setup},
-    egui_main_menu::EguiMainMenuPlugin
 };
 use rigid_body::plugin::RigidBodyPlugin;
 
@@ -36,5 +36,7 @@ fn main() {
         .add_systems(Startup, car_startup_system)
         .add_systems(Startup, build_environment)
         .add_systems(Update, (update_engine_speed, update_engine_audio))
+        .add_plugins(EguiPlugin)
+        .add_systems(Update, egui_main_menu)
         .run();
 }

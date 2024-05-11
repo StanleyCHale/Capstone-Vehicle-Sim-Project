@@ -7,3 +7,4 @@ pub mod physics;
 pub mod setup;
 pub mod tire;
 pub mod main_menu;
+pub mod egui_main_menu;
