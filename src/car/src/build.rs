@@ -227,7 +227,7 @@ pub fn car_startup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut players: ResMut<CarList>,
-    mut car_state: ResMut<NextState<CarState>>
+    //mut car_state: ResMut<NextState<CarState>>
 ) {
     //Motion here is for gravity   (9.81 m/s)
     let base = Joint::base(Motion::new([0., 0., 9.81], [0., 0., 0.]));
@@ -297,9 +297,6 @@ pub fn car_startup_system(
         list: camera_parent_list,
         active: 1, // start with following x, y, z and yaw of chassis
     });
-
-    //Set Car State to finished
-    car_state.set(CarState::Finished);
     
 }
 

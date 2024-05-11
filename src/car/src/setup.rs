@@ -2,10 +2,13 @@ use bevy::prelude::*;
 use bevy_integrator::{GameState, PhysicsSchedule, PhysicsSet};
 
 use crate::{
-    build::CarState, control::user_control_system, physics::{
+    build::CarState,
+    control::user_control_system,
+    physics::{
         brake_wheel_system, driven_wheel_lookup_system, steering_curvature_system, steering_system,
         suspension_system,
-    }, tire::point_tire_system
+    },
+    tire::point_tire_system,
 };
 
 use cameras::{
@@ -37,12 +40,14 @@ pub fn simulation_setup(app: &mut App) {
         )
             .in_set(PhysicsSet::Evaluate),
     )
-    .add_systems(Update, (user_control_system,).run_if(in_state(CarState::Finished)));
+    .add_systems(
+        Update,
+        (user_control_system,).run_if(in_state(CarState::Finished)),
+    );
 }
 
 pub fn camera_setup(app: &mut App) {
     app.add_systems(
-
         OnEnter(GameState::InGame),
         camera_builder(
             Vec3 {
@@ -56,5 +61,8 @@ pub fn camera_setup(app: &mut App) {
             camera_az_el::UpDirection::Z,
         ),
     )
-    .add_systems(Update, (camera_az_el::az_el_camera, camera_parent_system).run_if(in_state(CarState::Finished))); // setup the camera
+    .add_systems(
+        Update,
+        (camera_az_el::az_el_camera, camera_parent_system).run_if(in_state(CarState::Finished)),
+    ); // setup the camera
 }
