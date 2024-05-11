@@ -22,6 +22,15 @@ use crate::{
     tire::PointTire,
 };
 
+// STATE
+// Enum for the car's state during setup
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+pub enum CarState {
+    #[default]
+    Building,
+    Finished,
+}
+
 #[derive(Resource)]
 pub struct CarDefinition {
     chassis: Chassis,
@@ -62,7 +71,12 @@ const GRAVITY: f64 = 9.81;
  * Inputs: none
  * Outputs: CarDefinition - The struct containing the car's specifications
  */
-pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) -> CarDefinition {
+pub fn build_car(
+    //mut car_state: ResMut<NextState<CarState>>,
+    startposition: [f64; 3], 
+    control_type: ControlType, 
+    id: i32
+) -> CarDefinition {
     // Separate the start position into x, y, z coordinates
     let xpos = startposition[0];
     let ypos = startposition[1];
@@ -171,6 +185,9 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
         control_type,
     };
 
+    //Set Car State to finished
+    //car_state.set(CarState::Finished);
+
     CarDefinition {
         chassis,
         suspension,
@@ -210,6 +227,7 @@ pub fn car_startup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut players: ResMut<CarList>,
+    mut car_state: ResMut<NextState<CarState>>
 ) {
     //Motion here is for gravity   (9.81 m/s)
     let base = Joint::base(Motion::new([0., 0., 9.81], [0., 0., 0.]));
@@ -279,6 +297,10 @@ pub fn car_startup_system(
         list: camera_parent_list,
         active: 1, // start with following x, y, z and yaw of chassis
     });
+
+    //Set Car State to finished
+    car_state.set(CarState::Finished);
+    
 }
 
 #[derive(Clone)]

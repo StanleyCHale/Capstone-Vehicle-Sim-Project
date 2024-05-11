@@ -3,9 +3,10 @@ use bevy::prelude::*;
 // Some of the following code adapted from example code: https://github.com/johanhelsing/matchbox/tree/main/examples/bevy_ggrs
 
 // Use the main menu plugin
-use car::main_menu::MainMenuPlugin;
+use car::{build::CarState, main_menu::MainMenuPlugin, setup::PhysicsSystemState};
 // Use the Game State
 
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use bevy_integrator::{GameState, SimTime, Solver};
 use car::{
@@ -15,6 +16,7 @@ use car::{
     setup::{camera_setup, simulation_setup},
 };
 use rigid_body::plugin::RigidBodyPlugin;
+
 
 // Main function
 /*
@@ -66,6 +68,10 @@ fn main() {
             name: "car_demo".to_string(),
         })
         .add_plugins(GameSetupPlugin)
+        .add_plugins(WorldInspectorPlugin::new())
+        //Add game states
+        .add_state::<CarState>()
+        .add_state::<PhysicsSystemState>()
         .run();
 }
 
@@ -82,22 +88,51 @@ pub struct GameSetupPlugin;
 
 impl Plugin for GameSetupPlugin {
     fn build(&self, app: &mut App) {
-        
         // Create cars
         let mut car_definitions = Vec::new();
-        car_definitions.push(build_car([0., 4., 0.], ControlType::WASD, 0));
-        car_definitions.push(build_car([0., 0., 0.], ControlType::Arrow, 1)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
+        car_definitions.push(build_car( [0., 4., 0.], ControlType::WASD, 0));
+        //car_definitions.push(build_car([0., 0., 0.], ControlType::Arrow, 1)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
 
         //RESOURCE
-        //List of players resource
-        let players = CarList {
-            cars: car_definitions,
-        };
+            //List of players resource
+            let players = CarList {
+                cars: car_definitions,
+            };
 
+        // ** CARES HAVENT FINISHED BUILDING HERE YET
+        //Need to somehow change CarState to finished after build_car finishes
 
         app
         .insert_resource(players)
+        //.add_systems(Startup, car_building_system)
         .add_systems(OnEnter(GameState::InGame), (car_startup_system, build_environment))
         .add_systems(Update, (update_engine_speed, update_engine_audio).run_if(in_state(GameState::InGame)));
     }
 }
+
+/*
+fn car_building_system(
+    app: &mut App,
+    mut commands: Commands,
+    car_list: Res<CarList>,
+    mut car_state: ResMut<State<CarState>>,
+) {
+    
+
+    // Create cars
+    let mut car_definitions = Vec::new();
+    car_definitions.push(build_car( [0., 4., 0.], ControlType::WASD, 0));
+    //car_definitions.push(build_car([0., 0., 0.], ControlType::Arrow, 1)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
+
+    //RESOURCE
+        //List of players resource
+        let players = CarList {
+            cars: car_definitions,
+        };
+    
+    app.insert_resource(players);
+
+    //Change the car state to finished
+    car_state.set(CarState::Finished);
+}
+*/

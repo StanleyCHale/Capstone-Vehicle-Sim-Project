@@ -20,6 +20,7 @@ flo_curves = "0.7.2"
 
 # other
 rand = {workspace = true}
+bevy-inspector-egui = "0.22"
 
 [[example]]
 name = "car_json"
