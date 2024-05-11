@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_egui::{egui::{self, Ui}, EguiContexts};
 
 // The following code adapted from the bevy_egui examples found here https://github.com/mvlabat/bevy_egui/blob/main/examples/ui.rs and here: https://github.com/emilk/egui/blob/master/crates/egui_demo_lib/src/demo/widget_gallery.rs
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct MainMenu {
     enabled: bool,
     visible: bool,
@@ -26,22 +27,28 @@ impl MainMenu {
             opacity: _
         } = self;
 
-        ui.add(doc_link_label("Label", "label"));
-        ui.label("Welcome to the widget gallery!");
+        ui.label("Main Menu");
         ui.end_row();
 
-        ui.add(doc_link_label("Button", "button"));
-        if ui.button("Click me!").clicked() {
-            // *boolean = !*boolean;
+        if ui.button("Start Game").clicked() {
+            println!("egui: Start Game Clicked");
+        }
+        ui.end_row();
+        if ui.button("Settings").clicked() {
+            println!("egui: Settings Clicked");
+        }
+        ui.end_row();
+        if ui.button("Quit Game").clicked() {
+            println!("egui: Quit Game Clicked");
         }
         ui.end_row();
     }
-    
-    fn show(&mut self, ctx: &egui::Context, open: &mut bool) {
-        egui::Window::new("Main Menu")
-                .open(open)
-                .resizable(false)
-                .default_width(280.0)
+
+    fn show(&mut self, ctx: &egui::Context) {
+        egui::Window::new("Driver's Altitude")
+                .resizable(true)
+                .default_width(280.0 * 5.)
+                .default_height(280.0 * 2.)
                 .show(ctx, |ui| {
                     self.ui(ui);
                 });
@@ -64,33 +71,15 @@ impl MainMenu {
     }
 }
 
-fn doc_link_label<'a>(title: &'a str, search_term: &'a str) -> impl egui::Widget + 'a {
-    doc_link_label_with_crate("egui", title, search_term)
-}
-
-fn doc_link_label_with_crate<'a>(
-    crate_name: &'a str,
-    title: &'a str,
-    search_term: &'a str,
-) -> impl egui::Widget + 'a {
-    let label = format!("{title}:");
-    let url = format!("https://docs.rs/{crate_name}?search={search_term}");
-    move |ui: &mut egui::Ui| {
-        ui.hyperlink_to(label, url).on_hover_ui(|ui| {
-            ui.horizontal_wrapped(|ui| {
-                ui.label("Search egui docs for");
-                ui.code(search_term);
-            });
-        })
-    }
-}
-
 pub fn egui_main_menu(mut contexts: EguiContexts) {
-    let main_menu_struct = MainMenu {
+    let mut main_menu_struct = MainMenu {
         enabled: true,
         visible: true,
         opacity: 1.0
     };
-    
-    main_menu_struct.gallery_grid_contents(ui);
+
+    let ctx = contexts.ctx_mut();
+
+    // Show the main menu
+    main_menu_struct.show(ctx);
 }
