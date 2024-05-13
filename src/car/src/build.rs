@@ -521,8 +521,38 @@ pub fn update_engine_audio(
     }
     */
 
+    //Convert music_controller into an array
+    let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
+    //For loop for the length of the music_controller
+    for i in 0..music_controller.len() {
+        for engine in engine_q.iter_mut() {
+            if engine.engine_id == i as i32 {
+                //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
+                let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
+                    engine.curve.point_at_pos(                                          //Get the position from the bezier curve
+                        (( (engine.speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
+                    ).y()                                                               //Grab the Y-value of from this position on the bezier curve
+                );
+                
+                //Calculate the offset
+                let offset = engine.speed * 0.030;
+
+                //Make the value smaller and apply an offset
+                speed_curve = speed_curve + offset;
+
+                //Set the playback speed to our calculated speed_curve of this specific engine audio sink
+                music_controller[i].set_speed(speed_curve);
+                //println!("Engine id: {}, Speed: {}", engine.engine_id, music_controller[i].speed());
+                println!("Engine id: {}, i: {}", engine.engine_id, i);
+            }
+        }
+    }
+  
+
+    /*
     //for loop going through music controller and engine_q
     for (sink, engine) in music_controller.iter().zip(engine_q.iter()) {
+        println!("Engine id: {}", engine.engine_id);
         //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
         let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
             engine.curve.point_at_pos(                                          //Get the position from the bezier curve
@@ -539,8 +569,9 @@ pub fn update_engine_audio(
         //Set the playback speed to our calculated speed_curve of this specific engine audio sink
         sink.set_speed(speed_curve);
 
-        print!("Engine Speed: {}\n", speed_curve);
+        //print!("Engine Speed: {}\n", speed_curve);
     }
+    */
 
     
     /*for loop for each audio sink
