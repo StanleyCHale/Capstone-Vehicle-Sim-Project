@@ -9,7 +9,7 @@ use flo_curves::*;
 use cameras::control::CameraParentList;
 use rigid_body::{
     definitions::{MeshDef, MeshTypeDef, TransformDef},
-    joint::{self, Base, Joint},
+    joint::{Base, Joint},
     sva::{Inertia, Matrix, Motion, Vector, Xform},
 };
 
@@ -45,7 +45,6 @@ pub struct CarList {
 
 #[derive(Component)]
 pub struct Engine {
-    engine_id: i32,
     speed: f32,
     curve: Curve<Coord2>,
 }
@@ -101,10 +100,10 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
 
     let suspension_names = ["fl", "fr", "rl", "rr"].map(|name| name.to_string());
     let suspension_locations = [
-        [1.25, 0.75, -0.2],
-        [1.25, -0.75, -0.2],
-        [-1.25, 0.75, -0.2],
-        [-1.25, -0.75, -0.2],
+        [1.57, 0.75, -0.2],
+        [1.57, -0.75, -0.2],
+        [-1.31, 0.75, -0.2],
+        [-1.31, -0.75, -0.2],
     ];
 
     let suspension: Vec<Suspension> = suspension_locations
@@ -234,7 +233,6 @@ pub fn car_startup_system(
             Color::rgb(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()),
             base_id,
             &asset_server,
-            car.id,
         );
         let chassis_id = chassis_ids[3]; // ids are not ordered by parent child order!!! "3" is rx, the last joint in the chain
 
@@ -304,7 +302,6 @@ impl Chassis {
         color: Color,
         parent_id: Entity,
         asset_server: &Res<AssetServer>,
-        id: i32
     ) -> Vec<Entity> {
         // x degree of freedom (absolute coordinate system, not relative to car)
         let mut px = Joint::px("chassis_px".to_string(), Inertia::zero(), Xform::identity());
@@ -383,7 +380,6 @@ impl Chassis {
                     ..default()
                 },
                 Engine {
-                    engine_id: id,
                     speed: 0.0,
                     curve: sound_curve,
                 },
@@ -445,9 +441,8 @@ pub fn update_engine_speed(
 
 //Used to update the playback speed of the engine audio sink
 pub fn update_engine_audio(
-    players: ResMut<CarList>,
     music_controller: Query<&SpatialAudioSink, With<Engine>>, 
-    mut engine_q: Query<&Engine>,
+    engine_q: Query<&Engine>,
 ) {
     let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
 
