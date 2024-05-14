@@ -1,4 +1,4 @@
-use bevy::{pbr::ExtendedMaterial, prelude::*};
+use bevy::{audio, pbr::ExtendedMaterial, prelude::*};
 
 // Some of the following code adapted from example code: https://github.com/johanhelsing/matchbox/tree/main/examples/bevy_ggrs
 
@@ -15,6 +15,15 @@ use car::{
 use grid_terrain::MyExtension;
 use rigid_body::plugin::RigidBodyPlugin;
 
+/*
+ * struct CarList
+ * Contains the list of car that are currently a part of this game session
+ */
+#[derive(Resource, Default)]
+pub struct EngineAudioList {
+    pub audio_sinks: Vec<SpatialAudioSink>,
+}
+
 // Main function
 fn main() {
     // Create cars
@@ -22,9 +31,11 @@ fn main() {
     car_definitions.push(build_car([0., 4., 0.], ControlType::WASD, 0));
     car_definitions.push(build_car([0., 0., 0.], ControlType::Arrow, 1)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
 
+
     let players = CarList {
         cars: car_definitions,
     };
+
 
     // Create App
     App::new()
