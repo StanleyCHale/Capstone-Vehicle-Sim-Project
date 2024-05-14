@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use rand::Rng;
 
 //Flo Curves is used for the creation of bezier curves
-use flo_curves::*;
 use flo_curves::bezier;
 use flo_curves::bezier::Curve;
+use flo_curves::*;
 
 use cameras::control::CameraParentList;
 use rigid_body::{
@@ -81,11 +81,11 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
 
     let chassis = Chassis {
         mass,
-        cg_position: startposition,
+        cg_position: [0., 0., 0.],
         moi,
         dimensions,
-        position: startposition,  // position: [0., 0., 0.],
-        initial_position: [-5. + xpos, 20. + ypos, 0.3 + 0.25 + zpos],  // initial_position: [-5., 20., 0.3 + 0.25],
+        position: startposition, // position: [0., 0., 0.],
+        initial_position: [-5. + xpos, 20. + ypos, 0.3 + 0.25 + zpos], // initial_position: [-5., 20., 0.3 + 0.25],
         initial_orientation: [0., 0., 1.57],
         mesh_file: Some("models/vehicle/chassis/car_chassisV2.glb#Scene0".to_string()),
         index: id,
@@ -101,10 +101,10 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
 
     let suspension_names = ["fl", "fr", "rl", "rr"].map(|name| name.to_string());
     let suspension_locations = [
-        [1.25 + xpos, 0.75 + ypos, -0.2 + zpos],
-        [1.25 + xpos, -0.75 + ypos, -0.2 + zpos],
-        [-1.25 + xpos, 0.75 + ypos, -0.2 + zpos],
-        [-1.25 + xpos, -0.75 + ypos, -0.2 + zpos],
+        [1.25, 0.75, -0.2],
+        [1.25, -0.75, -0.2],
+        [-1.25, 0.75, -0.2],
+        [-1.25, -0.75, -0.2],
     ];
 
     let suspension: Vec<Suspension> = suspension_locations
@@ -140,8 +140,9 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
     // Wheel
     let wheel = build_wheel();
 
-    // Drive and Brake
-    let drive_speeds = vec![0., 25., 50., 75.];
+
+    // // Drive and Brake
+    let drive_speeds = vec![0., 25., 50., 75. /* <-- Max Speed*/];
     let drive_torques = vec![1000., 1000., 600., 250.];
 
     let rear_drive = DriveType::DrivenWheelLookup(DrivenWheelLookup::new(
@@ -207,18 +208,23 @@ pub fn build_wheel() -> Wheel {
     }
 }
 
-pub fn car_startup_system(mut commands: Commands, asset_server: Res<AssetServer>, mut players: ResMut<CarList>) {
-    //Motion here is for gravity   (9.81 m/s)  
+pub fn car_startup_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut players: ResMut<CarList>,
+) {
+    //Motion here is for gravity   (9.81 m/s)
     let base = Joint::base(Motion::new([0., 0., 9.81], [0., 0., 0.]));
     let base_id = commands.spawn((base, Base)).id();
 
     let mut camera_parent_list = Vec::new();
     camera_parent_list.push(base_id);
     for car in &mut players.cars {
-        println!("Starting up car with id: {}", car.id);
-
         let control = CarControl::default();
-        let control_id = commands.spawn((control,)).id();
+        let control_id = commands
+            .spawn((control,))
+            .insert(TransformBundle::from(Transform::from_xyz(5.0, 5.0, 0.0)))
+            .id();
 
         let mut rng = rand::thread_rng();
 
@@ -266,7 +272,6 @@ pub fn car_startup_system(mut commands: Commands, asset_server: Res<AssetServer>
             if let Some(wheel_id) = maybe_steer_id {
                 steer_wheel_ids.push(wheel_id);
             }
-            //println!("Brake wheel found (build): {:?}", wheel_id);
         }
         car.carcontrol.brake_wheels = brake_wheel_ids; // update the car
         car.carcontrol.steer_wheels = steer_wheel_ids; // update the car
@@ -282,7 +287,7 @@ pub fn car_startup_system(mut commands: Commands, asset_server: Res<AssetServer>
 #[derive(Clone)]
 pub struct Chassis {
     pub mass: f64,
-    pub cg_position: [f64; 3],
+    pub cg_position: [f64; 3], // Center of Gravity Position
     pub moi: [f64; 3],
     pub dimensions: [f64; 3],
     pub position: [f64; 3],
@@ -293,7 +298,14 @@ pub struct Chassis {
 }
 
 impl Chassis {
-    pub fn build(&self, commands: &mut Commands, color: Color, parent_id: Entity, asset_server: &Res<AssetServer>, id: i32) -> Vec<Entity> {
+    pub fn build(
+        &self,
+        commands: &mut Commands,
+        color: Color,
+        parent_id: Entity,
+        asset_server: &Res<AssetServer>,
+        id: i32
+    ) -> Vec<Entity> {
         // x degree of freedom (absolute coordinate system, not relative to car)
         let mut px = Joint::px("chassis_px".to_string(), Inertia::zero(), Xform::identity());
         px.q = self.initial_position[0];
@@ -348,12 +360,16 @@ impl Chassis {
         rx_e.set_parent(ry_id);
         let rx_id = rx_e.id();
 
-         //Create a bezier curve for curving playback audio
-        let sound_curve = bezier::Curve::from_points(Coord2(0.0, 0.6), (Coord2(1.0, 1.4), Coord2(0.84, 0.55)), Coord2(1.0, 1.0));
+        //Create a bezier curve for curving playback audio
+        let sound_curve = bezier::Curve::from_points(
+            Coord2(0.0, 0.6),
+            (Coord2(1.0, 1.4), Coord2(0.84, 0.55)),
+            Coord2(1.0, 1.0),
+        );
 
         //Insert the car chassis into the rx roll degree of freedom joint entity.
         if let Some(_chassis_file) = &self.mesh_file {
-             rx_e.insert(SceneBundle {
+            rx_e.insert(SceneBundle {
                 transform: (&TransformDef::from_position(position)).into(),
                 scene: asset_server.load("models/vehicle/chassis/car_chassis.glb#Scene0"),
                 ..default()
@@ -391,7 +407,6 @@ impl Chassis {
         chassis_ids
     }
 }
-
 
 //Asserts wether or not an overflow to infinite occurs during conversion
 //Got this snippet from: https://stackoverflow.com/questions/72247741/how-to-convert-a-f64-to-a-f32
@@ -582,10 +597,9 @@ impl Wheel {
                     transform: (&TransformDef::Identity).into(),
                     scene: asset_server.load("models/vehicle/wheel/wheelR.glb#Scene0"),
                     ..default()
-                }
+                },
             ));
-        }
-        else {
+        } else {
             wheel_e = commands.spawn((
                 ry,
                 //Assign the mesh of the wheel model
@@ -593,7 +607,7 @@ impl Wheel {
                     transform: (&TransformDef::Identity).into(),
                     scene: asset_server.load("models/vehicle/wheel/wheelL.glb#Scene0"),
                     ..default()
-                }
+                },
             ));
         }
 
