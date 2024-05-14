@@ -1,4 +1,4 @@
-use bevy::{audio, pbr::ExtendedMaterial, prelude::*};
+use bevy::{pbr::ExtendedMaterial, prelude::*};
 
 // Some of the following code adapted from example code: https://github.com/johanhelsing/matchbox/tree/main/examples/bevy_ggrs
 
