@@ -9,7 +9,7 @@ use flo_curves::bezier::Curve;
 use cameras::control::CameraParentList;
 use rigid_body::{
     definitions::{MeshDef, MeshTypeDef, TransformDef},
-    joint::{Base, Joint},
+    joint::{self, Base, Joint},
     sva::{Inertia, Matrix, Motion, Vector, Xform},
 };
 
@@ -48,7 +48,6 @@ pub struct Engine {
     engine_id: i32,
     speed: f32,
     curve: Curve<Coord2>,
-    //audio_sink: AudioBundle,
 }
 
 const CHASSIS_MASS: f64 = 1000.;
@@ -373,25 +372,6 @@ impl Chassis {
                     curve: sound_curve,
                 },
             ));
-
-
-            /* 
-            //Setup audio emitter for our engine audio and parent it to our chassis
-            rx_e.insert((
-                
-                Engine {
-                    engine_id: id,
-                    speed: 0.0, 
-                    curve: sound_curve, 
-                    audio_sink: AudioBundle {
-                        source: asset_server.load("sounds/engine_hum.ogg"),
-                        settings: PlaybackSettings::LOOP.with_spatial(true),
-                        ..default()
-                    },
-                },
-            ));
-            */
-
         } else {
             rx_e.insert(MeshDef {
                 mesh_type: MeshTypeDef::Box {
@@ -432,56 +412,20 @@ pub fn update_engine_speed(
     mut engine_q: Query<&mut Engine>,
 ) {
 
-    //
-    for car in &mut players.cars {
-        for mut engine in engine_q.iter_mut() {
-            //println!("Car id: {}", car.id);
+    let playerlist = &mut players.cars;
 
-            //Check if the car id and the engine sink index match
-            if car.id == engine.engine_id {
+    let joint_list: Vec<(&Joint, &BrakeWheel)> = joints.iter().collect();
 
-                //println!("Engine id: {}, Car Id: {}", engine.engine_id, car.id);
+    let mut count = 0;
+    for mut engine in engine_q.iter_mut() {
+        let car_joint = count * 2;
+        let qd = joint_list[car_joint].0.qd.abs();
+        let radius = playerlist[count].wheel.radius;
 
-                //Grab the driven wheel joints
-                for (joint, _brake_wheel) in joints.iter() {
-                    //Joint.qd = q dirivitive -> radians/second
-                    //Can convert that by (joint.qd * wheel.radius) -> meters/second
-                    let qd = joint.qd.abs();
-                    let radius = car.wheel.radius;
-
-                    //Update the speed
-                    engine.speed = f64_to_f32(qd * radius); 
-                    //println!("Engine {} Speed: {}", engine.engine_id, engine.speed)                
-                }
-            }
-        }
-    }
-    //
-
-    /* 
-    let mut first = 0;
-
-    for car in &mut players.cars {
-        //Grab the driven wheel joints
-        for (joint, _brake_wheel) in joints.iter() {
-            first += 1;
-            //We only need to grab one, so get the first one
-            if first == 1 {
-                //Joint.qd = q dirivitive -> radians/second
-                //Can convert that by (joint.qd * wheel.radius) -> meters/second
-                let qd = joint.qd.abs();
-                let radius = car.wheel.radius;
-
-                //Update the speed
-                for mut engine in engine_q.iter_mut() {
-                    engine.speed = f64_to_f32(qd * radius); 
-                }
-            }
-        }
-    }
-    */
-
-     
+        //Update the speed
+        engine.speed = f64_to_f32(qd * radius); 
+        count += 1;
+    } 
 }
 
 //Used to update the playback speed of the engine audio sink
@@ -490,117 +434,28 @@ pub fn update_engine_audio(
     music_controller: Query<&SpatialAudioSink, With<Engine>>, 
     mut engine_q: Query<&Engine>,
 ) {
-
-    /*
-    for car in &players.cars {
-        for engine in engine_q.iter_mut() {
-
-            //Check if the car id and the engine sink index match
-            if car.id == engine.engine_id {
-
-                //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
-                let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
-                    engine.curve.point_at_pos(                                          //Get the position from the bezier curve
-                        (( (engine.speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
-                    ).y()                                                               //Grab the Y-value of from this position on the bezier curve
-                );
-                
-                //Calculate the offset
-                let offset = engine.speed * 0.030;
-
-                //Make the value smaller and apply an offset
-                speed_curve = speed_curve + offset;
-
-                //Set the playback speed to our calculated speed_curve of this specific engine audio sink
-                engine.audio_sink.settings.with_speed(speed_curve);
-
-                print!("Engine {} Speed: {}\n", engine.engine_id, engine.audio_sink.settings.speed);
-            
-            }
-        }
-    }
-    */
-
-    //Convert music_controller into an array
     let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
+
+    let engine_list: Vec<&Engine> = engine_q.iter().collect();
+
     //For loop for the length of the music_controller
     for i in 0..music_controller.len() {
-        for engine in engine_q.iter_mut() {
-            if engine.engine_id == i as i32 {
-                //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
-                let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
-                    engine.curve.point_at_pos(                                          //Get the position from the bezier curve
-                        (( (engine.speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
-                    ).y()                                                               //Grab the Y-value of from this position on the bezier curve
-                );
-                
-                //Calculate the offset
-                let offset = engine.speed * 0.030;
-
-                //Make the value smaller and apply an offset
-                speed_curve = speed_curve + offset;
-
-                //Set the playback speed to our calculated speed_curve of this specific engine audio sink
-                music_controller[i].set_speed(speed_curve);
-                //println!("Engine id: {}, Speed: {}", engine.engine_id, music_controller[i].speed());
-                println!("Engine id: {}, i: {}", engine.engine_id, i);
-            }
-        }
-    }
-  
-
-    /*
-    //for loop going through music controller and engine_q
-    for (sink, engine) in music_controller.iter().zip(engine_q.iter()) {
-        println!("Engine id: {}", engine.engine_id);
         //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
         let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
-            engine.curve.point_at_pos(                                          //Get the position from the bezier curve
-                (( (engine.speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
+            engine_list[i].curve.point_at_pos(                                          //Get the position from the bezier curve
+                (( (engine_list[i].speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
             ).y()                                                               //Grab the Y-value of from this position on the bezier curve
         );
-        
+                
         //Calculate the offset
-        let offset = engine.speed * 0.030;
+        let offset = engine_list[i].speed * 0.030;
 
         //Make the value smaller and apply an offset
         speed_curve = speed_curve + offset;
 
         //Set the playback speed to our calculated speed_curve of this specific engine audio sink
-        sink.set_speed(speed_curve);
-
-        //print!("Engine Speed: {}\n", speed_curve);
+        music_controller[i].set_speed(speed_curve);
     }
-    */
-
-    
-    /*for loop for each audio sink
-    for sink in music_controller.iter() {
-        //Just grabs both engines and updates them.
-        for engine in &engine_q {
-            //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
-            let mut speed_curve = f64_to_f32(
-                //Convert from f64 to f32
-                engine
-                    .curve
-                    .point_at_pos(
-                        //Get the position from the bezier curve
-                        ((engine.speed * 0.05) % 1.0).into(), //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
-                    )
-                    .y(), //Grab the Y-value of from this position on the bezier curve
-            );
-
-            //Calculate the offset
-            let offset = engine.speed * 0.030;
-
-            //Make the value smaller and apply an offset
-            speed_curve = speed_curve + offset;
-
-            //Set the playback speed to our calculated speed_curve
-            sink.set_speed(speed_curve);
-        }
-    }
-    */
 }
 
 #[derive(Clone)]

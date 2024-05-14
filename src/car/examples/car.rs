@@ -29,9 +29,6 @@ fn main() {
     let mut car_definitions = Vec::new();
     car_definitions.push(build_car([0., 0., 0.], ControlType::WASD, 0));
     car_definitions.push(build_car([0., 2., 0.], ControlType::Arrow, 1)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
-    let audio_sinks = EngineAudioList {
-        audio_sinks: vec![],
-    };
 
 
     let players = CarList {
@@ -41,7 +38,6 @@ fn main() {
 
     // Create App
     App::new()
-        .insert_resource(audio_sinks)
         .add_plugins(MainMenuPlugin)
         .add_plugins(RigidBodyPlugin {
             time: SimTime::new(0.002, 0.0, None),
