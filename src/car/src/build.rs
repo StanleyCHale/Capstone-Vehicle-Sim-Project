@@ -100,10 +100,10 @@ pub fn build_car(startposition: [f64; 3], control_type: ControlType, id: i32) ->
 
     let suspension_names = ["fl", "fr", "rl", "rr"].map(|name| name.to_string());
     let suspension_locations = [
-        [1.25, 0.75, -0.2],
-        [1.25, -0.75, -0.2],
-        [-1.25, 0.75, -0.2],
-        [-1.25, -0.75, -0.2],
+        [1.57, 0.75, -0.2],
+        [1.57, -0.75, -0.2],
+        [-1.31, 0.75, -0.2],
+        [-1.31, -0.75, -0.2],
     ];
 
     let suspension: Vec<Suspension> = suspension_locations
