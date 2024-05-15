@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use bevy_integrator::{PhysicsSchedule, PhysicsSet};
+use bevy_integrator::{GameState, PhysicsSchedule, PhysicsSet};
+use rigid_body::plugin::CarState;
 
 use crate::{
     control::user_control_system,
@@ -30,13 +31,16 @@ pub fn simulation_setup(app: &mut App) {
         )
             .in_set(PhysicsSet::Evaluate),
     )
-    .add_systems(Update, (user_control_system,));
+    .add_systems(
+        Update,
+        (user_control_system,).run_if(in_state(CarState::Finished)),
+    );
 }
 
 pub fn camera_setup(app: &mut App) {
     app.add_systems(
 
-        Startup,
+        OnEnter(GameState::InGame),
         camera_builder(
             Vec3 {
                 x: 0.,
@@ -49,5 +53,8 @@ pub fn camera_setup(app: &mut App) {
             camera_az_el::UpDirection::Z,
         ),
     )
-    .add_systems(Update, (camera_az_el::az_el_camera, camera_parent_system)); // setup the camera
+    .add_systems(
+        Update,
+        (camera_az_el::az_el_camera, camera_parent_system).run_if(in_state(CarState::Finished)),
+    ); // setup the camera
 }

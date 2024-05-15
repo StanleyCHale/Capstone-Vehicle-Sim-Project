@@ -7,6 +7,15 @@ use std::{
     ops::{Add, Mul},
 };
 
+// STATE
+// Enum that will be used as a global state for the game
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+pub enum GameState {
+    #[default]
+    InMenu,
+    InGame,
+}
+
 #[derive(Event)]
 pub struct ExitEvent;
 
@@ -134,37 +143,35 @@ fn evaluate_state<T: Stateful>(world: &mut World, state: &StateMap<T>, _t: f64) 
 }
 
 pub fn integrator_schedule<T: Stateful>(world: &mut World) {
-    // get the initial state
-    let state_0 = world
-        .get_resource::<PhysicsState<T>>()
-        .unwrap()
-        .states
-        .clone();
+    if let Some(state_0) = world
+    .get_resource::<PhysicsState<T>>() {
+        let state_0 = state_0.states.clone();
 
-    // get step size
-    let time_step = world
-        .get_resource::<Time<Fixed>>()
-        .unwrap()
-        .delta()
-        .as_secs_f64();
+        // get step size
+        let time_step = world
+            .get_resource::<Time<Fixed>>()
+            .unwrap()
+            .delta()
+            .as_secs_f64();
 
-    // get time and increment
-    let mut time_resource = world.get_resource_mut::<SimTime>().unwrap();
-    time_resource.increment();
-    let time = time_resource.time();
+        // get time and increment
+        let mut time_resource = world.get_resource_mut::<SimTime>().unwrap();
+        time_resource.increment();
+        let time = time_resource.time();
 
-    // get Solver resource from world
-    let solver = world.get_resource::<Solver>().unwrap();
+        // get Solver resource from world
+        let solver = world.get_resource::<Solver>().unwrap();
 
-    let state = match solver {
-        Solver::Euler => euler::<T>(world, &state_0, time, time_step),
-        Solver::Heun => heun::<T>(world, &state_0, time, time_step),
-        Solver::Midpoint => midpoint::<T>(world, &state_0, time, time_step),
-        Solver::RK4 => rk4::<T>(world, &state_0, time, time_step),
-    };
+        let state = match solver {
+            Solver::Euler => euler::<T>(world, &state_0, time, time_step),
+            Solver::Heun => heun::<T>(world, &state_0, time, time_step),
+            Solver::Midpoint => midpoint::<T>(world, &state_0, time, time_step),
+            Solver::RK4 => rk4::<T>(world, &state_0, time, time_step),
+        };
 
-    let mut physics_state = world.get_resource_mut::<PhysicsState<T>>().unwrap();
-    physics_state.states = state;
+        let mut physics_state = world.get_resource_mut::<PhysicsState<T>>().unwrap();
+        physics_state.states = state;
+    }
 }
 
 pub trait Stateful: std::fmt::Debug + 'static {
@@ -220,7 +227,7 @@ impl PhysicsScheduleExt for Schedule {
                 //
                 SolverSet::Post,
             )
-                .chain(), // This defines the ordering of the system sets
+                .chain().run_if(in_state(GameState::InGame)), // This defines the ordering of the system sets
         )
         .add_systems(distribute_state::<T>.in_set(SolverSet::Pre))
         .add_systems(systems_init.in_set(PhysicsSet::Initialize))
