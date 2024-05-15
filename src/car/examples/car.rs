@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{pbr::ExtendedMaterial, prelude::*};
 
 // Some of the following code adapted from example code: https://github.com/johanhelsing/matchbox/tree/main/examples/bevy_ggrs
 
@@ -15,7 +15,18 @@ use car::{
     environment::build_environment,
     setup::{camera_setup, simulation_setup},
 };
+
+use grid_terrain::MyExtension;
 use rigid_body::plugin::{CarState, RigidBodyPlugin};
+
+/*
+ * struct CarList
+ * Contains the list of car that are currently a part of this game session
+ */
+#[derive(Resource, Default)]
+pub struct EngineAudioList {
+    pub audio_sinks: Vec<SpatialAudioSink>,
+}
 
 // Main function
 fn main() {

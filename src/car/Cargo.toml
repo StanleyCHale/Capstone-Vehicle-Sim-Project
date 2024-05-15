@@ -29,3 +29,6 @@ path = "./examples/car_json/main.rs"
 [[example]]
 name = "car"
 path = "./examples/car.rs"
+
+[build-dependencies]
+embed-resource = "2.4.2"

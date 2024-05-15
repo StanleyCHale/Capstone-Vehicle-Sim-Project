@@ -91,6 +91,7 @@ pub fn build_car(
         initial_position: [-5. + xpos, 20. + ypos, 0.3 + 0.25 + zpos], // initial_position: [-5., 20., 0.3 + 0.25],
         initial_orientation: [0., 0., 1.57],
         mesh_file: Some("models/vehicle/chassis/car_chassisV2.glb#Scene0".to_string()),
+        index: id,
     };
 
     // Suspension
@@ -103,10 +104,10 @@ pub fn build_car(
 
     let suspension_names = ["fl", "fr", "rl", "rr"].map(|name| name.to_string());
     let suspension_locations = [
-        [1.25, 0.75, -0.2],
-        [1.25, -0.75, -0.2],
-        [-1.25, 0.75, -0.2],
-        [-1.25, -0.75, -0.2],
+        [1.57, 0.75, -0.2],
+        [1.57, -0.75, -0.2],
+        [-1.31, 0.75, -0.2],
+        [-1.31, -0.75, -0.2],
     ];
 
     let suspension: Vec<Suspension> = suspension_locations
@@ -303,6 +304,7 @@ pub struct Chassis {
     pub initial_position: [f64; 3],
     pub initial_orientation: [f64; 3],
     pub mesh_file: Option<String>,
+    pub index: i32,
 }
 
 impl Chassis {
@@ -382,8 +384,8 @@ impl Chassis {
                 ..default()
             });
 
-            //Setup audio emitter for our engine audio and parent it to our chassis
-            rx_e.insert((
+             //Setup audio emitter for our engine audio and parent it to our chassis
+             rx_e.insert((
                 AudioBundle {
                     source: asset_server.load("sounds/engine_hum.ogg"),
                     settings: PlaybackSettings::LOOP.with_spatial(true),
@@ -432,59 +434,49 @@ pub fn update_engine_speed(
     mut players: ResMut<CarList>,
     mut engine_q: Query<&mut Engine>,
 ) {
-    let mut first = 0;
 
-    for car in &mut players.cars {
-        //Grab the driven wheel joints
-        for (joint, _brake_wheel) in joints.iter() {
-            first += 1;
-            //We only need to grab one, so get the first one
-            if first == 1 {
-                //Joint.qd = q dirivitive -> radians/second
-                //Can convert that by (joint.qd * wheel.radius) -> meters/second
-                let qd = joint.qd.abs();
-                let radius = car.wheel.radius;
+    let playerlist = &mut players.cars;
 
-                //Update the speed
-                for mut engine in engine_q.iter_mut() {
-                    engine.speed = f64_to_f32(qd * radius); 
-                }
-            }
-        }
-    }
-     
+    let joint_list: Vec<(&Joint, &BrakeWheel)> = joints.iter().collect();
+
+    let mut count = 0;
+    for mut engine in engine_q.iter_mut() {
+        let car_joint = count * 2;
+        let qd = joint_list[car_joint].0.qd.abs();
+        let radius = playerlist[count].wheel.radius;
+
+        //Update the speed
+        engine.speed = f64_to_f32(qd * radius); 
+        count += 1;
+    } 
 }
 
 //Used to update the playback speed of the engine audio sink
 pub fn update_engine_audio(
-    music_controller: Query<&SpatialAudioSink, With<Engine>>,
+    music_controller: Query<&SpatialAudioSink, With<Engine>>, 
     engine_q: Query<&Engine>,
 ) {
-    //for loop for each audio sink
-    for sink in music_controller.iter() {
-        //Just grabs both engines and updates them.
-        for engine in &engine_q {
-            //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
-            let mut speed_curve = f64_to_f32(
-                //Convert from f64 to f32
-                engine
-                    .curve
-                    .point_at_pos(
-                        //Get the position from the bezier curve
-                        ((engine.speed * 0.05) % 1.0).into(), //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
-                    )
-                    .y(), //Grab the Y-value of from this position on the bezier curve
-            );
+    let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
 
-            //Calculate the offset
-            let offset = engine.speed * 0.030;
+    let engine_list: Vec<&Engine> = engine_q.iter().collect();
 
-            //Make the value smaller and apply an offset
-            speed_curve = speed_curve + offset;
+    //For loop for the length of the music_controller
+    for i in 0..music_controller.len() {
+        //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
+        let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
+            engine_list[i].curve.point_at_pos(                                          //Get the position from the bezier curve
+                (( (engine_list[i].speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
+            ).y()                                                               //Grab the Y-value of from this position on the bezier curve
+        );
+                
+        //Calculate the offset
+        let offset = engine_list[i].speed * 0.030;
 
-            //Set the playback speed to our calculated speed_curve
-            sink.set_speed(speed_curve);
-        }
+        //Make the value smaller and apply an offset
+        speed_curve = speed_curve + offset;
+
+        //Set the playback speed to our calculated speed_curve of this specific engine audio sink
+        music_controller[i].set_speed(speed_curve);
     }
 }
 
