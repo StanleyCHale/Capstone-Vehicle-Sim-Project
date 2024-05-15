@@ -8,9 +8,7 @@ use flo_curves::*;
 
 use cameras::control::CameraParentList;
 use rigid_body::{
-    definitions::{MeshDef, MeshTypeDef, TransformDef},
-    joint::{Base, Joint},
-    sva::{Inertia, Matrix, Motion, Vector, Xform},
+    definitions::{MeshDef, MeshTypeDef, TransformDef}, joint::{Base, Joint}, plugin::CarState, sva::{Inertia, Matrix, Motion, Vector, Xform}
 };
 
 use crate::{
@@ -22,14 +20,6 @@ use crate::{
     tire::PointTire,
 };
 
-// STATE
-// Enum for the car's state during setup
-#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
-pub enum CarState {
-    #[default]
-    Building,
-    Finished,
-}
 
 #[derive(Resource)]
 pub struct CarDefinition {
@@ -227,7 +217,7 @@ pub fn car_startup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut players: ResMut<CarList>,
-    //mut car_state: ResMut<NextState<CarState>>
+    mut car_state: ResMut<NextState<CarState>>
 ) {
     //Motion here is for gravity   (9.81 m/s)
     let base = Joint::base(Motion::new([0., 0., 9.81], [0., 0., 0.]));
@@ -297,6 +287,9 @@ pub fn car_startup_system(
         list: camera_parent_list,
         active: 1, // start with following x, y, z and yaw of chassis
     });
+
+    //Change the car state to finished
+    car_state.set(CarState::Rendered);
     
 }
 
@@ -323,35 +316,35 @@ impl Chassis {
         // x degree of freedom (absolute coordinate system, not relative to car)
         let mut px = Joint::px("chassis_px".to_string(), Inertia::zero(), Xform::identity());
         px.q = self.initial_position[0];
-        let mut px_e = commands.spawn((px,));
+        let mut px_e = commands.spawn((px,SpatialBundle::default()));
         px_e.set_parent(parent_id);
         let px_id = px_e.id();
 
         // y degree of freedom (absolute coordinate system, not relative to car)
         let mut py = Joint::py("chassis_py".to_string(), Inertia::zero(), Xform::identity());
         py.q = self.initial_position[1];
-        let mut py_e = commands.spawn((py,));
+        let mut py_e = commands.spawn((py,SpatialBundle::default()));
         py_e.set_parent(px_id);
         let py_id = py_e.id();
 
         // z degree of freedom (always points "up", relative to absolute coordinate system)
         let mut pz = Joint::pz("chassis_pz".to_string(), Inertia::zero(), Xform::identity());
         pz.q = self.initial_position[2];
-        let mut pz_e = commands.spawn((pz,));
+        let mut pz_e = commands.spawn((pz,SpatialBundle::default()));
         pz_e.set_parent(py_id);
         let pz_id = pz_e.id();
 
         // yaw degree of freedom (rotation around z axis)
         let mut rz = Joint::rz("chassis_rz".to_string(), Inertia::zero(), Xform::identity());
         rz.q = self.initial_orientation[2];
-        let mut rz_e = commands.spawn((rz,));
+        let mut rz_e = commands.spawn((rz,SpatialBundle::default()));
         rz_e.set_parent(pz_id);
         let rz_id = rz_e.id();
 
         // pitch degree of freedom (rotation around y axis)
         let mut ry = Joint::ry("chassis_ry".to_string(), Inertia::zero(), Xform::identity());
         ry.q = self.initial_orientation[1];
-        let mut ry_e = commands.spawn((ry,));
+        let mut ry_e = commands.spawn((ry, SpatialBundle::default()));
         ry_e.set_parent(rz_id);
         let ry_id = ry_e.id();
 
@@ -370,7 +363,7 @@ impl Chassis {
 
         let mut rx = Joint::rx("chassis_rx".to_string(), inertia, Xform::identity());
         rx.q = self.initial_orientation[0];
-        let mut rx_e = commands.spawn((rx,));
+        let mut rx_e = commands.spawn((rx,SpatialBundle::default()));
         rx_e.set_parent(ry_id);
         let rx_id = rx_e.id();
 

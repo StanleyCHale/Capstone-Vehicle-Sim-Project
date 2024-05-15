@@ -12,6 +12,16 @@ use bevy_integrator::{
 use bevy_obj::ObjPlugin;
 
 
+// STATE
+// Enum for the car's state during setup
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+pub enum CarState {
+    #[default]
+    Building,
+    Rendered,
+    Finished,
+}
+
 
 #[derive(Clone)]
 pub struct RigidBodyPlugin {
@@ -29,7 +39,7 @@ impl RigidBodyPlugin {
             .insert_resource(self.time.clone())
             .insert_resource(self.solver)
             .insert_resource(Time::<Fixed>::from_seconds(self.time.dt as f64))
-            .add_systems(FixedUpdate, integrator_schedule::<Joint>.run_if(in_state(GameState::InGame)));
+            .add_systems(FixedUpdate, integrator_schedule::<Joint>.run_if(in_state(CarState::Finished)));
     }
 }
 
@@ -62,10 +72,10 @@ impl Plugin for RigidBodyPlugin {
             }),
             ObjPlugin,
         ));
-        app.add_systems(PostStartup, startup_rendering)
+        app.add_systems(OnEnter(CarState::Rendered), startup_rendering)
             .add_systems(Update, bevy_joint_positions);
 
-        app.add_systems(PostStartup, initialize_state::<Joint>);
+        app.add_systems(OnEnter(CarState::Rendered), initialize_state::<Joint>);
     }
 }
 

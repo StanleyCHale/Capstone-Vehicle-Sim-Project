@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_integrator::{GameState, PhysicsSchedule, PhysicsSet};
+use rigid_body::plugin::CarState;
 
 use crate::{
-    build::CarState,
     control::user_control_system,
     physics::{
         brake_wheel_system, driven_wheel_lookup_system, steering_curvature_system, steering_system,

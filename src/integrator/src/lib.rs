@@ -144,36 +144,35 @@ fn evaluate_state<T: Stateful>(world: &mut World, state: &StateMap<T>, _t: f64) 
 
 pub fn integrator_schedule<T: Stateful>(world: &mut World) {
     // get the initial state
-    let state_0 = world
-        .get_resource::<PhysicsState<T>>()
-        .unwrap()
-        .states
-        .clone();
+    if let Some(state_0) = world
+    .get_resource::<PhysicsState<T>>() {
+        let state_0 = state_0.states.clone();
 
-    // get step size
-    let time_step = world
-        .get_resource::<Time<Fixed>>()
-        .unwrap()
-        .delta()
-        .as_secs_f64();
-
-    // get time and increment
-    let mut time_resource = world.get_resource_mut::<SimTime>().unwrap();
-    time_resource.increment();
-    let time = time_resource.time();
-
-    // get Solver resource from world
-    let solver = world.get_resource::<Solver>().unwrap();
-
-    let state = match solver {
-        Solver::Euler => euler::<T>(world, &state_0, time, time_step),
-        Solver::Heun => heun::<T>(world, &state_0, time, time_step),
-        Solver::Midpoint => midpoint::<T>(world, &state_0, time, time_step),
-        Solver::RK4 => rk4::<T>(world, &state_0, time, time_step),
-    };
-
-    let mut physics_state = world.get_resource_mut::<PhysicsState<T>>().unwrap();
-    physics_state.states = state;
+        // get step size
+        let time_step = world
+            .get_resource::<Time<Fixed>>()
+            .unwrap()
+            .delta()
+            .as_secs_f64();
+    
+        // get time and increment
+        let mut time_resource = world.get_resource_mut::<SimTime>().unwrap();
+        time_resource.increment();
+        let time = time_resource.time();
+    
+        // get Solver resource from world
+        let solver = world.get_resource::<Solver>().unwrap();
+    
+        let state = match solver {
+            Solver::Euler => euler::<T>(world, &state_0, time, time_step),
+            Solver::Heun => heun::<T>(world, &state_0, time, time_step),
+            Solver::Midpoint => midpoint::<T>(world, &state_0, time, time_step),
+            Solver::RK4 => rk4::<T>(world, &state_0, time, time_step),
+        };
+    
+        let mut physics_state = world.get_resource_mut::<PhysicsState<T>>().unwrap();
+        physics_state.states = state;
+    }
 }
 
 pub trait Stateful: std::fmt::Debug + 'static {
