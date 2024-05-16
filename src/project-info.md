@@ -1,45 +1,38 @@
-# Driver's Altitude
+# Bevy Car Demo
+This repo contains a simple car demo using rust and bevy. Consider it a proof of concept for a physics engine in bevy/rust, but there are still a lot of features missing, and likely some bugs. There are glitches that can cause the car to explode, especially when driving aggressively over rough terrain.
 
-**A free, open-source, and realistic car simulation.**
+It includes several simple rigid body demos, which can be run with:
+```bash
+cargo run --example <example_name>
+```
+The examples are:
+- `car`: simple car demo
+- `00_1dof`: A single rigid body with a single translational degree of freedom and a spring force
+- `01_pendulum`: A pendulum with a revolute joint
+- `02_double_pendulum`: A double pendulum with two revolute joints
 
-![Two cars looking off into the distant mountain roads](./TwoCarHorizonView.png)
+## Car Controls
+Keyboard controls for the car demo:
+- `W`/`S`: Accelerate/brake
+- `A`/`D`: Steer left/right
 
+Gamepad controls for the car demo:
+- `Right Stick`: Accelerate/brake
+- `Left Stick`: Steer
+- `Right Trigger`: Accelerate
+- `Left Trigger`: Brake
 
-This program allows the user to control up to two cars and drive them around on randomly generated terrain using their keyboard and mouse, or a console controller! There are already many wonderful vehicle-driving programs out in the world already, but for someone with an interest in vehicles that doesn't want to commit to having to spend money, this program can be a great alternative.​
-
-This program is great for allowing the user to see how a car handles bumpy terrain, going uphill, downhill, or on flat ground in the various valleys and peaks found in the simulated world.​
-
-With many adjustable parameters prebuilt into the program and an open-source codebase, this project allows easy modding support for developers, and fully customizable mechanics for advanced users.
-
-## Why use this?
-
-With many adjustable parameters prebuilt into the program and an open-source codebase, this project allows easy modding support for developers, and fully customizable mechanics for advanced users.
-
-The Bevy game engine is performant as it will automatically parallelize and cache where it can. It has the fastest ECS according to some benchmarks
-
-## How to run the application
-
-Download the .exe file and run it. `LINK OR SOMETHING HERE!!! I DONT KNOW HOW THIS WORKS - benny`
-
-Alternatively, you can pull the project off our github repository. The instructions will be ______ `Either say instructions here or maybe in github?`
-
-## Help
-
-Documentation can be found on our github. You can also open an issue there. https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/tree/main
-
-Alternatively, you could contact us by our emails [down below](##aboutus).
-
-## About Us
-Members:
-- Stanley Hale - halesta@oregonstate.edu
-  - UI, sound design, car model
-- Ezra McDonald-Muelle - mcdonaez@oregonstate.edu
-  - Terrain, skybox
-- Greggory Hickman​ - hickmang@oregonstate.edu
-  - Multiple cars, UI
-- Benny Xu - xube@oregonstate.edu
-  - Terrain, shaders
-
-Project Partner:
-- Christopher Patton 
-  - Dynamics and Simulation Engineer at Patton Dynamics LLC
+## Crates
+- `car`: car demo
+    - Demonstrates a simple car with suspension, engine, brakes, and steering.
+    - Tires are modeled as a cylinder of points, each of which can interact with the terrain with a simple friction model.
+- `rigid_body`: rigid body dynamics library
+    - based on [Rigid Body Dynamics Algorithms](https://link.springer.com/book/10.1007/978-1-4899-7560-7) by Roy Featherstone
+    - uses the `nalgebra` crate for linear algebra
+    - Revolute and prismatic joints are supported
+- `integrator`: numerical integrators for rigid body dynamics
+    - uses a `FixedTime` schedule to integrate the rigid bodies independently of the bevy update and rendering loops.
+    - Several numerical integrators are available, including forward Euler (`Euler`), `Midpoint`, `Heun`, and fourth order Runge-Kutta (`RK4`). 
+- `grid_terrain`: used to generate terrain meshes that the car can drive on. 
+    - a rectangular grid of terrain elements (ramp, step, function, etc.) is use to specify the terrain. 
+- `cameras`: basic camera controls for bevy
