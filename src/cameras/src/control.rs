@@ -30,16 +30,17 @@ pub fn camera_parent_system(
 
         // update the parent on every frame...
         if let Ok(camera_entity) = query.get_single_mut() {
-            let parent_entity = parent_list.list[parent_list.active];
-            if commands.get_entity(parent_entity).is_some() {
-                if let Some(mut camera_entity_commands) = commands.get_entity(camera_entity) {
-                    camera_entity_commands.set_parent(parent_entity);
-                }
-            } else {
-                if let Some(mut camera_entity_commands) = commands.get_entity(camera_entity) {
-                    camera_entity_commands.remove_parent();
+            if let Some(parent_entity) = parent_list.list.get(parent_list.active) {
+                if commands.get_entity(*parent_entity).is_some() {
+                    if let Some(mut camera_entity_commands) = commands.get_entity(camera_entity) {
+                        camera_entity_commands.set_parent(*parent_entity);
+                    }
+                } else {
+                    if let Some(mut camera_entity_commands) = commands.get_entity(camera_entity) {
+                        camera_entity_commands.remove_parent();
+                    }
                 }
             }
-        }
+       }
     }
 }

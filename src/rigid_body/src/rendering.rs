@@ -1,4 +1,5 @@
 use crate::mesh::{add_obj_mesh, Mesh as RigidBodyMesh};
+use crate::plugin::CarState;
 use crate::{definitions::MeshDef, joint::Joint};
 use bevy::prelude::*;
 
@@ -9,6 +10,7 @@ pub fn startup_rendering(
     mut asset_server: Res<AssetServer>,
     mut joint_mesh_query: Query<(Entity, &MeshDef), (With<Joint>, With<MeshDef>)>,
     mut joint_no_mesh_query: Query<Entity, (With<Joint>, Without<MeshDef>)>,
+    mut car_state: ResMut<NextState<CarState>>,
 ) {
     for (entity, mesh_def) in joint_mesh_query.iter_mut() {
         let mut entity_commands = commands.entity(entity);
@@ -55,4 +57,7 @@ pub fn startup_rendering(
         let mut entity_commands = commands.entity(entity);
         entity_commands.insert(SpatialBundle::default());
     }
+
+    //Change CarState to Rendered
+    car_state.set(CarState::Finished);
 }
