@@ -1,40 +1,45 @@
-# Capstone-Vehicle-Sim-Project
-**Repository for CS 46X** 
+# Driver's Altitude
 
-Primary means of team communication: Discord  
-**Current weekly schedule for team mettings:**  
-Sunday     -  
-Monday     -  
-Tuesday    -  
-Wednesday  -  
-Thursday   - Project Partner @6:15pm (Discord), TA @6:45pm (Teams)  
-Friday     -   
-Saturday   -   
+**A free, open-source, and realistic car simulation.**
+
+![Two cars looking off into the distant mountain roads](./TwoCarHorizonView.png)
 
 
-## Project Structure:
+This program allows the user to control up to two cars and drive them around on randomly generated terrain using their keyboard and mouse, or a console controller! There are already many wonderful vehicle-driving programs out in the world already, but for someone with an interest in vehicles that doesn't want to commit to having to spend money, this program can be a great alternative.​
 
-.  
-├── docs/  
-├── src/  
-├── wip/  
-├── .gitignore  
-├── LICENSE  
-└── README.md  
+This program is great for allowing the user to see how a car handles bumpy terrain, going uphill, downhill, or on flat ground in the various valleys and peaks found in the simulated world.​
 
-The docs/ directory contains our supporting team documents for our team deliverables and assignments.
+With many adjustable parameters prebuilt into the program and an open-source codebase, this project allows easy modding support for developers, and fully customizable mechanics for advanced users.
 
-The src/ directory contains our codebase for the project.
+## Why use this?
 
-The wip/ directory is our Work in Progress directory. It contains assignment templates that we will modify/update during the year (e.g., diagrams, design files, documents, reviews, progress reports, etc.)
+With many adjustable parameters prebuilt into the program and an open-source codebase, this project allows easy modding support for developers, and fully customizable mechanics for advanced users.
 
-**The LICENSE is currently CC0 and will need to be changed by the end of the year!**
+The Bevy game engine is performant as it will automatically parallelize and cache where it can. It has the fastest ECS according to some benchmarks
 
+## How to run the application
 
+Download the .exe file and run it. `LINK OR SOMETHING HERE!!! I DONT KNOW HOW THIS WORKS - benny`
 
-# Project Dependency:
-This project is based on our Project Partner's original vehicle demo.
-The original project repository can be found here: https://github.com/crispyDyne/bevy_car_demo/tree/main
+Alternatively, you can pull the project off our github repository. The instructions will be ______ `Either say instructions here or maybe in github?`
 
-# How to Run This Project:
-[Project Documentation](src/project-info.md)
+## Help
+
+Documentation can be found on our github. You can also open an issue there. https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/tree/main
+
+Alternatively, you could contact us by our emails [down below](##aboutus).
+
+## About Us
+Members:
+- Stanley Hale - halesta@oregonstate.edu
+  - UI, sound design, car model
+- Ezra McDonald-Muelle - mcdonaez@oregonstate.edu
+  - Terrain, skybox
+- Greggory Hickman​ - hickmang@oregonstate.edu
+  - Multiple cars, UI
+- Benny Xu - xube@oregonstate.edu
+  - Terrain, shaders
+
+Project Partner:
+- Christopher Patton 
+  - Dynamics and Simulation Engineer at Patton Dynamics LLC
