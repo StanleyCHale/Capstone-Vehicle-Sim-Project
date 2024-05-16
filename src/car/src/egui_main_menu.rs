@@ -51,7 +51,7 @@ impl MainMenu {
                 .collapsible(false)
                 .movable(false)
                 .show(ctx, |ui| {
-                    self.ui(ui, ctx);
+                    
                 });
     }
 
@@ -68,6 +68,15 @@ impl MainMenu {
                 });
         });
 
+        egui::CentralPanel::default().show_inside(ui, |ui| {
+            ui.vertical_centered(|ui| {
+                ui.heading("Central Panel");
+            });
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                lorem_ipsum(ui);
+            });
+        });
+
         ui.separator();
 
         let screen_width = ctx.input(|i| i.screen_rect().width());
@@ -77,6 +86,10 @@ impl MainMenu {
         ui.set_min_height(screen_height);
         ui.style_mut().wrap = Some(false);
     }
+}
+
+fn lorem_ipsum(ui: &mut egui::Ui) {
+    println!("Hi");
 }
 
 pub fn egui_main_menu(mut commands: Commands, mut contexts: EguiContexts) {
