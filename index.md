@@ -1,7 +1,7 @@
 
 <h1 align="center">Driver's Altitude</h1>
 
-<h3>A free, open-source, and realistic car simulation.</h3>
+<h3 align="center">A free, open-source, and realistic car simulation.</h3>
 
 ![Two cars looking off into the distant mountain roads](./TwoCarHorizonView.png)
 
@@ -34,13 +34,18 @@ Alternatively, you could contact us by our emails [down below](##aboutus).
 <h2 align="center">About Us</h2>
 Members:
 - Stanley Hale - halesta@oregonstate.edu
-  - UI, sound design, car model
-- Ezra McDonald-Muelle - mcdonaez@oregonstate.edu
-  - Terrain, skybox
+  - UI
+  - Sound design
+  - Car model
+- Ezra McDonald-Mueller - mcdonaez@oregonstate.edu
+  - Terrain
+  - Skybox
 - Greggory Hickman​ - hickmang@oregonstate.edu
-  - Multiple car functionality, UI
+  - Multiple car functionality
+  - UI
 - Benny Xu - xube@oregonstate.edu
-  - Terrain, shaders
+  - Terrain
+  - Shaders
 
 Project Partner:
 - Christopher Patton 
