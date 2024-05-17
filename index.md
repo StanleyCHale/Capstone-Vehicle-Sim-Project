@@ -1,5 +1,5 @@
 
-# Driver's Altitude
+<h1 align="center">Driver's Altitude</h1>
 
 **A free, open-source, and realistic car simulation.**
 
@@ -12,21 +12,22 @@ This program is great for allowing the user to see how a car handles bumpy terra
 
 With many adjustable parameters prebuilt into the program and an open-source codebase, this project allows easy modding support for developers, and fully customizable mechanics for advanced users.
 
-## Why use this?
+## What makes this program great?
 
 With many adjustable parameters prebuilt into the program and an open-source codebase, this project allows easy modding support for developers, and fully customizable mechanics for advanced users.
 
-The Bevy game engine is performant as it will automatically parallelize and cache where it can. It has the fastest ECS according to some benchmarks
+The Bevy game engine performs really well because of its ability to automatically parallelize and cache where it can. It has the fastest ECS (entity component system) according to some benchmarks.
 
 ## How to run the application
 
-Download the .exe file and run it. `[We don't have a build yet, but we will put a link to download it when our Release Candidate 2 is finished.]`
+Download the .exe file and run it. 
+`[We don't have a build yet, but we will put a link to download it when our Release Candidate 2 is finished.]`
 
-Alternatively, you can pull the project off our github repository. The instructions can be found [Here](https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/blob/main/src/project-info.md).
+Alternatively, you can pull the project off our github repository. The instructions can be found [here](https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/blob/main/src/project-info.md).
 
 ## Help
 
-Documentation can be found on our github. You can also open an issue on our [Repository](https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/tree/main).
+Documentation can be found on our github. You can also open an issue on our [repository](https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/tree/main).
 
 Alternatively, you could contact us by our emails [down below](##aboutus).
 
@@ -37,7 +38,7 @@ Members:
 - Ezra McDonald-Muelle - mcdonaez@oregonstate.edu
   - Terrain, skybox
 - Greggory Hickman​ - hickmang@oregonstate.edu
-  - Multiple cars, UI
+  - Multiple car functionality, UI
 - Benny Xu - xube@oregonstate.edu
   - Terrain, shaders
 
