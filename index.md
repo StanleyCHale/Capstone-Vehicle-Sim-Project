@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="style.css">
 
 <h1 align="center">Driver's Altitude</h1>
 
