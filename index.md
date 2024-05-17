@@ -20,13 +20,13 @@ The Bevy game engine is performant as it will automatically parallelize and cach
 
 ## How to run the application
 
-Download the .exe file and run it. `LINK OR SOMETHING HERE!!! I DONT KNOW HOW THIS WORKS - benny`
+Download the .exe file and run it. `[We don't have a build yet, but we will put a link to download it when our Release Candidate 2 is finished.]`
 
-Alternatively, you can pull the project off our github repository. The instructions will be ______ `Either say instructions here or maybe in github?`
+Alternatively, you can pull the project off our github repository. The instructions can be found [Here](https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/blob/main/src/project-info.md).
 
 ## Help
 
-Documentation can be found on our github. You can also open an issue there. https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/tree/main
+Documentation can be found on our github. You can also open an issue on our [Repository](https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/tree/main).
 
 Alternatively, you could contact us by our emails [down below](##aboutus).
 
