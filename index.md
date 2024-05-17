@@ -33,7 +33,7 @@ Documentation can be found on our github. You can also open an issue on our [rep
 Alternatively, you could contact us by our emails [down below](##aboutus).
 
 <h2 align="center">About Us</h2>
-Members:
+<b>Members:</b>
 - Stanley Hale - halesta@oregonstate.edu
   - UI
   - Sound design
