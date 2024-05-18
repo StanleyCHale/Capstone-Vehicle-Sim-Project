@@ -12,7 +12,6 @@ pub struct CarPreferences {
     pub gravity: f64,
     pub max_speed: f64,
     pub max_torque: f64,
-    pub min_torque: f64,
 }
 
 impl Default for CarPreferences {
@@ -22,7 +21,6 @@ impl Default for CarPreferences {
                 gravity: 9.81,
                 max_speed: 75.0,
                 max_torque: 1000.0,
-                min_torque: 250.0,
             }
         }
     }

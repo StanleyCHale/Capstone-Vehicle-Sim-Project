@@ -84,9 +84,9 @@ enum MenuButtonAction {
     MaxSpeed25,
     MaxSpeed75,
     MaxSpeed150,
-    CarAcceleration6,
-    CarAcceleration10,
-    CarAcceleration15,
+    CarTorque600,
+    CarTorque1000,
+    CarTorque1500,
     Quit,
 }
 
@@ -257,17 +257,20 @@ fn handle_menu_buttons(
                 }
 
                 //Car Acceleration settings
-                MenuButtonAction::CarAcceleration6 => {
+                MenuButtonAction::CarTorque600 => {
                     image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 6");
+                    println!("Car Torque Set to 600");
+                    car_preferences.max_torque = 600.0;
                 }
-                MenuButtonAction::CarAcceleration10 => {
+                MenuButtonAction::CarTorque1000 => {
                     image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 10");
+                    println!("Car Torque Set to 1000");
+                    car_preferences.max_torque = 1000.0;
                 }
-                MenuButtonAction::CarAcceleration15 => {
+                MenuButtonAction::CarTorque1500 => {
                     image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 15");
+                    println!("Car Torque Set to 1500");
+                    car_preferences.max_torque = 1500.0;
                 }
 
             }
@@ -1828,7 +1831,7 @@ fn settingsvehicle_menu_setup(
         .with_children(|parent| {
             parent.spawn(TextBundle {
                 text: Text::from_section(
-                    "Car Acceleration (m/s^2)", 
+                    "Car Torque (Nm)", 
                     TextStyle {
                         font_size: 40.0,
                         color: Color::BLACK,
@@ -1859,7 +1862,7 @@ fn settingsvehicle_menu_setup(
             ..default()
         }
         ).with_children(|parent| {
-            //Spawn a button for 6 acc
+            //Spawn a button for 600 torque
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -1874,7 +1877,7 @@ fn settingsvehicle_menu_setup(
                     background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                MenuButtonAction::CarAcceleration6,
+                MenuButtonAction::CarTorque600,
             ))
             .with_children(|parent| {
                 parent.spawn(ImageBundle {
@@ -1893,7 +1896,7 @@ fn settingsvehicle_menu_setup(
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            " 6 ", 
+                            " 600 ", 
                             TextStyle {
                                 font_size: 40.0,
                                 color: Color::WHITE,
@@ -1906,7 +1909,7 @@ fn settingsvehicle_menu_setup(
                 });
             });
 
-            //Spawn a button for 10 acc
+            //Spawn a button for 1000 torque
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -1921,7 +1924,7 @@ fn settingsvehicle_menu_setup(
                     background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                MenuButtonAction::CarAcceleration10,
+                MenuButtonAction::CarTorque1000,
             ))
             .with_children(|parent| {
                 parent.spawn(ImageBundle {
@@ -1940,7 +1943,7 @@ fn settingsvehicle_menu_setup(
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            " 10 ", 
+                            " 1000 ", 
                             TextStyle {
                                 font_size: 40.0,
                                 color: Color::WHITE,
@@ -1953,7 +1956,7 @@ fn settingsvehicle_menu_setup(
                 });
             });
 
-            //Spawn a button for 15 acc
+            //Spawn a button for 1500 torque
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -1968,7 +1971,7 @@ fn settingsvehicle_menu_setup(
                     background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                MenuButtonAction::CarAcceleration15,
+                MenuButtonAction::CarTorque1500,
             ))
             .with_children(|parent| {
                 parent.spawn(ImageBundle {
@@ -1987,7 +1990,7 @@ fn settingsvehicle_menu_setup(
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            " 15 ", 
+                            " 1500 ", 
                             TextStyle {
                                 font_size: 40.0,
                                 color: Color::WHITE,
@@ -1999,7 +2002,6 @@ fn settingsvehicle_menu_setup(
                     });
                 });
             });
-
         });
         
 

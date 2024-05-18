@@ -67,6 +67,7 @@ pub fn build_car(
     id: i32,
     max_speed: f64,
     chassis_mass: f64,
+    max_torque: f64,
 ) -> CarDefinition {
     // Separate the start position into x, y, z coordinates
     let xpos = startposition[0];
@@ -148,11 +149,16 @@ pub fn build_car(
     //Calculate middle speeds
     let lower_speed = max_speed * 0.25;
     let middle_speed = max_speed * 0.5;
-    println!("Lowest Speed: 0, Lower Speed: {}, Middle Speed: {}, Max Speed: {}", lower_speed, middle_speed, max_speed);
 
-    // // Drive and Brake
-    let drive_speeds = vec![0., lower_speed, middle_speed, max_speed /* <-- Max Speed*/];
-    let drive_torques = vec![1000., 1000., 600., 250.];
+    // // Drive and Brake Speeds
+    let drive_speeds = vec![0., lower_speed, middle_speed, max_speed];
+
+    //Calculate torques
+    let middle_torque = max_torque * 0.6;
+    let low_torque = max_torque * 0.25;
+
+    // // Drive and Brake Torques
+    let drive_torques = vec![max_torque, max_torque, middle_torque, low_torque];
 
     let rear_drive = DriveType::DrivenWheelLookup(DrivenWheelLookup::new(
         "fl".to_string(),
