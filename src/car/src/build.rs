@@ -65,6 +65,7 @@ pub fn build_car(
     startposition: [f64; 3], 
     control_type: ControlType, 
     id: i32,
+    max_speed: f64,
 ) -> CarDefinition {
     // Separate the start position into x, y, z coordinates
     let xpos = startposition[0];
@@ -143,9 +144,13 @@ pub fn build_car(
     // Wheel
     let wheel = build_wheel();
 
+    //Calculate middle speeds
+    let lower_speed = max_speed * 0.25;
+    let middle_speed = max_speed * 0.5;
+    println!("Lowest Speed: 0, Lower Speed: {}, Middle Speed: {}, Max Speed: {}", lower_speed, middle_speed, max_speed);
 
     // // Drive and Brake
-    let drive_speeds = vec![0., 25., 50., 75. /* <-- Max Speed*/];
+    let drive_speeds = vec![0., lower_speed, middle_speed, max_speed /* <-- Max Speed*/];
     let drive_torques = vec![1000., 1000., 600., 250.];
 
     let rear_drive = DriveType::DrivenWheelLookup(DrivenWheelLookup::new(

@@ -240,14 +240,17 @@ fn handle_menu_buttons(
                 MenuButtonAction::MaxSpeed25 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Max Speed Set to 25");
+                    car_preferences.max_speed = 25.0;
                 }   
                 MenuButtonAction::MaxSpeed75 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Max Speed Set to 75");
+                    car_preferences.max_speed = 75.0;
                 }
                 MenuButtonAction::MaxSpeed150 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Max Speed Set to 150");
+                    car_preferences.max_speed = 150.0;
                 }
 
                 //Car Acceleration settings
