@@ -183,26 +183,32 @@ fn handle_menu_buttons(
                 MenuButtonAction::VolumeSet0 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.0");
+                    car_preferences.volume = 0.0;
                 }
                 MenuButtonAction::VolumeSet2 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.2");
+                    car_preferences.volume = 0.2;
                 }
                 MenuButtonAction::VolumeSet4 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.4");
+                    car_preferences.volume = 0.4;
                 }
                 MenuButtonAction::VolumeSet6 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.6");
+                    car_preferences.volume = 0.6;
                 }
                 MenuButtonAction::VolumeSet8 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.8");
+                    car_preferences.volume = 0.8;
                 }
                 MenuButtonAction::VolumeSet10 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 1.0");
+                    car_preferences.volume = 1.0;
                 }
 
                 //Mass settings

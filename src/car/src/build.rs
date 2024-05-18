@@ -465,6 +465,7 @@ pub fn update_engine_speed(
 pub fn update_engine_audio(
     music_controller: Query<&SpatialAudioSink, With<Engine>>, 
     engine_q: Query<&Engine>,
+    car_preferences: Res<CarPreferences>
 ) {
     let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
 
@@ -487,6 +488,8 @@ pub fn update_engine_audio(
 
         //Set the playback speed to our calculated speed_curve of this specific engine audio sink
         music_controller[i].set_speed(speed_curve);
+        //Set the volume of the engine audio sink to the volume of the car preferences
+        music_controller[i].set_volume(car_preferences.volume as f32);
     }
 }
 
