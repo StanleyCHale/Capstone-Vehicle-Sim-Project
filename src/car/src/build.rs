@@ -48,7 +48,7 @@ pub struct Engine {
     curve: Curve<Coord2>,
 }
 
-const CHASSIS_MASS: f64 = 1000.;
+//const CHASSIS_MASS: f64 = 1000.;
 const SUSPENSION_MASS: f64 = 20.;
 const GRAVITY: f64 = 9.81;
 
@@ -204,7 +204,7 @@ pub fn build_wheel(chassis_mass: f64) -> Wheel {
     let wheel_radius = 0.325_f64;
     let wheel_moi_y = wheel_mass * wheel_radius.powi(2);
     let wheel_moi_xz = 1. / 12. * 10. * (3. * wheel_radius.powi(2));
-    let corner_mass = CHASSIS_MASS / 4. + SUSPENSION_MASS + wheel_mass;
+    let corner_mass = chassis_mass / 4. + SUSPENSION_MASS + wheel_mass;
     let wheel_stiffness = corner_mass * GRAVITY / 0.005;
     let wheel_damping = 0.01 * 2. * (wheel_stiffness * wheel_mass).sqrt();
     Wheel {

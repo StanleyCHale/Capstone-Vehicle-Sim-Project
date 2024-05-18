@@ -1,4 +1,4 @@
-use bevy::{pbr::ExtendedMaterial, prelude::*, reflect::prelude};
+use bevy::{pbr::ExtendedMaterial, prelude::*};
 
 // Some of the following code adapted from example code: https://github.com/johanhelsing/matchbox/tree/main/examples/bevy_ggrs
 
@@ -88,7 +88,6 @@ fn car_building_system(
 ) {
    //Access mass from car preferences
     let mass = car_preferences.mass;
-    let gravity = car_preferences.gravity;
     let max_speed = car_preferences.max_speed;
     let max_torque = car_preferences.max_torque;
 
