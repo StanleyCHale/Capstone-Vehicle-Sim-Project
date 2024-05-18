@@ -1,9 +1,9 @@
-use bevy::{pbr::ExtendedMaterial, prelude::*};
+use bevy::{pbr::ExtendedMaterial, prelude::*, reflect::prelude};
 
 // Some of the following code adapted from example code: https://github.com/johanhelsing/matchbox/tree/main/examples/bevy_ggrs
 
-// Use the main menu plugin
-use car::main_menu::MainMenuPlugin;
+// Use the main menu and preferences plugin
+use car::{main_menu::MainMenuPlugin, preferences::{CarPreferences, PreferencesPlugin}};
 
 use bevy_integrator::{GameState, SimTime, Solver};
 use car::{
@@ -30,6 +30,7 @@ fn main() {
     // Create App
     App::new()
         .add_plugins(MainMenuPlugin)
+        .add_plugins(PreferencesPlugin)
         .add_plugins((RigidBodyPlugin {
             time: SimTime::new(0.002, 0.0, None),
             solver: Solver::RK4,
@@ -83,10 +84,18 @@ impl Plugin for GameSetupPlugin {
 
 fn car_building_system(
     mut car_list: ResMut<CarList>,
+    car_preferences: Res<CarPreferences>,
 ) {
+   //Access mass from car preferences
+    let mass = car_preferences.mass;
+    let gravity = car_preferences.gravity;
+    let max_speed = car_preferences.max_speed;
+    let max_torque = car_preferences.max_torque;
+    let min_torque = car_preferences.min_torque;
+
     // Create cars
     let mut car_definitions = Vec::new();
-    car_definitions.push(build_car([0., 4., 0.], ControlType::WASD, 0));
+    car_definitions.push(build_car([0., 4., 0.], ControlType::WASD,  0));
     car_definitions.push(build_car([0., 0., 0.], ControlType::Arrow, 1)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
 
     for car in car_definitions {

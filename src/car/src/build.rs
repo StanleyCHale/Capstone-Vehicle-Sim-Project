@@ -15,12 +15,10 @@ use rigid_body::{
 };
 
 use crate::{
-    control::{CarControl, ControlType},
-    physics::{
+    control::{CarControl, ControlType}, physics::{
         BrakeWheel, DriveType, DrivenWheelLookup, SteeringCurvature, SteeringType,
         SuspensionComponent,
-    },
-    tire::PointTire,
+    }, preferences::CarPreferences, tire::PointTire
 };
 
 #[derive(Resource)]
@@ -66,13 +64,13 @@ const GRAVITY: f64 = 9.81;
 pub fn build_car(
     startposition: [f64; 3], 
     control_type: ControlType, 
-    id: i32
+    id: i32,
 ) -> CarDefinition {
     // Separate the start position into x, y, z coordinates
     let xpos = startposition[0];
     let ypos = startposition[1];
     let zpos = startposition[2];
-
+    
     // Chassis
     let mass = 1000.;
     let dimensions = [3.0_f64, 1.2, 0.4]; // shape of rectangular chassis
@@ -84,6 +82,7 @@ pub fn build_car(
     .map(|x| mass * (1. / 12.) * x);
 
     let chassis = Chassis {
+        //Get our mass
         mass,
         cg_position: [0., 0., 0.],
         moi,
@@ -216,10 +215,11 @@ pub fn car_startup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut players: ResMut<CarList>,
-    mut car_state: ResMut<NextState<CarState>>
+    mut car_state: ResMut<NextState<CarState>>,
+    car_preferences: Res<CarPreferences>,
 ) {
-    //Motion here is for gravity   (9.81 m/s)
-    let base = Joint::base(Motion::new([0., 0., 9.81], [0., 0., 0.]));
+    //Motion here is for gravity   (9.81 m/s by default)
+    let base = Joint::base(Motion::new([0., 0., car_preferences.gravity], [0., 0., 0.]));
     let base_id = commands.spawn((base, Base)).id();
 
     let mut camera_parent_list = Vec::new();

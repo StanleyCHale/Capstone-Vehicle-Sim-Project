@@ -5,6 +5,8 @@ use bevy_integrator::GameState;
 
 use bevy::{prelude::*, ui::FocusPolicy};
 
+use crate::preferences::CarPreferences;
+
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
@@ -116,6 +118,7 @@ fn handle_menu_buttons(
     mut image_query: Query<&mut UiImage>,
     ui_assests: Res<UiAssets>,
     mut app_exit_events: EventWriter<AppExit>,
+    mut car_preferences: ResMut<CarPreferences>,
 ) {
     //For every button interaction found, we will run this code
     for (children, interaction, menu_button_action) in &interaction_query {
@@ -220,14 +223,17 @@ fn handle_menu_buttons(
                 MenuButtonAction::GravityMoon => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Gravity Set to Moon");
+                    car_preferences.gravity = 1.62;
                 }
                 MenuButtonAction::GravityEarth => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Gravity Set to Earth");
+                    car_preferences.gravity = 9.81;
                 }
                 MenuButtonAction::GravityJupiter => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Gravity Set to Jupiter");
+                    car_preferences.gravity = 24.79;
                 }   
 
                 //Max Speed settings
