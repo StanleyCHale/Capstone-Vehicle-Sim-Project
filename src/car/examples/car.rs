@@ -95,8 +95,8 @@ fn car_building_system(
 
     // Create cars
     let mut car_definitions = Vec::new();
-    car_definitions.push(build_car([0., 4., 0.], ControlType::WASD,  0, max_speed));
-    car_definitions.push(build_car([0., 0., 0.], ControlType::Arrow, 1, max_speed)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
+    car_definitions.push(build_car([0., 4., 0.], ControlType::WASD,  0, max_speed, mass));
+    car_definitions.push(build_car([0., 0., 0.], ControlType::Arrow, 1, max_speed, mass)); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
 
     for car in car_definitions {
         car_list.cars.push(car);

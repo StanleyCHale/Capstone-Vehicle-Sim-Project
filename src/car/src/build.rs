@@ -66,6 +66,7 @@ pub fn build_car(
     control_type: ControlType, 
     id: i32,
     max_speed: f64,
+    chassis_mass: f64,
 ) -> CarDefinition {
     // Separate the start position into x, y, z coordinates
     let xpos = startposition[0];
@@ -142,7 +143,7 @@ pub fn build_car(
         .collect();
 
     // Wheel
-    let wheel = build_wheel();
+    let wheel = build_wheel(chassis_mass);
 
     //Calculate middle speeds
     let lower_speed = max_speed * 0.25;
@@ -192,7 +193,7 @@ pub fn build_car(
     }
 }
 
-pub fn build_wheel() -> Wheel {
+pub fn build_wheel(chassis_mass: f64) -> Wheel {
     let wheel_mass = 20.;
     let wheel_radius = 0.325_f64;
     let wheel_moi_y = wheel_mass * wheel_radius.powi(2);

@@ -209,14 +209,17 @@ fn handle_menu_buttons(
                 MenuButtonAction::Mass500 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Mass Set to 500");
+                    car_preferences.mass = 500.0;
                 }
                 MenuButtonAction::Mass1000 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Mass Set to 1000");
+                    car_preferences.mass = 1000.0;
                 }
                 MenuButtonAction::Mass2000 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Mass Set to 2000");
+                    car_preferences.mass = 2000.0;
                 }
 
                 //Gravity settings
@@ -1244,7 +1247,7 @@ fn settingsvehicle_menu_setup(
         .with_children(|parent| {
             parent.spawn(TextBundle {
                 text: Text::from_section(
-                    "Mass (kg)", 
+                    "Chassis Mass (kg)", 
                     TextStyle {
                         font_size: 40.0,
                         color: Color::BLACK,
