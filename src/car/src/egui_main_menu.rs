@@ -46,50 +46,12 @@ impl MainMenu {
     }
 
     fn show(&mut self, ctx: &egui::Context) {
-        egui::Window::new("Driver's Altitude")
-                .resizable(false)
-                .collapsible(false)
-                .movable(false)
-                .show(ctx, |ui| {
-                    
-                });
-    }
-
-    fn ui(&mut self, ui: &mut egui::Ui, ctx: &egui::Context) {
-        ui.add_enabled_ui(self.enabled, |ui| {
-            ui.set_visible(self.visible);
-
-            egui::Grid::new("my_grid")
-                .num_columns(2)
-                .spacing([40.0, 4.0])
-                .striped(true)
-                .show(ui, |ui| {
-                    self.gallery_grid_contents(ui);
-                });
-        });
-
-        egui::CentralPanel::default().show_inside(ui, |ui| {
-            ui.vertical_centered(|ui| {
-                ui.heading("Central Panel");
-            });
+        egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
-                lorem_ipsum(ui);
+                self.gallery_grid_contents(ui);
             });
         });
-
-        ui.separator();
-
-        let screen_width = ctx.input(|i| i.screen_rect().width());
-        let screen_height = ctx.input(|i| i.screen_rect().height());
-
-        ui.set_min_width(screen_width);
-        ui.set_min_height(screen_height);
-        ui.style_mut().wrap = Some(false);
     }
-}
-
-fn lorem_ipsum(ui: &mut egui::Ui) {
-    println!("Hi");
 }
 
 pub fn egui_main_menu(mut commands: Commands, mut contexts: EguiContexts) {
