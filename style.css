@@ -69,3 +69,8 @@ body {
         transform: translateX(1);
     }
 }
+
+video {
+    margin-left: auto;
+    margin-right: auto;
+}
