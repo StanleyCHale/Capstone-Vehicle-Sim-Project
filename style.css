@@ -71,7 +71,6 @@ body {
 }
 
 video {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    margin-left: 45% vw;
+    margin-right: 45% vw;
 }
