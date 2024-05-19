@@ -19,6 +19,23 @@ With many adjustable parameters prebuilt into the program and an open-source cod
 
 The Bevy game engine performs really well because of its ability to automatically parallelize and cache where it can. It has the fastest ECS (entity component system) according to some benchmarks.
 
+<h2 align="center">Talking Points</h2>
+
+<h3 align="center">Unlimited Terrain</h3>
+- Terrain is randomly generated using Perlin noise algorithms, allowing for a near infinite number of generated planes.​
+- Seed-based modifications defined by the user can be made, allowing one to explore previously generated planes or specify what should be used for terrain calculations.​
+- Custom shaders are implemented to interact with the generated height map and provide a visual sense of height and depth.​
+- In less technical terms, this program will generate a near infinite number of environments to explore, with realistic shading and height-based colors accompanying them!
+
+<h3 align="center">Vehicle Engine Audio</h3>
+- Utilizing Bevy's three-dimensional audio system to create a sense of immersion. ​
+- Hear the engine's pitch change based on the change in velocity of the car.​
+- Integration of a Bezier curve to change the audio's pitch as the acceleration changes to simulate the changing of gears.​
+- In simpler terms the vehicle's audio had been fine tuned to adapt with the speed of the car like how a real one would.
+
+<h3 align="center">Multiple Vehicles</h3>
+Two vehicles can be controlled at the same time so that two people can play around with this program at the same time. Or you can watch as one vehicle tumbles down a mountain from the safety of the other vehicle. We won't judge!
+
 <h2 align="center">How to run the application</h2>
 
 Download the .exe file and run it. 
