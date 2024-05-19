@@ -34,7 +34,7 @@ The Bevy game engine performs really well because of its ability to automaticall
 - In simpler terms the vehicle's audio had been fine tuned to adapt with the speed of the car like how a real one would.
 
 <h3 align="center">Multiple Vehicles</h3>
-Two vehicles can be controlled at the same time so that two people can play around with this program at the same time. Or you can watch as one vehicle tumbles down a mountain from the safety of the other vehicle. We won't judge!
+- Two vehicles can be controlled at the same time so that two people can play around with this program at the same time. Or you can watch as one vehicle tumbles down a mountain from the safety of the other vehicle. We won't judge!
 
 <h2 align="center">How to run the application</h2>
 
