@@ -5,6 +5,8 @@ use bevy_integrator::GameState;
 
 use bevy::{prelude::*, ui::FocusPolicy};
 
+use crate::preferences::CarPreferences;
+
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
@@ -82,9 +84,9 @@ enum MenuButtonAction {
     MaxSpeed25,
     MaxSpeed75,
     MaxSpeed150,
-    CarAcceleration6,
-    CarAcceleration10,
-    CarAcceleration15,
+    CarTorque600,
+    CarTorque1000,
+    CarTorque1500,
     Quit,
 }
 
@@ -123,6 +125,7 @@ fn handle_menu_buttons(
     mut image_query: Query<&mut UiImage>,
     ui_assests: Res<UiAssets>,
     mut app_exit_events: EventWriter<AppExit>,
+    mut car_preferences: ResMut<CarPreferences>,
 ) {
     //For every button interaction found, we will run this code
     for (children, interaction, menu_button_action) in &interaction_query {
@@ -187,82 +190,100 @@ fn handle_menu_buttons(
                 MenuButtonAction::VolumeSet0 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.0");
+                    car_preferences.volume = 0.0;
                 }
                 MenuButtonAction::VolumeSet2 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.2");
+                    car_preferences.volume = 0.2;
                 }
                 MenuButtonAction::VolumeSet4 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.4");
+                    car_preferences.volume = 0.4;
                 }
                 MenuButtonAction::VolumeSet6 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.6");
+                    car_preferences.volume = 0.6;
                 }
                 MenuButtonAction::VolumeSet8 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.8");
+                    car_preferences.volume = 0.8;
                 }
                 MenuButtonAction::VolumeSet10 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 1.0");
+                    car_preferences.volume = 1.0;
                 }
 
                 //Mass settings
                 MenuButtonAction::Mass500 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Mass Set to 500");
+                    car_preferences.mass = 500.0;
                 }
                 MenuButtonAction::Mass1000 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Mass Set to 1000");
+                    car_preferences.mass = 1000.0;
                 }
                 MenuButtonAction::Mass2000 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Mass Set to 2000");
+                    car_preferences.mass = 2000.0;
                 }
 
                 //Gravity settings
                 MenuButtonAction::GravityMoon => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Gravity Set to Moon");
+                    car_preferences.gravity = 1.62;
                 }
                 MenuButtonAction::GravityEarth => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Gravity Set to Earth");
+                    car_preferences.gravity = 9.81;
                 }
                 MenuButtonAction::GravityJupiter => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Gravity Set to Jupiter");
+                    car_preferences.gravity = 24.79;
                 }   
 
                 //Max Speed settings
                 MenuButtonAction::MaxSpeed25 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Max Speed Set to 25");
+                    car_preferences.max_speed = 25.0;
                 }   
                 MenuButtonAction::MaxSpeed75 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Max Speed Set to 75");
+                    car_preferences.max_speed = 75.0;
                 }
                 MenuButtonAction::MaxSpeed150 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Max Speed Set to 150");
+                    car_preferences.max_speed = 150.0;
                 }
 
                 //Car Acceleration settings
-                MenuButtonAction::CarAcceleration6 => {
+                MenuButtonAction::CarTorque600 => {
                     image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 6");
+                    println!("Car Torque Set to 600");
+                    car_preferences.max_torque = 600.0;
                 }
-                MenuButtonAction::CarAcceleration10 => {
+                MenuButtonAction::CarTorque1000 => {
                     image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 10");
+                    println!("Car Torque Set to 1000");
+                    car_preferences.max_torque = 1000.0;
                 }
-                MenuButtonAction::CarAcceleration15 => {
+                MenuButtonAction::CarTorque1500 => {
                     image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 15");
+                    println!("Car Torque Set to 1500");
+                    car_preferences.max_torque = 1500.0;
                 }
 
             }
@@ -1259,7 +1280,7 @@ fn vehicle_menu_setup(
         .with_children(|parent| {
             parent.spawn(TextBundle {
                 text: Text::from_section(
-                    "Mass (kg)", 
+                    "Chassis Mass (kg)", 
                     TextStyle {
                         font_size: 40.0,
                         color: Color::BLACK,
@@ -1840,7 +1861,7 @@ fn vehicle_menu_setup(
         .with_children(|parent| {
             parent.spawn(TextBundle {
                 text: Text::from_section(
-                    "Car Acceleration (m/s^2)", 
+                    "Car Torque (Nm)", 
                     TextStyle {
                         font_size: 40.0,
                         color: Color::BLACK,
@@ -1871,7 +1892,7 @@ fn vehicle_menu_setup(
             ..default()
         }
         ).with_children(|parent| {
-            //Spawn a button for 6 acc
+            //Spawn a button for 600 torque
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -1886,7 +1907,7 @@ fn vehicle_menu_setup(
                     background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                MenuButtonAction::CarAcceleration6,
+                MenuButtonAction::CarTorque600,
             ))
             .with_children(|parent| {
                 parent.spawn(ImageBundle {
@@ -1905,7 +1926,7 @@ fn vehicle_menu_setup(
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            " 6 ", 
+                            " 600 ", 
                             TextStyle {
                                 font_size: 40.0,
                                 color: Color::WHITE,
@@ -1918,7 +1939,7 @@ fn vehicle_menu_setup(
                 });
             });
 
-            //Spawn a button for 10 acc
+            //Spawn a button for 1000 torque
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -1933,7 +1954,7 @@ fn vehicle_menu_setup(
                     background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                MenuButtonAction::CarAcceleration10,
+                MenuButtonAction::CarTorque1000,
             ))
             .with_children(|parent| {
                 parent.spawn(ImageBundle {
@@ -1952,7 +1973,7 @@ fn vehicle_menu_setup(
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            " 10 ", 
+                            " 1000 ", 
                             TextStyle {
                                 font_size: 40.0,
                                 color: Color::WHITE,
@@ -1965,7 +1986,7 @@ fn vehicle_menu_setup(
                 });
             });
 
-            //Spawn a button for 15 acc
+            //Spawn a button for 1500 torque
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -1980,7 +2001,7 @@ fn vehicle_menu_setup(
                     background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                MenuButtonAction::CarAcceleration15,
+                MenuButtonAction::CarTorque1500,
             ))
             .with_children(|parent| {
                 parent.spawn(ImageBundle {
@@ -1999,7 +2020,7 @@ fn vehicle_menu_setup(
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            " 15 ", 
+                            " 1500 ", 
                             TextStyle {
                                 font_size: 40.0,
                                 color: Color::WHITE,
@@ -2011,7 +2032,6 @@ fn vehicle_menu_setup(
                     });
                 });
             });
-
         });
         
 

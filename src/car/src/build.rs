@@ -15,12 +15,10 @@ use rigid_body::{
 };
 
 use crate::{
-    control::{CarControl, ControlType},
-    physics::{
+    control::{CarControl, ControlType}, physics::{
         BrakeWheel, DriveType, DrivenWheelLookup, SteeringCurvature, SteeringType,
         SuspensionComponent,
-    },
-    tire::PointTire,
+    }, preferences::CarPreferences, tire::PointTire
 };
 
 #[derive(Resource)]
@@ -49,7 +47,7 @@ pub struct Engine {
     curve: Curve<Coord2>,
 }
 
-const CHASSIS_MASS: f64 = 1000.;
+//const CHASSIS_MASS: f64 = 1000.;
 const SUSPENSION_MASS: f64 = 20.;
 const GRAVITY: f64 = 9.81;
 
@@ -123,13 +121,16 @@ pub fn update_engine_audio(
 pub fn build_car(
     startposition: [f64; 3], 
     control_type: ControlType, 
-    id: i32
+    id: i32,
+    max_speed: f64,
+    chassis_mass: f64,
+    max_torque: f64,
 ) -> CarDefinition {
     // Separate the start position into x, y, z coordinates
     let xpos = startposition[0];
     let ypos = startposition[1];
     let zpos = startposition[2];
-
+    
     // Chassis
     let mass = 1000.;
     let dimensions = [3.0_f64, 1.2, 0.4]; // shape of rectangular chassis
@@ -141,6 +142,7 @@ pub fn build_car(
     .map(|x| mass * (1. / 12.) * x);
 
     let chassis = Chassis {
+        //Get our mass
         mass,
         cg_position: [0., 0., 0.],
         moi,
@@ -199,12 +201,21 @@ pub fn build_car(
         .collect();
 
     // Wheel
-    let wheel = build_wheel();
+    let wheel = build_wheel(chassis_mass);
 
+    //Calculate middle speeds
+    let lower_speed = max_speed * 0.25;
+    let middle_speed = max_speed * 0.5;
 
-    // // Drive and Brake
-    let drive_speeds = vec![0., 25., 50., 75. /* <-- Max Speed*/];
-    let drive_torques = vec![1000., 1000., 600., 250.];
+    // // Drive and Brake Speeds
+    let drive_speeds = vec![0., lower_speed, middle_speed, max_speed];
+
+    //Calculate torques
+    let middle_torque = max_torque * 0.6;
+    let low_torque = max_torque * 0.25;
+
+    // // Drive and Brake Torques
+    let drive_torques = vec![max_torque, max_torque, middle_torque, low_torque];
 
     let rear_drive = DriveType::DrivenWheelLookup(DrivenWheelLookup::new(
         "fl".to_string(),
@@ -245,12 +256,12 @@ pub fn build_car(
     }
 }
 
-pub fn build_wheel() -> Wheel {
+pub fn build_wheel(chassis_mass: f64) -> Wheel {
     let wheel_mass = 20.;
     let wheel_radius = 0.325_f64;
     let wheel_moi_y = wheel_mass * wheel_radius.powi(2);
     let wheel_moi_xz = 1. / 12. * 10. * (3. * wheel_radius.powi(2));
-    let corner_mass = CHASSIS_MASS / 4. + SUSPENSION_MASS + wheel_mass;
+    let corner_mass = chassis_mass / 4. + SUSPENSION_MASS + wheel_mass;
     let wheel_stiffness = corner_mass * GRAVITY / 0.005;
     let wheel_damping = 0.01 * 2. * (wheel_stiffness * wheel_mass).sqrt();
     Wheel {
@@ -273,10 +284,11 @@ pub fn car_startup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut players: ResMut<CarList>,
-    mut car_state: ResMut<NextState<CarState>>
+    mut car_state: ResMut<NextState<CarState>>,
+    car_preferences: Res<CarPreferences>,
 ) {
-    //Motion here is for gravity   (9.81 m/s)
-    let base = Joint::base(Motion::new([0., 0., 9.81], [0., 0., 0.]));
+    //Motion here is for gravity   (9.81 m/s by default)
+    let base = Joint::base(Motion::new([0., 0., car_preferences.gravity], [0., 0., 0.]));
     let base_id = commands.spawn((base, Base)).id();
 
     let mut camera_parent_list = Vec::new();
@@ -468,6 +480,73 @@ impl Chassis {
         let chassis_ids = vec![px_id, py_id, pz_id, rx_id, ry_id, rz_id];
         // return id the last joint in the chain. It will be the parent of the suspension / wheels
         chassis_ids
+    }
+}
+
+//Asserts wether or not an overflow to infinite occurs during conversion
+//Got this snippet from: https://stackoverflow.com/questions/72247741/how-to-convert-a-f64-to-a-f32
+fn f64_to_f32(x: f64) -> f32 {
+    let y = x as f32;
+    assert_eq!(
+        x.is_finite(),
+        y.is_finite(),
+        "f32 overflow during conversion"
+    );
+    y
+}
+
+//Function to update the engine speed's component using the driven wheel's q dirivitive and the wheel's radius
+pub fn update_engine_speed(
+    joints: Query<(&Joint, &BrakeWheel)>,
+    mut players: ResMut<CarList>,
+    mut engine_q: Query<&mut Engine>,
+) {
+
+    let playerlist = &mut players.cars;
+
+    let joint_list: Vec<(&Joint, &BrakeWheel)> = joints.iter().collect();
+
+    let mut count = 0;
+    for mut engine in engine_q.iter_mut() {
+        let car_joint = count * 2;
+        let qd = joint_list[car_joint].0.qd.abs();
+        let radius = playerlist[count].wheel.radius;
+
+        //Update the speed
+        engine.speed = f64_to_f32(qd * radius); 
+        count += 1;
+    } 
+}
+
+//Used to update the playback speed of the engine audio sink
+pub fn update_engine_audio(
+    music_controller: Query<&SpatialAudioSink, With<Engine>>, 
+    engine_q: Query<&Engine>,
+    car_preferences: Res<CarPreferences>
+) {
+    let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
+
+    let engine_list: Vec<&Engine> = engine_q.iter().collect();
+
+    //For loop for the length of the music_controller
+    for i in 0..music_controller.len() {
+        //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
+        let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
+            engine_list[i].curve.point_at_pos(                                          //Get the position from the bezier curve
+                (( (engine_list[i].speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
+            ).y()                                                               //Grab the Y-value of from this position on the bezier curve
+        );
+                
+        //Calculate the offset
+        let offset = engine_list[i].speed * 0.030;
+
+        //Make the value smaller and apply an offset
+        speed_curve = speed_curve + offset;
+
+        //Set the playback speed to our calculated speed_curve of this specific engine audio sink
+        music_controller[i].set_speed(speed_curve);
+        //Set the volume of the engine audio sink to the volume of the car preferences
+        music_controller[i].set_volume(car_preferences.volume as f32);
     }
 }
 
