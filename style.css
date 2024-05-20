@@ -69,3 +69,9 @@ body {
         transform: translateX(1);
     }
 }
+video {
+    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+  }
