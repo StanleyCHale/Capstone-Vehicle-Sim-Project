@@ -15,15 +15,6 @@ use car::{
 use grid_terrain::MyExtension;
 use rigid_body::plugin::{CarState, RigidBodyPlugin};
 
-/*
- * struct CarList
- * Contains the list of car that are currently a part of this game session
- */
-#[derive(Resource, Default)]
-pub struct EngineAudioList {
-    pub audio_sinks: Vec<SpatialAudioSink>,
-}
-
 // Main function
 fn main() {
 
@@ -82,6 +73,11 @@ impl Plugin for GameSetupPlugin {
     }
 }
 
+/*
+* Inputs: Queries for the list of players
+* Outputs: None
+* Description: This function defines the cars in the game as players
+ */
 fn car_building_system(
     mut car_list: ResMut<CarList>,
     car_preferences: Res<CarPreferences>,

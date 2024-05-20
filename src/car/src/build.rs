@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::Rng;
 
-//Flo Curves is used for the creation of bezier curves
+//Flo Curves crate is used for the definition and creation of bezier curves for audio playback
 use flo_curves::bezier;
 use flo_curves::bezier::Curve;
 use flo_curves::*;
@@ -29,12 +29,11 @@ pub struct CarDefinition {
     drives: Vec<DriveType>,
     brake: Brake,
     pub carcontrol: CarControl,
-    //pub joint: Joint,
     pub id: i32,
-} // Try to add camera and wheels to this later
+} 
 
 /*
- * struct CarList
+ * Struct CarList
  * Contains the list of car that are currently a part of this game session
  */
 #[derive(Resource, Default)]
@@ -52,14 +51,72 @@ pub struct Engine {
 const SUSPENSION_MASS: f64 = 20.;
 const GRAVITY: f64 = 9.81;
 
-// List of cameras
-// let mut camera_list = Vec::new();
+/*
+* Inputs: Queries for Brake joints, Players, and Engine Components.
+* Outputs: None
+* Description: This function updates the engine speed of the car by calculating the 
+* speed of the car using the qd of the driven wheel and the radius of the wheel.
+ */
+pub fn update_engine_speed(
+    joints: Query<(&Joint, &BrakeWheel)>,
+    mut players: ResMut<CarList>,
+    mut engine_q: Query<&mut Engine>,
+) {
+
+    let playerlist = &mut players.cars;
+
+    let joint_list: Vec<(&Joint, &BrakeWheel)> = joints.iter().collect();
+
+    let mut count = 0;
+    for mut engine in engine_q.iter_mut() {
+        let car_joint = count * 2;
+        let qd = joint_list[car_joint].0.qd.abs();
+        let radius = playerlist[count].wheel.radius;
+
+        //Update the speed
+        engine.speed = (qd * radius) as f32; 
+        count += 1;
+    } 
+}
 
 /*
- * Defines a car's specifications to later be built by car_startup_system().
- *
+* Inputs: Queries for the SpatialAudioSink and Engine Components.
+* Outputs: None
+* Description: This function updates the playback speed of the engine audio sink by 
+* calculating the speed of the car using the qd of the driven wheel and the radius of the wheel.
+ */
+pub fn update_engine_audio(
+    music_controller: Query<&SpatialAudioSink, With<Engine>>, 
+    engine_q: Query<&Engine>,
+) {
+    let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
+
+    let engine_list: Vec<&Engine> = engine_q.iter().collect();
+
+    //For loop for the length of the music_controller
+    for i in 0..music_controller.len() {
+        //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
+        let mut speed_curve = 
+            engine_list[i].curve.point_at_pos(                                          //Get the position from the bezier curve
+                (( (engine_list[i].speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
+            ).y()                                                                       //Grab the Y-value of from this position on the bezier curve
+            as f32;                                                                     //Cast this value to a f32
+                
+        //Calculate the offset
+        let offset = engine_list[i].speed * 0.030;
+
+        //Make the value smaller and apply an offset
+        speed_curve = speed_curve + offset;
+
+        //Set the playback speed to our calculated speed_curve of this specific engine audio sink
+        music_controller[i].set_speed(speed_curve);
+    }
+}
+
+/*
  * Inputs: none
  * Outputs: CarDefinition - The struct containing the car's specifications
+ * Description: Defines a car's specifications to later be built by car_startup_system().
  */
 pub fn build_car(
     startposition: [f64; 3], 
@@ -379,7 +436,7 @@ impl Chassis {
         rx_e.set_parent(ry_id);
         let rx_id = rx_e.id();
 
-        //Create a bezier curve for curving playback audio
+        //Create a bezier curve for curving playback audio (to simulate changing of gears)
         let sound_curve = bezier::Curve::from_points(
             Coord2(0.0, 0.6),
             (Coord2(1.0, 1.4), Coord2(0.84, 0.55)),
