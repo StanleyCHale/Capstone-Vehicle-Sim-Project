@@ -495,61 +495,6 @@ fn f64_to_f32(x: f64) -> f32 {
     y
 }
 
-//Function to update the engine speed's component using the driven wheel's q dirivitive and the wheel's radius
-pub fn update_engine_speed(
-    joints: Query<(&Joint, &BrakeWheel)>,
-    mut players: ResMut<CarList>,
-    mut engine_q: Query<&mut Engine>,
-) {
-
-    let playerlist = &mut players.cars;
-
-    let joint_list: Vec<(&Joint, &BrakeWheel)> = joints.iter().collect();
-
-    let mut count = 0;
-    for mut engine in engine_q.iter_mut() {
-        let car_joint = count * 2;
-        let qd = joint_list[car_joint].0.qd.abs();
-        let radius = playerlist[count].wheel.radius;
-
-        //Update the speed
-        engine.speed = f64_to_f32(qd * radius); 
-        count += 1;
-    } 
-}
-
-//Used to update the playback speed of the engine audio sink
-pub fn update_engine_audio(
-    music_controller: Query<&SpatialAudioSink, With<Engine>>, 
-    engine_q: Query<&Engine>,
-    car_preferences: Res<CarPreferences>
-) {
-    let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
-
-    let engine_list: Vec<&Engine> = engine_q.iter().collect();
-
-    //For loop for the length of the music_controller
-    for i in 0..music_controller.len() {
-        //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
-        let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
-            engine_list[i].curve.point_at_pos(                                          //Get the position from the bezier curve
-                (( (engine_list[i].speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
-            ).y()                                                               //Grab the Y-value of from this position on the bezier curve
-        );
-                
-        //Calculate the offset
-        let offset = engine_list[i].speed * 0.030;
-
-        //Make the value smaller and apply an offset
-        speed_curve = speed_curve + offset;
-
-        //Set the playback speed to our calculated speed_curve of this specific engine audio sink
-        music_controller[i].set_speed(speed_curve);
-        //Set the volume of the engine audio sink to the volume of the car preferences
-        music_controller[i].set_volume(car_preferences.volume as f32);
-    }
-}
-
 #[derive(Clone)]
 pub struct Suspension {
     pub name: String,
