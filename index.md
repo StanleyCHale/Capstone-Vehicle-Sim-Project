@@ -34,10 +34,10 @@ The Bevy game engine performs really well because of its ability to automaticall
 - In simpler terms the vehicle's audio had been fine tuned to adapt with the speed of the car like how a real one would.
 
 <h4 align="center">Engine Audio System Example</h4>
-<video src="example_engine.mkv" width="320" height="240" controls align="center"></video>
+<video align="center" src="example_engine.mkv" width="320" height="240" controls align="center"></video>
 
 <h4 align="center">Spatial Audio Example</h4>
-<video src="example_spatial.mkv" width="320" height="240" controls align="center"></video>
+<video align="center" src="example_spatial.mkv" width="320" height="240" controls align="center"></video>
 
 <h3 align="center">Multiple Vehicles</h3>
 - Two vehicles can be controlled at the same time so that two people can play around with this program at the same time. Or you can watch as one vehicle tumbles down a mountain from the safety of the other vehicle. We won't judge!
@@ -59,8 +59,9 @@ Alternatively, you could contact us by our emails [down below](##aboutus).
 <b>Members:</b>
 - Stanley Hale - halesta@oregonstate.edu
   - UI
-  - Sound design
-  - Car model
+  - Engine Audio System
+  - Car model integration
+  - Game states
 - Ezra McDonald-Mueller - mcdonaez@oregonstate.edu
   - Terrain
   - Skybox
