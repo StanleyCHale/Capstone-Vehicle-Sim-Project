@@ -1,5 +1,7 @@
-use std::f64::consts::PI as PI64;
+use std::{cmp::min, f64::consts::PI as PI64};
 use rand::Rng;
+
+use std::cmp;
 
 use crate::{
     function::Function, mirror::Mirror, plane::Plane, rotate::Rotate, step::Step,
@@ -183,6 +185,13 @@ pub fn perlin_plane(size: f64, subdivisions: f64) -> Vec<Vec<Box<dyn GridElement
     let x_vertices = subdivisions + 2.0;
     let y_vertices = subdivisions + 2.0;
 
+    // percent lerp-ed 
+    // --
+    // operates on divisions
+    // dependent on x_vertices
+    let lerp_percent = 5.0;
+    let sub_frac = (x_vertices / (100.0 / lerp_percent)) as u32;
+
     let x_factor = size / x_vertices;
     let y_factor = size / y_vertices;
     let z_factor = size * 0.05;
@@ -204,7 +213,53 @@ pub fn perlin_plane(size: f64, subdivisions: f64) -> Vec<Vec<Box<dyn GridElement
     for x in 0..x_vertices as u32 {
         let mut temp: Vec<f64> = vec![];
         for y in 0..y_vertices as u32 {
-            temp.push(perlin_noise.get_value(x as usize, y as usize) * z_factor);
+            //https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/a-brief-introduction-to-lerp-r4954/
+            // start * (1 - t) + end * t
+            // start * (1 - t) + 0
+            let start = perlin_noise.get_value(x as usize, y as usize) * z_factor;
+            // if(x < sub_frac || y < sub_frac || x > x_vertices as u32 - sub_frac || y > y_vertices as u32 - sub_frac) {
+
+            // }
+            if(x < sub_frac && y < sub_frac) {
+                let n = min(x, y);
+                let t = (sub_frac - n) as f64 / sub_frac as f64;
+                temp.push(start * (1.0 - t));
+            } 
+            else if(x > x_vertices as u32 - sub_frac && y > y_vertices as u32 - sub_frac) {
+                let n = cmp::max(x, y);
+                let t = (sub_frac - (x_vertices as u32 - n)) as f64 / sub_frac as f64;
+                temp.push(start * (1.0 - t));
+            }
+            else if(x < sub_frac && y > y_vertices as u32 - sub_frac) {
+                let n = cmp::max(sub_frac - x, sub_frac - (y_vertices as u32 - y));
+                let t = (n) as f64 / sub_frac as f64;
+                temp.push(start * (1.0 - t));
+            }
+            else if(y < sub_frac && x > x_vertices as u32 - sub_frac) {
+                let n = cmp::max(sub_frac - y, sub_frac - (x_vertices as u32 - x));
+                let t = (n) as f64 / sub_frac as f64;
+                temp.push(start * (1.0 - t));
+            }
+            //
+            else if(x < sub_frac) {
+                let t = (sub_frac - x) as f64 / sub_frac as f64;
+                temp.push(start * (1.0 - t));
+            } 
+            else if (x > x_vertices as u32 - sub_frac) {
+                let t = (sub_frac - (x_vertices as u32 - x)) as f64 / sub_frac as f64;
+                temp.push(start * (1.0 - t));
+            }
+            else if(y < sub_frac) {
+                let t = (sub_frac - y) as f64 / sub_frac as f64;
+                temp.push(start * (1.0 - t));
+            } 
+            else if (y > y_vertices as u32 - sub_frac) {
+                let t = (sub_frac - (y_vertices as u32 - y)) as f64 / sub_frac as f64;
+                temp.push(start * (1.0 - t));
+            }
+            else {
+                temp.push(perlin_noise.get_value(x as usize, y as usize) * z_factor);
+            }
         }
         zs.push(temp)
     }

@@ -20,7 +20,7 @@ use bevy::{
 };
 
 
-pub const PLANESIZE: f32 = 1600.0;
+pub const PLANESIZE: f32 = 160.0;
 
 
 pub struct Interference {
