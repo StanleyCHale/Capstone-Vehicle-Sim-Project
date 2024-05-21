@@ -220,40 +220,40 @@ pub fn perlin_plane(size: f64, subdivisions: f64) -> Vec<Vec<Box<dyn GridElement
             // if(x < sub_frac || y < sub_frac || x > x_vertices as u32 - sub_frac || y > y_vertices as u32 - sub_frac) {
 
             // }
-            if(x < sub_frac && y < sub_frac) {
+            if x < sub_frac && y < sub_frac {
                 let n = min(x, y);
                 let t = (sub_frac - n) as f64 / sub_frac as f64;
                 temp.push(start * (1.0 - t));
             } 
-            else if(x > x_vertices as u32 - sub_frac && y > y_vertices as u32 - sub_frac) {
+            else if x > x_vertices as u32 - sub_frac && y > y_vertices as u32 - sub_frac {
                 let n = cmp::max(x, y);
                 let t = (sub_frac - (x_vertices as u32 - n)) as f64 / sub_frac as f64;
                 temp.push(start * (1.0 - t));
             }
-            else if(x < sub_frac && y > y_vertices as u32 - sub_frac) {
+            else if x < sub_frac && y > y_vertices as u32 - sub_frac {
                 let n = cmp::max(sub_frac - x, sub_frac - (y_vertices as u32 - y));
                 let t = (n) as f64 / sub_frac as f64;
                 temp.push(start * (1.0 - t));
             }
-            else if(y < sub_frac && x > x_vertices as u32 - sub_frac) {
+            else if y < sub_frac && x > x_vertices as u32 - sub_frac {
                 let n = cmp::max(sub_frac - y, sub_frac - (x_vertices as u32 - x));
                 let t = (n) as f64 / sub_frac as f64;
                 temp.push(start * (1.0 - t));
             }
             //
-            else if(x < sub_frac) {
+            else if x < sub_frac {
                 let t = (sub_frac - x) as f64 / sub_frac as f64;
                 temp.push(start * (1.0 - t));
             } 
-            else if (x > x_vertices as u32 - sub_frac) {
+            else if x > x_vertices as u32 - sub_frac {
                 let t = (sub_frac - (x_vertices as u32 - x)) as f64 / sub_frac as f64;
                 temp.push(start * (1.0 - t));
             }
-            else if(y < sub_frac) {
+            else if y < sub_frac {
                 let t = (sub_frac - y) as f64 / sub_frac as f64;
                 temp.push(start * (1.0 - t));
             } 
-            else if (y > y_vertices as u32 - sub_frac) {
+            else if y > y_vertices as u32 - sub_frac {
                 let t = (sub_frac - (y_vertices as u32 - y)) as f64 / sub_frac as f64;
                 temp.push(start * (1.0 - t));
             }
