@@ -3,6 +3,8 @@ use bevy::{app::AppExit, prelude::*};
 use bevy_egui::{egui, EguiContexts, EguiPlugin};
 use bevy_integrator::GameState;
 
+use crate::preferences::CarPreferences;
+
 // Egui Main Menu Plugin
 pub struct EguiMainMenuPlugin;
 
@@ -26,6 +28,7 @@ enum MenuState {
     Settings,
     SettingsAudio,
     SettingsVehicle,
+    SettingsTerrain,
     Disabled,
 }
 
@@ -47,7 +50,7 @@ impl Default for MainMenu {
 }
 
 impl MainMenu {
-    fn show(&mut self, ctx: &egui::Context, app_exit_events: EventWriter<AppExit>, game_state: ResMut<NextState<GameState>>,) {
+    fn show(&mut self, ctx: &egui::Context, app_exit_events: EventWriter<AppExit>, game_state: ResMut<NextState<GameState>>, car_preferences: ResMut<CarPreferences>,) {
         match self.menu {
             MenuState::Main => {
                 self.gallery_main_contents(ctx, app_exit_events, game_state);
@@ -56,10 +59,13 @@ impl MainMenu {
                 self.gallery_settings_contents(ctx);
             }
             MenuState::SettingsAudio => {
-                //self.settings_audio_menu(ctx);
+                self.gallery_audio_settings_contents(ctx, car_preferences);
             }
             MenuState::SettingsVehicle => {
                 //self.settings_vehicle_menu(ctx);
+            }
+            MenuState::SettingsTerrain => {
+                //self.settings_terrain_menu(ctx);
             }
             MenuState::Disabled => {}
         }
@@ -141,7 +147,6 @@ impl MainMenu {
         });
     }
 
-
     /*
      * This function generates the actual UI of the main menu. Any UI element rearranging should be done here.
      */
@@ -185,7 +190,7 @@ impl MainMenu {
                     .add_sized([200.0, 50.0], egui::Button::new("Audio Settings"))
                     .clicked()
                 {
-                    
+                    self.menu = MenuState::SettingsAudio;
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -195,7 +200,7 @@ impl MainMenu {
                     .add_sized([200.0, 50.0], egui::Button::new("Vehicle Settings"))
                     .clicked()
                 {
-                    println!("egui: Vehicle Settings Clicked");
+                    self.menu = MenuState::SettingsVehicle;
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -205,7 +210,72 @@ impl MainMenu {
                     .add_sized([200.0, 50.0], egui::Button::new("Terrain Settings"))
                     .clicked()
                 {
-                    println!("egui: Terrain Settings Clicked");
+                    self.menu = MenuState::SettingsTerrain;
+                }
+
+                ui.add_space(10.0); // Space between buttons
+                ui.end_row();
+
+                if ui
+                    .add_sized([200.0, 50.0], egui::Button::new("Back"))
+                    .clicked()
+                {
+                    self.menu = MenuState::Main;
+                }
+
+                ui.end_row();
+            });
+        });
+    }
+
+    /*
+     * This function generates the actual UI of the main menu. Any UI element rearranging should be done here.
+     */
+    fn gallery_audio_settings_contents(
+        &mut self,
+        ctx: &egui::Context,
+        mut car_preferences: ResMut<CarPreferences>,
+    ) {
+        let Self {
+            menu: _,
+            visible: _,
+        } = self;
+
+        
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.vertical_centered(|ui| {     // Center the UI
+
+                // Modify text size
+                let mut custom_style = egui::Style::default();
+
+                custom_style.text_styles = [
+                    (egui::TextStyle::Heading, egui::FontId::proportional(64.0)),
+                    (egui::TextStyle::Body, egui::FontId::proportional(32.0)),
+                    (egui::TextStyle::Button, egui::FontId::proportional(18.0)),
+                    (egui::TextStyle::Small, egui::FontId::proportional(14.0)),
+                ]
+                .into();
+
+                ctx.set_style(custom_style);
+
+                // Start of UI elements
+                ui.heading("Driver's Altitude");
+
+                ui.add_space(60.0); // Space between header and label
+
+                ui.add(egui::Label::new("Audio Settings Menu"));
+
+                ui.add_space(20.0); // Space between label and buttons
+                ui.end_row();
+
+                //Grab the current value of the volume
+                let mut my_f64 = car_preferences.volume;
+                if ui
+                    .add(egui::Slider::new(&mut my_f64, 0.0..=1.0).text("Audio Volume"))
+                    .changed() 
+                {
+                    //Update the volume
+                    car_preferences.volume = my_f64;
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -229,11 +299,12 @@ pub fn egui_main_menu(
     mut main_menu_struct: ResMut<MainMenu>,
     app_exit_events: EventWriter<AppExit>,
     game_state: ResMut<NextState<GameState>>,
+    car_preferences: ResMut<CarPreferences>,
 ) {
     let ctx = contexts.ctx_mut();
 
     // Show the main menu
-    main_menu_struct.show(ctx, app_exit_events, game_state);
+    main_menu_struct.show(ctx, app_exit_events, game_state, car_preferences);
 }
 
 /*
