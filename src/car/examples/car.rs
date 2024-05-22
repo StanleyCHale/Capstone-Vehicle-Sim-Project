@@ -6,10 +6,13 @@ use bevy::{pbr::ExtendedMaterial, prelude::*};
 use car::{main_menu::MainMenuPlugin, preferences::{CarPreferences, PreferencesPlugin}};
 
 use bevy_integrator::{GameState, SimTime, Solver};
+
 use car::{
     build::{build_car, car_startup_system, update_engine_audio, update_engine_speed, CarList},
     control::ControlType,
+    egui_main_menu::EguiMainMenuPlugin,
     environment::build_environment,
+    //main_menu::MainMenuPlugin, // Use the main menu plugin
     setup::{camera_setup, simulation_setup},
 };
 use grid_terrain::MyExtension;
@@ -21,8 +24,10 @@ fn main() {
     // Create App
     App::new()
         .add_plugins(MainMenuPlugin)
+		.add_plugins(EguiMainMenuPlugin)
         .add_plugins(PreferencesPlugin)
         .add_plugins((RigidBodyPlugin {
+
             time: SimTime::new(0.002, 0.0, None),
             solver: Solver::RK4,
             simulation_setup: vec![simulation_setup],
@@ -37,6 +42,7 @@ fn main() {
         .add_plugins(GameSetupPlugin)
         //Add game states
         .add_state::<CarState>()
+        })
         .run();
 }
 
