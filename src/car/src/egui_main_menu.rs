@@ -49,7 +49,6 @@ impl Default for MainMenu {
 impl MainMenu {
     fn show(&mut self, ctx: &egui::Context, app_exit_events: EventWriter<AppExit>, game_state: ResMut<NextState<GameState>>,) {
         if self.enabled {
-            println!("Enabled");
             self.gallery_grid_contents(ctx, app_exit_events, game_state);
         }
     }
@@ -113,7 +112,6 @@ impl MainMenu {
                     .clicked()
                 {
                     println!("egui: Settings Clicked");
-                    
                 }
 
                 ui.add_space(10.0); // Space between buttons
