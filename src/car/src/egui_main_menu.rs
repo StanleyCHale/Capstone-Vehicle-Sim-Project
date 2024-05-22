@@ -17,8 +17,8 @@ impl Plugin for EguiMainMenuPlugin {
     }
 }
 
-// STATES
-// State used for the current menu screen
+// ENUM
+// Enum used for the current menu screen state
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
 enum MenuState {
     #[default]
@@ -33,14 +33,14 @@ enum MenuState {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Resource)]
 pub struct MainMenu {
-    state: MenuState,
+    menu: MenuState,
     visible: bool,
 }
 
 impl Default for MainMenu {
     fn default() -> Self {
         Self {
-            state: MenuState::Main,
+            menu: MenuState::Main,
             visible: true,
         }
     }
@@ -48,7 +48,7 @@ impl Default for MainMenu {
 
 impl MainMenu {
     fn show(&mut self, ctx: &egui::Context, app_exit_events: EventWriter<AppExit>, game_state: ResMut<NextState<GameState>>,) {
-        match self.state {
+        match self.menu {
             MenuState::Main => {
                 self.gallery_main_contents(ctx, app_exit_events, game_state);
             }
@@ -75,7 +75,7 @@ impl MainMenu {
         mut game_state: ResMut<NextState<GameState>>,
     ) {
         let Self {
-            state: _,
+            menu: _,
             visible: _,
         } = self;
 
@@ -113,7 +113,7 @@ impl MainMenu {
                     //Transition to the "In Game" state
                     game_state.set(GameState::InGame);
                     
-                    self.state = MenuState::Disabled;
+                    self.menu = MenuState::Disabled;
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -123,7 +123,7 @@ impl MainMenu {
                     .add_sized([200.0, 50.0], egui::Button::new("Settings"))
                     .clicked()
                 {
-                    self.state = MenuState::Settings;
+                    self.menu = MenuState::Settings;
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -150,7 +150,7 @@ impl MainMenu {
         ctx: &egui::Context,
     ) {
         let Self {
-            state: _,
+            menu: _,
             visible: _,
         } = self;
 
@@ -215,7 +215,7 @@ impl MainMenu {
                     .add_sized([200.0, 50.0], egui::Button::new("Back"))
                     .clicked()
                 {
-                    self.state = MenuState::Main;
+                    self.menu = MenuState::Main;
                 }
 
                 ui.end_row();
