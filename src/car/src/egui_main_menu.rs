@@ -65,7 +65,7 @@ impl MainMenu {
                 self.gallery_vehicle_settings_contents(ctx, car_preferences);
             }
             MenuState::SettingsTerrain => {
-                //self.settings_terrain_menu(ctx);
+                self.gallery_terrain_settings_contents(ctx);
             }
             MenuState::Disabled => {}
         }
@@ -301,6 +301,7 @@ impl MainMenu {
         ctx: &egui::Context,
         mut car_preferences: ResMut<CarPreferences>,
     ) {
+        
         let Self {
             menu: _,
             visible: _,
@@ -363,7 +364,7 @@ impl MainMenu {
                     car_preferences.max_speed= my_f64;
                 }
 
-                //Grab the current value of the max speed
+                //Grab the current value of the max torque
                 my_f64 = car_preferences.max_torque;
                 if ui
                     .add(egui::Slider::new(&mut my_f64, 1.0..=10000.0).text("Car Torque (Nm)"))
@@ -381,6 +382,83 @@ impl MainMenu {
                     .clicked()
                 {
                     self.menu = MenuState::Settings;
+                }
+
+                ui.end_row();
+            });
+        });
+    }
+ 
+    /*
+     * This function generates the actual UI of the main menu. Any UI element rearranging should be done here.
+     */
+    fn gallery_terrain_settings_contents(
+        &mut self,
+        ctx: &egui::Context,
+    ) {
+        let Self {
+            menu: _,
+            visible: _,
+        } = self;
+
+        
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.vertical_centered(|ui| {     // Center the UI
+
+                // Modify text size
+                let mut custom_style = egui::Style::default();
+
+                custom_style.text_styles = [
+                    (egui::TextStyle::Heading, egui::FontId::proportional(64.0)),
+                    (egui::TextStyle::Body, egui::FontId::proportional(32.0)),
+                    (egui::TextStyle::Button, egui::FontId::proportional(18.0)),
+                    (egui::TextStyle::Small, egui::FontId::proportional(14.0)),
+                ]
+                .into();
+
+                ctx.set_style(custom_style);
+
+                // Start of UI elements
+                ui.heading("Driver's Altitude");
+
+                ui.add_space(60.0); // Space between header and label
+
+                ui.add(egui::Label::new("Terrain Settings Menu"));
+
+                ui.add_space(20.0); // Space between label and buttons
+                ui.end_row();
+
+                
+                if ui
+                    .add_sized([200.0, 50.0], egui::Button::new("Generate New Terrain Seed"))
+                    .clicked()
+                {
+                    //Generate a new terrain seed
+                    todo!("Generate a new terrain seed");
+                }
+
+                ui.end_row();
+
+                //Grab the current value of the volume
+                let mut my_string = String::from("0");
+                let response = ui.add(egui::TextEdit::singleline(&mut my_string));
+                if response.changed() {
+                    // … Considering just using lost_focus() instead
+                    todo!("Update the terrain seed on change??");
+                }
+                if response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                    // …
+                    todo!("Update the terrain seed on losing focus");
+                }
+
+                ui.add_space(10.0); // Space between buttons
+                ui.end_row();
+
+                if ui
+                    .add_sized([200.0, 50.0], egui::Button::new("Back"))
+                    .clicked()
+                {
+                    self.menu = MenuState::Main;
                 }
 
                 ui.end_row();
