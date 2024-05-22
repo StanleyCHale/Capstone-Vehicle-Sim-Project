@@ -350,7 +350,7 @@ impl MainMenu {
                     .add(egui::Slider::new(&mut my_f64, 1.0..=200.0).text("Gravity (m/s)"))
                     .changed() 
                 {
-                    //Update the chassis mass
+                    //Update the gravity
                     car_preferences.gravity= my_f64;
                 }
 
@@ -360,7 +360,7 @@ impl MainMenu {
                     .add(egui::Slider::new(&mut my_f64, 1.0..=200.0).text("Max Speed (m/s)"))
                     .changed() 
                 {
-                    //Update the chassis mass
+                    //Update the max speed
                     car_preferences.max_speed= my_f64;
                 }
 
@@ -370,8 +370,18 @@ impl MainMenu {
                     .add(egui::Slider::new(&mut my_f64, 1.0..=10000.0).text("Car Torque (Nm)"))
                     .changed() 
                 {
-                    //Update the chassis mass
+                    //Update the max torque
                     car_preferences.max_torque= my_f64;
+                }
+
+                //Grab the current value of the friction coefficient
+                my_f64 = car_preferences.friction_coefficient;
+                if ui
+                    .add(egui::Slider::new(&mut my_f64, 0.0..=5.0).text("Friction Coefficient"))
+                    .changed() 
+                {
+                    //Update the friction coefficient
+                    car_preferences.friction_coefficient= my_f64;
                 }
 
                 ui.add_space(10.0); // Space between buttons

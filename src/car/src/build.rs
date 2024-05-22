@@ -128,6 +128,7 @@ pub fn build_car(
     max_speed: f64,
     chassis_mass: f64,
     max_torque: f64,
+    fricion_coefficient: f64,
 ) -> CarDefinition {
     // Separate the start position into x, y, z coordinates
     let xpos = startposition[0];
@@ -204,7 +205,7 @@ pub fn build_car(
         .collect();
 
     // Wheel
-    let wheel = build_wheel(chassis_mass);
+    let wheel = build_wheel(chassis_mass, fricion_coefficient);
 
     //Calculate middle speeds
     let lower_speed = max_speed * 0.25;
@@ -259,7 +260,7 @@ pub fn build_car(
     }
 }
 
-pub fn build_wheel(chassis_mass: f64) -> Wheel {
+pub fn build_wheel(chassis_mass: f64, fricion_coefficient: f64) -> Wheel {
     let wheel_mass = 20.;
     let wheel_radius = 0.325_f64;
     let wheel_moi_y = wheel_mass * wheel_radius.powi(2);
@@ -275,7 +276,7 @@ pub fn build_wheel(chassis_mass: f64) -> Wheel {
         moi_xz: wheel_moi_xz,
         stiffness: [wheel_stiffness, 0.],
         damping: wheel_damping,
-        coefficient_of_friction: 0.8,
+        coefficient_of_friction: fricion_coefficient,
         rolling_radius: 0.315,
         low_speed: 1.0,
         normalized_slip_stiffness: 20.0,

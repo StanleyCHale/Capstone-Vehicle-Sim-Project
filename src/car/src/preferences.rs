@@ -13,6 +13,7 @@ pub struct CarPreferences {
     pub max_speed: f64,
     pub max_torque: f64,
     pub volume: f64,
+    pub friction_coefficient: f64,
 }
 
 impl Default for CarPreferences {
@@ -23,6 +24,7 @@ impl Default for CarPreferences {
                 max_speed: 75.0,
                 max_torque: 1000.0,
                 volume: 1.0,
+                friction_coefficient: 0.8,
             }
         }
     }

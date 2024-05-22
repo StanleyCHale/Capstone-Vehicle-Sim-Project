@@ -82,6 +82,7 @@ fn car_building_system(mut car_list: ResMut<CarList>, car_preferences: Res<CarPr
     let mass = car_preferences.mass;
     let max_speed = car_preferences.max_speed;
     let max_torque = car_preferences.max_torque;
+    let friction_coefficient = car_preferences.friction_coefficient;
 
     // Create cars
     let mut car_definitions = Vec::new();
@@ -92,6 +93,7 @@ fn car_building_system(mut car_list: ResMut<CarList>, car_preferences: Res<CarPr
         max_speed,
         mass,
         max_torque,
+        friction_coefficient,
     ));
     car_definitions.push(build_car(
         [0., 0., 0.],
@@ -100,6 +102,7 @@ fn car_building_system(mut car_list: ResMut<CarList>, car_preferences: Res<CarPr
         max_speed,
         mass,
         max_torque,
+        friction_coefficient,
     )); // COMMENT THIS OUT IF YOU ONLY WANT 1 CAR
 
     for car in car_definitions {
