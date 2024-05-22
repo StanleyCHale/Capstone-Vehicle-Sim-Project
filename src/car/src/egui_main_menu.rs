@@ -486,14 +486,3 @@ pub fn egui_main_menu(
 pub fn exit_program(mut app_exit_events: EventWriter<AppExit>) {
     app_exit_events.send(AppExit);
 }
-
-/*
- * Inputs: Query for the entities to despawn, commands
- * Outputs: None
- * Description: This function will despawn all entities with the component T
- */
-fn despawn_recursive<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
-    for entity in &to_despawn {
-        commands.entity(entity).despawn_recursive();
-    }
-}
