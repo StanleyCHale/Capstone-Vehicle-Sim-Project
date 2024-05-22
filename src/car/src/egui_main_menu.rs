@@ -10,7 +10,7 @@ impl Plugin for EguiMainMenuPlugin {
     fn build(&self, app: &mut App) {
         let main_menu_struct = MainMenu::default();
 
-        app.add_state::<MenuState>()
+        app
             .add_plugins(EguiPlugin) // EguiPlugin is needed for literally all bevy_egui functionality
             .insert_resource(main_menu_struct)
             .add_systems(Update, egui_main_menu); // "Main" function for this file
@@ -19,7 +19,7 @@ impl Plugin for EguiMainMenuPlugin {
 
 // STATES
 // State used for the current menu screen
-#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash)]
 enum MenuState {
     #[default]
     Main,
@@ -33,16 +33,14 @@ enum MenuState {
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[derive(Resource)]
 pub struct MainMenu {
-    main: bool,
-    settings: bool,
+    state: MenuState,
     visible: bool,
 }
 
 impl Default for MainMenu {
     fn default() -> Self {
         Self {
-            main: true,
-            settings: false,
+            state: MenuState::Main,
             visible: true,
         }
     }
@@ -50,11 +48,20 @@ impl Default for MainMenu {
 
 impl MainMenu {
     fn show(&mut self, ctx: &egui::Context, app_exit_events: EventWriter<AppExit>, game_state: ResMut<NextState<GameState>>,) {
-        if self.main {
-            self.gallery_main_contents(ctx, app_exit_events, game_state);
-        }
-        if self.settings {
-            self.gallery_settings_contents(ctx);
+        match self.state {
+            MenuState::Main => {
+                self.gallery_main_contents(ctx, app_exit_events, game_state);
+            }
+            MenuState::Settings => {
+                self.gallery_settings_contents(ctx);
+            }
+            MenuState::SettingsAudio => {
+                //self.settings_audio_menu(ctx);
+            }
+            MenuState::SettingsVehicle => {
+                //self.settings_vehicle_menu(ctx);
+            }
+            MenuState::Disabled => {}
         }
     }
 
@@ -68,8 +75,7 @@ impl MainMenu {
         mut game_state: ResMut<NextState<GameState>>,
     ) {
         let Self {
-            main: _,
-            settings: _,
+            state: _,
             visible: _,
         } = self;
 
@@ -107,7 +113,7 @@ impl MainMenu {
                     //Transition to the "In Game" state
                     game_state.set(GameState::InGame);
                     
-                    self.main = false;
+                    self.state = MenuState::Disabled;
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -117,7 +123,7 @@ impl MainMenu {
                     .add_sized([200.0, 50.0], egui::Button::new("Settings"))
                     .clicked()
                 {
-                    self.settings = true;
+                    self.state = MenuState::Settings;
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -144,8 +150,7 @@ impl MainMenu {
         ctx: &egui::Context,
     ) {
         let Self {
-            main: _,
-            settings: _,
+            state: _,
             visible: _,
         } = self;
 
@@ -181,8 +186,6 @@ impl MainMenu {
                     .clicked()
                 {
                     
-                    self.main = false;
-                    self.settings = true;
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -192,7 +195,7 @@ impl MainMenu {
                     .add_sized([200.0, 50.0], egui::Button::new("Vehicle Settings"))
                     .clicked()
                 {
-                    println!("egui: Settings Clicked");
+                    println!("egui: Vehicle Settings Clicked");
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -202,7 +205,7 @@ impl MainMenu {
                     .add_sized([200.0, 50.0], egui::Button::new("Terrain Settings"))
                     .clicked()
                 {
-                    println!("egui: Settings Clicked");
+                    println!("egui: Terrain Settings Clicked");
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -212,8 +215,7 @@ impl MainMenu {
                     .add_sized([200.0, 50.0], egui::Button::new("Back"))
                     .clicked()
                 {
-                    self.settings = false;
-                    self.main = true;
+                    self.state = MenuState::Main;
                 }
 
                 ui.end_row();
