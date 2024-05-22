@@ -12,7 +12,6 @@ use car::{
     control::ControlType,
     egui_main_menu::EguiMainMenuPlugin,
     environment::build_environment,
-    //main_menu::MainMenuPlugin, // Use the main menu plugin
     setup::{camera_setup, simulation_setup},
 };
 use grid_terrain::MyExtension;
@@ -23,8 +22,8 @@ fn main() {
 
     // Create App
     App::new()
-        .add_plugins(MainMenuPlugin)
-		.add_plugins(EguiMainMenuPlugin)
+        //.add_plugins(MainMenuPlugin)
+        .add_state::<GameState>()
         .add_plugins(PreferencesPlugin)
         .add_plugins((RigidBodyPlugin {
 
@@ -38,11 +37,11 @@ fn main() {
                 ExtendedMaterial<StandardMaterial, MyExtension>,
             >::default()
         ))
+        .add_plugins(EguiMainMenuPlugin)
         .insert_resource(Msaa::Off)
         .add_plugins(GameSetupPlugin)
         //Add game states
         .add_state::<CarState>()
-        })
         .run();
 }
 
