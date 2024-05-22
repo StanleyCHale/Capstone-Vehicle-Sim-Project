@@ -62,7 +62,7 @@ impl MainMenu {
                 self.gallery_audio_settings_contents(ctx, car_preferences);
             }
             MenuState::SettingsVehicle => {
-                //self.settings_vehicle_menu(ctx);
+                self.gallery_vehicle_settings_contents(ctx, car_preferences);
             }
             MenuState::SettingsTerrain => {
                 //self.settings_terrain_menu(ctx);
@@ -286,6 +286,101 @@ impl MainMenu {
                     .clicked()
                 {
                     self.menu = MenuState::Main;
+                }
+
+                ui.end_row();
+            });
+        });
+    }
+
+    /*
+     * This function generates the actual UI of the main menu. Any UI element rearranging should be done here.
+     */
+    fn gallery_vehicle_settings_contents(
+        &mut self,
+        ctx: &egui::Context,
+        mut car_preferences: ResMut<CarPreferences>,
+    ) {
+        let Self {
+            menu: _,
+            visible: _,
+        } = self;
+
+        
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.vertical_centered(|ui| {     // Center the UI
+
+                // Modify text size
+                let mut custom_style = egui::Style::default();
+
+                custom_style.text_styles = [
+                    (egui::TextStyle::Heading, egui::FontId::proportional(64.0)),
+                    (egui::TextStyle::Body, egui::FontId::proportional(32.0)),
+                    (egui::TextStyle::Button, egui::FontId::proportional(18.0)),
+                    (egui::TextStyle::Small, egui::FontId::proportional(14.0)),
+                ]
+                .into();
+
+                ctx.set_style(custom_style);
+
+                // Start of UI elements
+                ui.heading("Driver's Altitude");
+
+                ui.add_space(60.0); // Space between header and label
+
+                ui.add(egui::Label::new("Vehicle Settings Menu"));
+
+                ui.add_space(20.0); // Space between label and buttons
+                ui.end_row();
+
+                //Grab the current value of the chassis mass
+                let mut my_f64 = car_preferences.mass;
+                if ui
+                    .add(egui::Slider::new(&mut my_f64, 1.0..=15000.0).text("Chassis Mass (kg)"))
+                    .changed() 
+                {
+                    //Update the chassis mass
+                    car_preferences.mass = my_f64;
+                }
+
+                //Grab the current value of gravity
+                my_f64 = car_preferences.gravity;
+                if ui
+                    .add(egui::Slider::new(&mut my_f64, 1.0..=200.0).text("Gravity (m/s)"))
+                    .changed() 
+                {
+                    //Update the chassis mass
+                    car_preferences.gravity= my_f64;
+                }
+
+                //Grab the current value of the max speed
+                my_f64 = car_preferences.max_speed;
+                if ui
+                    .add(egui::Slider::new(&mut my_f64, 1.0..=200.0).text("Max Speed (m/s)"))
+                    .changed() 
+                {
+                    //Update the chassis mass
+                    car_preferences.max_speed= my_f64;
+                }
+
+                //Grab the current value of the max speed
+                my_f64 = car_preferences.max_torque;
+                if ui
+                    .add(egui::Slider::new(&mut my_f64, 1.0..=10000.0).text("Car Torque (Nm)"))
+                    .changed() 
+                {
+                    //Update the chassis mass
+                    car_preferences.max_torque= my_f64;
+                }
+
+                ui.add_space(10.0); // Space between buttons
+                ui.end_row();
+
+                if ui
+                    .add_sized([200.0, 50.0], egui::Button::new("Back"))
+                    .clicked()
+                {
+                    self.menu = MenuState::Settings;
                 }
 
                 ui.end_row();
