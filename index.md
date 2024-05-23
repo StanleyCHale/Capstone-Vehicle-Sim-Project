@@ -17,7 +17,7 @@ With many adjustable parameters prebuilt into the program and an open-source cod
 
 With many adjustable parameters prebuilt into the program and an open-source codebase, this project allows easy modding support for developers, and fully customizable mechanics for advanced users.
 
-The Bevy game engine performs really well because of its ability to automatically parallelize and cache where it can. It has the fastest ECS (entity component system) according to some benchmarks.
+The Bevy game engine performs really well because of its ability to automatically parallelize and cache where it can. It has the fastest ECS (entity component system) according to some [benchmarks](https://taintedcoders.com/bevy/ecs-evolution/).
 
 <h2 align="center">Talking Points</h2>
 
