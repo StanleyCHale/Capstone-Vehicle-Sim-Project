@@ -14,16 +14,25 @@ use car::{
     environment::build_environment,
     setup::{camera_setup, simulation_setup},
 };
-use grid_terrain::MyExtension;
+use grid_terrain::{examples::TerrainPreferences, MyExtension};
 use rigid_body::plugin::{CarState, RigidBodyPlugin};
 
 // Main function
 fn main() {
+
+
     // Create App
     App::new()
         //.add_plugins(MainMenuPlugin)
         .add_state::<GameState>()
         .add_plugins(PreferencesPlugin)
+        .insert_resource(
+            TerrainPreferences {
+                grid_size: 1600.0,
+                subdivisions: 1024.0,
+                seed: 1234567,
+            }
+        )
         .add_plugins((
             RigidBodyPlugin {
                 time: SimTime::new(0.002, 0.0, None),

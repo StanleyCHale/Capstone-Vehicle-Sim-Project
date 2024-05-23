@@ -9,9 +9,7 @@ use bevy::{
 
 use grid_terrain::{
     //examples::{perlin_plane, steps, table_top, wave}, 
-    examples::perlin_plane,
-    MyExtension,
-    GridTerrain,
+    examples::{perlin_plane, TerrainPreferences}, GridTerrain, MyExtension
 };
 
 use grid_terrain::PLANESIZE;
@@ -20,6 +18,7 @@ pub fn build_environment(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, MyExtension>>>,
+    terrain_preferences: ResMut<TerrainPreferences>,
 ) {
     commands.insert_resource(AmbientLight {
         color: Color::rgb(0.9, 0.9, 1.0),
@@ -64,7 +63,7 @@ pub fn build_environment(
     //let wave_elements = wave(size, height, wave_length);
     //let step_elements = steps(size, vec![0.2, 0.4, 0.6]);
 
-    let perlin_elements = perlin_plane(size as f64, 1024.0);
+    let perlin_elements = perlin_plane( terrain_preferences);
 
     // merge the two grid terrains    
     // Change to below if more elements are being added

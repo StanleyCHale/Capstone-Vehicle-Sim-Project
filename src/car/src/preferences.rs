@@ -3,7 +3,6 @@ use bevy::prelude::*;
 
 pub struct PreferencesPlugin;
 
-
 //RESOURCE
 //Manages the user's preferences for the vehicle
 #[derive(Resource)]
