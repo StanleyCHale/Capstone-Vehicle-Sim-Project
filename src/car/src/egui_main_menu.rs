@@ -352,6 +352,8 @@ impl MainMenu {
                     //Update the chassis mass
                     car_preferences.mass = my_f64;
                 }
+                ui.add_space(10.0); // Space between buttons
+                ui.end_row();
 
                 //Grab the current value of gravity
                 my_f64 = car_preferences.gravity;
@@ -362,6 +364,8 @@ impl MainMenu {
                     //Update the gravity
                     car_preferences.gravity= my_f64;
                 }
+                ui.add_space(10.0); // Space between buttons
+                ui.end_row();
 
                 //Grab the current value of the max speed
                 my_f64 = car_preferences.max_speed;
@@ -372,6 +376,8 @@ impl MainMenu {
                     //Update the max speed
                     car_preferences.max_speed= my_f64;
                 }
+                ui.add_space(10.0); // Space between buttons
+                ui.end_row();
 
                 //Grab the current value of the max torque
                 my_f64 = car_preferences.max_torque;
@@ -382,6 +388,8 @@ impl MainMenu {
                     //Update the max torque
                     car_preferences.max_torque= my_f64;
                 }
+                ui.add_space(10.0); // Space between buttons
+                ui.end_row();
 
                 //Grab the current value of the friction coefficient
                 my_f64 = car_preferences.friction_coefficient;
@@ -457,17 +465,20 @@ impl MainMenu {
                     let mut rng = rand::thread_rng();
                     terrain_preferences.seed = rng.gen();
                 }
-                ui.add_space(20.0);
+
+                ui.add_space(10.0); // Space between buttons
                 ui.end_row();
 
                 //Grab the current value of the seed
                 let mut my_string = terrain_preferences.seed.to_string();
 
                 let response = ui.add(egui::TextEdit::singleline(&mut my_string));
+
+                //If the text box is changed or enter is pressed / lost focus
                 if response.changed() || 
                     (response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)))
                 {
-                    // Update the seed if changed or enter is pressed / lost focus
+                    //Generate a random seed if the input string is empty
                     if my_string.is_empty() {
                         let mut rng = rand::thread_rng();
                         let seed: u32 = rng.gen();
@@ -484,6 +495,28 @@ impl MainMenu {
 
                     //Set the seed
                     terrain_preferences.seed = my_string.parse().unwrap();
+                }
+                ui.add_space(20.0);
+                ui.end_row();
+
+                //Grab the current value of the grid size
+                let mut my_f64 = terrain_preferences.grid_size;
+                if ui
+                    .add(egui::Slider::new(&mut my_f64, 1.0..=4000.0).text("Grid Size"))
+                    .changed() 
+                {
+                    //Update the grid size
+                    terrain_preferences.grid_size = my_f64;
+                }
+
+                //Grab the current value of the subdivisions
+                my_f64 = terrain_preferences.subdivisions;
+                if ui
+                    .add(egui::Slider::new(&mut my_f64, 1.0..=2048.0).text("Grid Subdivisions"))
+                    .changed() 
+                {
+                    //Update the subdivisions
+                    terrain_preferences.subdivisions = my_f64;
                 }
 
                 ui.add_space(10.0); // Space between buttons
