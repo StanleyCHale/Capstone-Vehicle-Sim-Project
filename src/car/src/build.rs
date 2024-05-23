@@ -487,18 +487,6 @@ impl Chassis {
     }
 }
 
-//Asserts wether or not an overflow to infinite occurs during conversion
-//Got this snippet from: https://stackoverflow.com/questions/72247741/how-to-convert-a-f64-to-a-f32
-fn f64_to_f32(x: f64) -> f32 {
-    let y = x as f32;
-    assert_eq!(
-        x.is_finite(),
-        y.is_finite(),
-        "f32 overflow during conversion"
-    );
-    y
-}
-
 #[derive(Clone)]
 pub struct Suspension {
     pub name: String,
