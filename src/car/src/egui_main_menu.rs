@@ -2,6 +2,8 @@
 use bevy::{app::AppExit, prelude::*};
 use bevy_egui::{egui, EguiContexts, EguiPlugin};
 use bevy_integrator::GameState;
+use grid_terrain::examples::TerrainPreferences;
+use rand::Rng;
 
 use crate::preferences::CarPreferences;
 
@@ -50,7 +52,14 @@ impl Default for MainMenu {
 }
 
 impl MainMenu {
-    fn show(&mut self, ctx: &egui::Context, app_exit_events: EventWriter<AppExit>, game_state: ResMut<NextState<GameState>>, car_preferences: ResMut<CarPreferences>,) {
+    fn show(
+        &mut self, 
+        ctx: &egui::Context, 
+        app_exit_events: EventWriter<AppExit>, 
+        game_state: ResMut<NextState<GameState>>, 
+        car_preferences: ResMut<CarPreferences>, 
+        terrain_preferences: ResMut<TerrainPreferences>
+    ) {
         match self.menu {
             MenuState::Main => {
                 self.gallery_main_contents(ctx, app_exit_events, game_state);
@@ -65,7 +74,7 @@ impl MainMenu {
                 self.gallery_vehicle_settings_contents(ctx, car_preferences);
             }
             MenuState::SettingsTerrain => {
-                self.gallery_terrain_settings_contents(ctx);
+                self.gallery_terrain_settings_contents(ctx, terrain_preferences);
             }
             MenuState::Disabled => {}
         }
@@ -405,6 +414,7 @@ impl MainMenu {
     fn gallery_terrain_settings_contents(
         &mut self,
         ctx: &egui::Context,
+        mut terrain_preferences: ResMut<TerrainPreferences>,
     ) {
         let Self {
             menu: _,
@@ -444,21 +454,34 @@ impl MainMenu {
                     .clicked()
                 {
                     //Generate a new terrain seed
-                    todo!("Generate a new terrain seed");
+                    let mut rng = rand::thread_rng();
+                    terrain_preferences.seed = rng.gen();
                 }
-
+                ui.add_space(20.0);
                 ui.end_row();
 
-                //Grab the current value of the volume
-                let mut my_string = String::from("0");
+                //Grab the current value of the seed
+                let mut my_string = terrain_preferences.seed.to_string();
+
                 let response = ui.add(egui::TextEdit::singleline(&mut my_string));
-                if response.changed() {
-                    // … Considering just using lost_focus() instead
-                    todo!("Update the terrain seed on change??");
-                }
-                if response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
-                    // …
-                    todo!("Update the terrain seed on losing focus");
+                if response.changed() || 
+                    (response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)))
+                {
+                    // Update the seed if changed or enter is pressed / lost focus
+                    if my_string.is_empty() {
+                        let mut rng = rand::thread_rng();
+                        let seed: u32 = rng.gen();
+                        my_string = seed.to_string();
+                    }
+
+                    //Filter out string to just be numbers
+                    
+
+                    //We need to truncate the string to size of a u32
+                    if my_string.len() > 9 {
+                        my_string = my_string[..9].to_string();
+                    }
+                    terrain_preferences.seed = my_string.parse().unwrap();
                 }
 
                 ui.add_space(10.0); // Space between buttons
@@ -483,11 +506,12 @@ pub fn egui_main_menu(
     app_exit_events: EventWriter<AppExit>,
     game_state: ResMut<NextState<GameState>>,
     car_preferences: ResMut<CarPreferences>,
+    terrain_preferences: ResMut<TerrainPreferences>
 ) {
     let ctx = contexts.ctx_mut();
 
     // Show the main menu
-    main_menu_struct.show(ctx, app_exit_events, game_state, car_preferences);
+    main_menu_struct.show(ctx, app_exit_events, game_state, car_preferences, terrain_preferences);
 }
 
 /*
