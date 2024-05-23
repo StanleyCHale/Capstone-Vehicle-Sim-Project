@@ -54,5 +54,3 @@ Project Partner:
     - KennyNL - [Link](https://kenney.nl/assets/ui-pack)
 - Engine Audio: 
     - Mixkit ATV engine motor hum - [Link](https://mixkit.co/free-sound-effects/hum/)
-
- **The LICENSE is currently CC0 and will need to be changed by the end of the year!**
