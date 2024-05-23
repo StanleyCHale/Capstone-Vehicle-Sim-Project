@@ -475,12 +475,14 @@ impl MainMenu {
                     }
 
                     //Filter out string to just be numbers
-                    
+                    my_string = my_string.chars().filter(|char| char.is_digit(10)).collect();
 
                     //We need to truncate the string to size of a u32
                     if my_string.len() > 9 {
                         my_string = my_string[..9].to_string();
                     }
+
+                    //Set the seed
                     terrain_preferences.seed = my_string.parse().unwrap();
                 }
 
