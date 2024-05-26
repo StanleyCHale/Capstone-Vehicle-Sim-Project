@@ -18,7 +18,6 @@ use rigid_body::plugin::{CarState, RigidBodyPlugin};
 // Main function
 fn main() {
 
-
     // Create App
     App::new()
         .add_state::<GameState>()
