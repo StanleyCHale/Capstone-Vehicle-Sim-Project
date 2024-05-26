@@ -17,6 +17,7 @@ Keyboard controls for the car demo:
 - `A`/`D`: Steer left/right
 - `Arrow Up`/`Arrow Down`: Accelerate/brake
 - `Arrow Left`/`Arrow Right`: Steer left/right
+- `C`: Changes Camera
 
 Gamepad controls for the car demo:
 - `Right Stick`: Accelerate/brake

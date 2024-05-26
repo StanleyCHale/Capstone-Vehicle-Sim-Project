@@ -16,11 +16,14 @@ You can follow this link to view it [here](https://stanleychale.github.io/Capsto
     ├── src/grid_terrain
     ├── src/integrator
 ├── wip/  
+├── release/  
 ├── .gitignore  
 ├── LICENSE  
 └── README.md  
 
-The docs/ directory contains our supporting team documents for our team deliverables and assignments. Please note that this project's github pages website is hosted from the "astro" branch of this repository.
+The `docs/` directory contains our supporting team documents for our team deliverables and assignments. Please note that this project's github pages website is hosted from the "astro" branch of this repository.
+
+The `release/` directory contains our latest build of the game which you can download yourself!
 
 The `src/` directory contains our codebase for the project.
 
@@ -28,7 +31,8 @@ Within the `src/` directory, there is a series of other folders that contain the
 
 The `src/cameras/` directory contains the code that controls and updates the camera that is attached to the car.
 
-The src/car/ directory contains the main function and the App struct, which contains the entire ECS and world, and is the "center" of the program. All the other folders and files branch off of this one. 
+The `src/car/` directory contains the main function and the App struct, which contains the entire ECS and world, and is the "center" of the program. All the other folders and files branch off of this one. 
+
 As a reminder, the program can be run with the following command run inside of the src/ folder: 
 ```bash
 cargo run --example <example_name>
@@ -44,7 +48,7 @@ The `src/rigid_body/` directory contains a lot of the lower-level physics and co
 functionality, particularly relating to the player-controlled vehicle.
 
 # How to Run This Project:
-Download the latest zipped build of the game which can be found [here]().
+Download the latest zipped build of the game which can be found [here](release/rc2.zip).
 Alternatively you can clone this repositry and build the project yourself! To do so you can follow this link to the [Project Documentation](src/project-info.md).
 
 # Project Dependency:
