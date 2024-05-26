@@ -224,7 +224,6 @@ impl PhysicsScheduleExt for Schedule {
                 PhysicsSet::Evaluate,
                 PhysicsSet::Finalize,
                 PhysicsSet::Post,
-                //
                 SolverSet::Post,
             )
                 .chain().run_if(in_state(GameState::InGame)), // This defines the ordering of the system sets

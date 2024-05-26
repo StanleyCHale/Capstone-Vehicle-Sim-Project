@@ -1,6 +1,4 @@
 use std::{cmp::min, f64::consts::PI as PI64};
-use rand::Rng;
-
 use std::cmp;
 
 use crate::{
@@ -14,8 +12,8 @@ use noise::{Fbm, Perlin as PerlinNoise};
 use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
 
 
-//RESOURCE
-//Manages the user's preferences for the terrain
+// RESOURCE
+// Manages the user's preferences for the terrain
 #[derive(Resource)]
 pub struct TerrainPreferences {
   pub grid_size: f64,
@@ -179,10 +177,6 @@ pub fn wave(size: f64, height: f64, wave_length: f64) -> Vec<Vec<Box<dyn GridEle
 pub fn perlin_plane(terrain_preferences: ResMut<TerrainPreferences>) -> Vec<Vec<Box<dyn GridElement + 'static>>> {
     let mut grid_elements: Vec<Vec<Box<dyn GridElement + 'static>>> = Vec::new();
     
-    //let mut rng = rand::thread_rng();
-    //let seed = rng.gen();
-    // let seed = 2348961;
-    
     let fbm = Fbm::<PerlinNoise>::new(terrain_preferences.seed); 
 
     let perlin_noise = PlaneMapBuilder::<_, 2>::new(&fbm)
@@ -223,12 +217,8 @@ pub fn perlin_plane(terrain_preferences: ResMut<TerrainPreferences>) -> Vec<Vec<
         let mut temp: Vec<f64> = vec![];
         for y in 0..y_vertices as u32 {
             //https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/a-brief-introduction-to-lerp-r4954/
-            // start * (1 - t) + end * t
-            // start * (1 - t) + 0
             let start = perlin_noise.get_value(x as usize, y as usize) * z_factor;
-            // if(x < sub_frac || y < sub_frac || x > x_vertices as u32 - sub_frac || y > y_vertices as u32 - sub_frac) {
 
-            // }
             if x < sub_frac && y < sub_frac {
                 let n = min(x, y);
                 let t = (sub_frac - n) as f64 / sub_frac as f64;

@@ -73,16 +73,6 @@ impl GridElement for Function {
         let contact_point = Vector::new(point.x, point.y, height);
         let normal = Vector::new(-dx, -dy, 1.).normalize();
 
-        // // iterate to improve contact_point and normal (no significant improvement)
-        // for _ in 0..0 {
-        //     let (height, dx, dy) = evaluate(&self.functions, &self.derivatives, contact_point);
-        //     normal = Vector::new(-dx, -dy, 1.).normalize();
-        //     let function_point = Vector::new(contact_point.x, contact_point.y, height);
-        //     let separation = function_point - point;
-        //     interference_magnitude = separation.dot(&normal);
-        //     contact_point = point + normal * interference_magnitude;
-        // }
-
         Some(Interference {
             magnitude: interference_magnitude,
             position: contact_point,

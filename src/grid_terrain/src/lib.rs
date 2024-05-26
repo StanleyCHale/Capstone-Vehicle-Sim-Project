@@ -20,9 +20,6 @@ use bevy::{
 };
 
 
-pub const PLANESIZE: f32 = 1600.0;
-
-
 pub struct Interference {
     pub magnitude: f64,
     pub position: Vector,
@@ -145,6 +142,7 @@ impl GridTerrain {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ExtendedMaterial<StandardMaterial, MyExtension>>>,
         parent: Entity,
+        grid_size: f64,
     ) {
         let x_grid_size = self.elements[0].len() as f64 * self.step[0];
         let y_grid_size = self.elements.len() as f64 * self.step[1];
@@ -181,7 +179,7 @@ impl GridTerrain {
                             opaque_render_method: OpaqueRendererMethod::Auto,
                             ..Default::default()
                         },
-                        extension: MyExtension { z_max: PLANESIZE * 0.05 },
+                        extension: MyExtension { z_max: grid_size as f32 * 0.05 },
                     }),
                     ..default()
                 });
@@ -209,7 +207,7 @@ impl GridTerrain {
                             opaque_render_method: OpaqueRendererMethod::Auto,
                             ..Default::default()
                         },
-                        extension: MyExtension { z_max: PLANESIZE * 0.05 },
+                        extension: MyExtension { z_max: grid_size as f32 * 0.05 },
                     }),
                     ..default()
                 });

@@ -1,7 +1,5 @@
 use bevy::{pbr::ExtendedMaterial, prelude::*};
 
-// Some of the following code adapted from example code: https://github.com/johanhelsing/matchbox/tree/main/examples/bevy_ggrs
-
 // Use the main menu and preferences plugin
 use car::preferences::{CarPreferences, PreferencesPlugin};
 
@@ -20,10 +18,8 @@ use rigid_body::plugin::{CarState, RigidBodyPlugin};
 // Main function
 fn main() {
 
-
     // Create App
     App::new()
-        //.add_plugins(MainMenuPlugin)
         .add_state::<GameState>()
         .add_plugins(PreferencesPlugin)
         .insert_resource(
@@ -51,8 +47,8 @@ fn main() {
         .run();
 }
 
-//Game setup plugin for when the game starts
-//Handles:
+// Game setup plugin for when the game starts
+// Handles:
 //  - Car Creation
 //  - Terrain Creation
 //  - Audio Setup
@@ -62,8 +58,8 @@ impl Plugin for GameSetupPlugin {
     fn build(&self, app: &mut App) {
         let car_definitions = Vec::new();
 
-        //RESOURCE
-        //List of players resource
+        // RESOURCE
+        // List of players resource
         let players = CarList {
             cars: car_definitions,
         };
@@ -82,9 +78,9 @@ impl Plugin for GameSetupPlugin {
 }
 
 /*
-* Inputs: Queries for the list of players
-* Outputs: None
-* Description: This function defines the cars in the game as players
+ * Inputs: Queries for the list of players
+ * Outputs: None
+ * Description: This function defines the cars in the game as players
  */
 fn car_building_system(mut car_list: ResMut<CarList>, car_preferences: Res<CarPreferences>) {
     //Access mass from car preferences
@@ -96,7 +92,7 @@ fn car_building_system(mut car_list: ResMut<CarList>, car_preferences: Res<CarPr
     // Create cars
     let mut car_definitions = Vec::new();
     car_definitions.push(build_car(
-        [0., 4., 0.],
+        [4., 0., 0.],
         ControlType::WASD,
         0,
         max_speed,

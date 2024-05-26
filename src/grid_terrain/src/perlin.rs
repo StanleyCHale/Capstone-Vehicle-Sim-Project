@@ -120,12 +120,6 @@ impl NormalMap {
         }
 
         // Adjust indices to match the original array
-        //Some(Vec3{x: 0.0, y: 0.0, z: 1.0})
-        // Some(self.normal[x_ind][y_ind])
-
-        // FIX THIS -- SHOULD RETURN A INTERPOLATED NORMAL??? MAYBE??
-
-
         let x_ind_next = x_ind + 1;
         let y_ind_next = y_ind + 1;
 
@@ -166,7 +160,7 @@ impl NormalMap {
 pub struct Perlin {
     pub size: [f64; 2],
     pub subdivisions: u32,
-    pub heightmap: HeightMap, // 2D lookup table of z height vs x and y
+    pub heightmap: HeightMap,
     pub normal: NormalMap,
 }
 
@@ -199,7 +193,6 @@ impl GridElement for Perlin {
                 magnitude: ground_height - point.z,
                 position: Vector::new(point.x, point.y, ground_height),
                 normal: Vector::new(normal_array[0] as f64, normal_array[1] as f64, normal_array[2] as f64),
-                // normal: Vector::z(), // FIX THIS to real normal
             });
         } else {
             return None;
@@ -233,13 +226,6 @@ impl GridElement for Perlin {
                 positions.push([x_pos as f32, y_pos as f32, z_pos as f32]);
 
                 // Build normals
-
-                // let normal_array = self.normal.normal[x as usize][y as usize];
-                // normals.push([normal_array.x, normal_array.y, normal_array.z]);
-
-                // // Per vertex - Up vector
-                // // FIX THIS, edge cases not yet covered
-
                 if x == x_vertices - 1  && y == y_vertices - 1 {
                     normals.push([0.0, 0.0, -1.0]);
                 }
@@ -266,7 +252,7 @@ impl GridElement for Perlin {
 
 
                 // Build uvs
-                // FIX THIS -- it is wrong maybe, but no textures are being used so should be fine
+                // FIX THIS (maybe)
                 uvs.push([xi as f32, yi as f32]);
             }
         }
@@ -280,7 +266,7 @@ impl GridElement for Perlin {
                 let br = bl + y_vertices;
                 let tr = br + 1;
                 
-                // counter-clockwise
+                // counter-clockwise triangles
 
                 // Triangle 1 xy 00-10-11
                 indices.push((bl) as u32);

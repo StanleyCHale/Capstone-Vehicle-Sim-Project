@@ -8,11 +8,8 @@ use bevy::{
 };
 
 use grid_terrain::{
-    //examples::{perlin_plane, steps, table_top, wave}, 
     examples::{perlin_plane, TerrainPreferences}, GridTerrain, MyExtension
 };
-
-use grid_terrain::PLANESIZE;
 
 pub fn build_environment(
     mut commands: Commands,
@@ -56,24 +53,15 @@ pub fn build_environment(
     // must be the same for all grid elements
     let size = terrain_preferences.grid_size;
 
-    //let height = 2.;
-    //let table_elements = table_top(size as f64, height);
-    //let height = 0.3;
-    //let wave_length = 4.;
-    //let wave_elements = wave(size, height, wave_length);
-    //let step_elements = steps(size, vec![0.2, 0.4, 0.6]);
-
     let perlin_elements = perlin_plane(terrain_preferences);
 
     // merge the two grid terrains    
-    // Change to below if more elements are being added
-    // let mut elements
+    // Change to the below comment if more elements are being added
     let elements = perlin_elements;
-    //elements.extend(wave_elements);
 
     let grid_terrain = GridTerrain::new(elements, [size as f64, size as f64]);
     let empty_parent = commands.spawn(SpatialBundle::default()).id();
 
-    grid_terrain.build_meshes(&mut commands, &mut meshes, &mut materials, empty_parent);
+    grid_terrain.build_meshes(&mut commands, &mut meshes, &mut materials, empty_parent, size);
     commands.insert_resource(grid_terrain);
 }
