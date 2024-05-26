@@ -44,8 +44,7 @@ The Bevy game engine performs really well because of its ability to automaticall
 
 <h2 align="center">How to run the application</h2>
 
-Download the .exe file and run it. 
-`[We don't have a build yet, but we will put a link to download it when our Release Candidate 2 is finished.]`
+Download the zip file and run the exe [here](https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/blob/main/release/rc2.zip)
 
 Alternatively, you can pull the project off our github repository. The instructions can be found [here](https://github.com/StanleyCHale/Capstone-Vehicle-Sim-Project-Team3/blob/main/src/project-info.md).
 
