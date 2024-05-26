@@ -11,8 +11,6 @@ use grid_terrain::{
     examples::{perlin_plane, TerrainPreferences}, GridTerrain, MyExtension
 };
 
-use grid_terrain::PLANESIZE;
-
 pub fn build_environment(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -60,11 +58,10 @@ pub fn build_environment(
     // merge the two grid terrains    
     // Change to the below comment if more elements are being added
     let elements = perlin_elements;
-    // elements.extend(wave_elements);
 
     let grid_terrain = GridTerrain::new(elements, [size as f64, size as f64]);
     let empty_parent = commands.spawn(SpatialBundle::default()).id();
 
-    grid_terrain.build_meshes(&mut commands, &mut meshes, &mut materials, empty_parent);
+    grid_terrain.build_meshes(&mut commands, &mut meshes, &mut materials, empty_parent, size);
     commands.insert_resource(grid_terrain);
 }
