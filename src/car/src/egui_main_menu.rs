@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use bevy::{app::AppExit, prelude::*};
-use bevy_egui::{egui::{self, Color32}, EguiContexts, EguiPlugin};
+use bevy_egui::{egui, EguiContexts, EguiPlugin};
 use bevy_integrator::GameState;
 use grid_terrain::examples::TerrainPreferences;
 use rand::Rng;
