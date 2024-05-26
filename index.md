@@ -72,5 +72,6 @@ Alternatively, you could contact us by our emails [down below](##aboutus).
   - Shaders
 
 Project Partner:
-- Christopher Patton 
+- Christopher Patton - contact@pattondynamics.com
   - Dynamics and Simulation Engineer at Patton Dynamics LLC
+  -Chris Patton holds a Ph.D. in Mechanical Engineering from Oregon State University and has worked in Formula 1, LMP1, and the space launch industry. He currently leads Patton Dynamics, specializing in simulation services for the Aerospace, Motorsports, and Wave Energy Generation industries.
