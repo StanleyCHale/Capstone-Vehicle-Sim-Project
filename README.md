@@ -32,17 +32,18 @@ The original project repository can be found [here](https://github.com/crispyDyn
 # Project Credits:
 Team Members:
 - Stanley Hale - halesta@oregonstate.edu
-  - UI, sound design, car model
+  - UI, Engine Audio System, Car model Implementation
 - Ezra McDonald-Muelle - mcdonaez@oregonstate.edu
-  - Terrain, skybox
+  - Terrain Generation
 - Greggory Hickman​ - hickmang@oregonstate.edu
-  - Multiple cars, UI
+  - Multiple Cars, UI
 - Benny Xu - xube@oregonstate.edu
-  - Terrain, shaders
+  - Terrain Generation, Shaders
 
 Project Partner:
-- Chris Patton 
+- Christopher Patton - contact@pattondynamics.com
   - Dynamics and Simulation Engineer at Patton Dynamics LLC
+  -Chris Patton holds a Ph.D. in Mechanical Engineering from Oregon State University and has worked in Formula 1, LMP1, and the space launch industry. He currently leads Patton Dynamics, specializing in simulation services for the Aerospace, Motorsports, and Wave Energy Generation industries.
 
 ## 3rd Party Crates
 - `flo_curves` - [Link](https://docs.rs/flo_curves/latest/flo_curves/)
@@ -54,5 +55,3 @@ Project Partner:
     - KennyNL - [Link](https://kenney.nl/assets/ui-pack)
 - Engine Audio: 
     - Mixkit ATV engine motor hum - [Link](https://mixkit.co/free-sound-effects/hum/)
-
- **The LICENSE is currently CC0 and will need to be changed by the end of the year!**
