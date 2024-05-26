@@ -28,7 +28,11 @@ Within the src/ directory, there is a series of other folders that contain the a
 
 The src/cameras/ directory contains the code that controls and updates the camera that is attached to the car.
 
-The src/car/ directory contains the main App, and is the "center" of the program. All the other folders branch off of this one.
+The src/car/ directory contains the main function and the App struct, which contains the entire ECS and world, and is the "center" of the program. All the other folders and files branch off of this one. 
+As a reminder, the program can be run with the following command run inside of the src/ folder: 
+```bash
+cargo run --example <example_name>
+```
 
 The src/grid_terrain/ directory contains the files that are responsible for terrain
 generation, including the bumpy, mountainous terrain simulated by perlin noise.
