@@ -1,5 +1,4 @@
 use std::f64::consts::PI as PI64;
-use rand::Rng;
 
 use crate::{
     function::Function, mirror::Mirror, plane::Plane, rotate::Rotate, step::Step,
