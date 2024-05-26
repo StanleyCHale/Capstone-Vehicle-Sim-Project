@@ -98,19 +98,6 @@ impl MainMenu {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {     // Center the UI
 
-                // Modify text size
-                let mut custom_style = egui::Style::default();
-
-                custom_style.text_styles = [
-                    (egui::TextStyle::Heading, egui::FontId::proportional(64.0)),
-                    (egui::TextStyle::Body, egui::FontId::proportional(32.0)),
-                    (egui::TextStyle::Button, egui::FontId::proportional(18.0)),
-                    (egui::TextStyle::Small, egui::FontId::proportional(14.0)),
-                ]
-                .into();
-
-                ctx.set_style(custom_style);
-
                 // Start of UI elements
                 ui.heading("Driver's Altitude");
 
@@ -144,8 +131,7 @@ impl MainMenu {
                 ui.add_space(10.0); // Space between buttons
                 ui.end_row();
 
-                if ui
-                    .add_sized([200.0, 50.0], egui::Button::new("Quit"))
+                if ui.add_sized([200.0, 50.0], egui::Button::new("Quit"))
                     .clicked()
                 {
                     exit_program(app_exit_events);
@@ -157,7 +143,7 @@ impl MainMenu {
     }
 
     /*
-     * This function generates the actual UI of the main menu. Any UI element rearranging should be done here.
+     * This function generates the actual UI of the settings. Any UI element rearranging should be done here.
      */
     fn gallery_settings_contents(
         &mut self,
@@ -171,19 +157,6 @@ impl MainMenu {
         
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {     // Center the UI
-
-                // Modify text size
-                let mut custom_style = egui::Style::default();
-
-                custom_style.text_styles = [
-                    (egui::TextStyle::Heading, egui::FontId::proportional(64.0)),
-                    (egui::TextStyle::Body, egui::FontId::proportional(32.0)),
-                    (egui::TextStyle::Button, egui::FontId::proportional(18.0)),
-                    (egui::TextStyle::Small, egui::FontId::proportional(14.0)),
-                ]
-                .into();
-
-                ctx.set_style(custom_style);
 
                 // Start of UI elements
                 ui.heading("Driver's Altitude");
@@ -215,8 +188,7 @@ impl MainMenu {
                 ui.add_space(10.0); // Space between buttons
                 ui.end_row();
 
-                if ui
-                    .add_sized([200.0, 50.0], egui::Button::new("Terrain Settings"))
+                if ui.add_sized([200.0, 50.0], egui::Button::new("Terrain Settings"))
                     .clicked()
                 {
                     self.menu = MenuState::SettingsTerrain;
@@ -238,7 +210,7 @@ impl MainMenu {
     }
 
     /*
-     * This function generates the actual UI of the main menu. Any UI element rearranging should be done here.
+     * This function generates the actual UI of the settings submenus. Any UI element rearranging should be done here.
      */
     fn gallery_audio_settings_contents(
         &mut self,
@@ -254,19 +226,6 @@ impl MainMenu {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {     // Center the UI
 
-                // Modify text size
-                let mut custom_style = egui::Style::default();
-
-                custom_style.text_styles = [
-                    (egui::TextStyle::Heading, egui::FontId::proportional(64.0)),
-                    (egui::TextStyle::Body, egui::FontId::proportional(32.0)),
-                    (egui::TextStyle::Button, egui::FontId::proportional(18.0)),
-                    (egui::TextStyle::Small, egui::FontId::proportional(14.0)),
-                ]
-                .into();
-
-                ctx.set_style(custom_style);
-
                 // Start of UI elements
                 ui.heading("Driver's Altitude");
 
@@ -279,9 +238,14 @@ impl MainMenu {
 
                 //Grab the current value of the volume
                 let mut my_f64 = car_preferences.volume;
-                if ui
-                    .add(egui::Slider::new(&mut my_f64, 0.0..=1.0).text("Audio Volume"))
-                    .changed() 
+
+                let volume_slider = ui.add(
+                    egui::Slider::new(&mut my_f64, 0.0..=1.0)
+                    .trailing_fill(true)
+                    .step_by(0.01)
+                    .text("Audio Volume")
+                );
+                if volume_slider.changed() 
                 {
                     //Update the volume
                     car_preferences.volume = my_f64;
@@ -316,22 +280,8 @@ impl MainMenu {
             visible: _,
         } = self;
 
-        
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {     // Center the UI
-
-                // Modify text size
-                let mut custom_style = egui::Style::default();
-
-                custom_style.text_styles = [
-                    (egui::TextStyle::Heading, egui::FontId::proportional(64.0)),
-                    (egui::TextStyle::Body, egui::FontId::proportional(32.0)),
-                    (egui::TextStyle::Button, egui::FontId::proportional(18.0)),
-                    (egui::TextStyle::Small, egui::FontId::proportional(14.0)),
-                ]
-                .into();
-
-                ctx.set_style(custom_style);
 
                 // Start of UI elements
                 ui.heading("Driver's Altitude");
@@ -345,8 +295,12 @@ impl MainMenu {
 
                 //Grab the current value of the chassis mass
                 let mut my_f64 = car_preferences.mass;
-                if ui
-                    .add(egui::Slider::new(&mut my_f64, 1.0..=15000.0).text("Chassis Mass (kg)"))
+                if ui.add(
+                        egui::Slider::new(&mut my_f64, 1.0..=15000.0)
+                        .trailing_fill(true)
+                        .step_by(0.01)
+                        .text("Chassis Mass (kg)")
+                    )
                     .changed() 
                 {
                     //Update the chassis mass
@@ -357,8 +311,12 @@ impl MainMenu {
 
                 //Grab the current value of gravity
                 my_f64 = car_preferences.gravity;
-                if ui
-                    .add(egui::Slider::new(&mut my_f64, 1.0..=200.0).text("Gravity (m/s)"))
+                if ui.add(
+                        egui::Slider::new(&mut my_f64, 1.0..=200.0)
+                        .trailing_fill(true)
+                        .step_by(0.01)
+                        .text("Gravity (m/s)")
+                    )
                     .changed() 
                 {
                     //Update the gravity
@@ -369,8 +327,12 @@ impl MainMenu {
 
                 //Grab the current value of the max speed
                 my_f64 = car_preferences.max_speed;
-                if ui
-                    .add(egui::Slider::new(&mut my_f64, 1.0..=200.0).text("Max Speed (m/s)"))
+                if ui.add(
+                        egui::Slider::new(&mut my_f64, 1.0..=200.0)
+                        .trailing_fill(true)
+                        .step_by(0.01)
+                        .text("Max Speed (m/s)")
+                    )
                     .changed() 
                 {
                     //Update the max speed
@@ -381,8 +343,12 @@ impl MainMenu {
 
                 //Grab the current value of the max torque
                 my_f64 = car_preferences.max_torque;
-                if ui
-                    .add(egui::Slider::new(&mut my_f64, 1.0..=10000.0).text("Car Torque (Nm)"))
+                if ui.add(
+                        egui::Slider::new(&mut my_f64, 1.0..=10000.0)
+                        .trailing_fill(true)
+                        .step_by(0.01)
+                        .text("Car Torque (Nm)")
+                    )
                     .changed() 
                 {
                     //Update the max torque
@@ -393,8 +359,12 @@ impl MainMenu {
 
                 //Grab the current value of the friction coefficient
                 my_f64 = car_preferences.friction_coefficient;
-                if ui
-                    .add(egui::Slider::new(&mut my_f64, 0.0..=5.0).text("Friction Coefficient"))
+                if ui.add(
+                        egui::Slider::new(&mut my_f64, 0.0..=5.0)
+                        .trailing_fill(true)
+                        .step_by(0.01)
+                        .text("Friction Coefficient")
+                    )
                     .changed() 
                 {
                     //Update the friction coefficient
@@ -404,8 +374,7 @@ impl MainMenu {
                 ui.add_space(10.0); // Space between buttons
                 ui.end_row();
 
-                if ui
-                    .add_sized([200.0, 50.0], egui::Button::new("Back"))
+                if ui.add_sized([200.0, 50.0], egui::Button::new("Back"))
                     .clicked()
                 {
                     self.menu = MenuState::Settings;
@@ -432,19 +401,6 @@ impl MainMenu {
         
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {     // Center the UI
-
-                // Modify text size
-                let mut custom_style = egui::Style::default();
-
-                custom_style.text_styles = [
-                    (egui::TextStyle::Heading, egui::FontId::proportional(64.0)),
-                    (egui::TextStyle::Body, egui::FontId::proportional(32.0)),
-                    (egui::TextStyle::Button, egui::FontId::proportional(18.0)),
-                    (egui::TextStyle::Small, egui::FontId::proportional(14.0)),
-                ]
-                .into();
-
-                ctx.set_style(custom_style);
 
                 // Start of UI elements
                 ui.heading("Driver's Altitude");
@@ -501,8 +457,12 @@ impl MainMenu {
 
                 //Grab the current value of the grid size
                 let mut my_f64 = terrain_preferences.grid_size;
-                if ui
-                    .add(egui::Slider::new(&mut my_f64, 1.0..=4000.0).text("Grid Size"))
+                if ui.add(
+                        egui::Slider::new(&mut my_f64, 1.0..=4000.0)
+                        .trailing_fill(true)
+                        .step_by(0.01)
+                        .text("Grid Size")
+                    )
                     .changed() 
                 {
                     //Update the grid size
@@ -511,9 +471,12 @@ impl MainMenu {
 
                 //Grab the current value of the subdivisions
                 my_f64 = terrain_preferences.subdivisions;
-                if ui
-                    .add(egui::Slider::new(&mut my_f64, 1.0..=2048.0).text("Grid Subdivisions"))
-                    .changed() 
+                if ui.add(
+                        egui::Slider::new(&mut my_f64, 1.0..=2048.0)
+                        .trailing_fill(true)
+                        .step_by(0.01)
+                        .text("Grid Subdivisions"))
+                    .changed()
                 {
                     //Update the subdivisions
                     terrain_preferences.subdivisions = my_f64;
@@ -522,8 +485,7 @@ impl MainMenu {
                 ui.add_space(10.0); // Space between buttons
                 ui.end_row();
 
-                if ui
-                    .add_sized([200.0, 50.0], egui::Button::new("Back"))
+                if ui.add_sized([200.0, 50.0], egui::Button::new("Back"))
                     .clicked()
                 {
                     self.menu = MenuState::Main;
@@ -544,6 +506,19 @@ pub fn egui_main_menu(
     terrain_preferences: ResMut<TerrainPreferences>
 ) {
     let ctx = contexts.ctx_mut();
+
+    // Modify text size for all pages using a custom style
+    let mut custom_style = egui::Style::default();
+
+    custom_style.text_styles = [
+        (egui::TextStyle::Heading, egui::FontId::proportional(64.0)),
+        (egui::TextStyle::Body, egui::FontId::proportional(32.0)),
+        (egui::TextStyle::Button, egui::FontId::proportional(18.0)),
+        (egui::TextStyle::Small, egui::FontId::proportional(14.0)),
+    ]
+    .into();
+
+    ctx.set_style(custom_style);    // Set our custom style to be the default style
 
     // Show the main menu
     main_menu_struct.show(ctx, app_exit_events, game_state, car_preferences, terrain_preferences);
