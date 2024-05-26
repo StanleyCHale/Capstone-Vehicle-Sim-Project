@@ -48,15 +48,14 @@ pub struct Engine {
     curve: Curve<Coord2>,
 }
 
-//const CHASSIS_MASS: f64 = 1000.;
 const SUSPENSION_MASS: f64 = 20.;
 const GRAVITY: f64 = 9.81;
 
 /*
-* Inputs: Queries for Brake joints, Players, and Engine Components.
-* Outputs: None
-* Description: This function updates the engine speed of the car by calculating the 
-* speed of the car using the qd of the driven wheel and the radius of the wheel.
+ * Inputs: Queries for Brake joints, Players, and Engine Components.
+ * Outputs: None
+ * Description: This function updates the engine speed of the car by calculating the 
+ * speed of the car using the qd of the driven wheel and the radius of the wheel.
  */
 pub fn update_engine_speed(
     joints: Query<(&Joint, &BrakeWheel)>,
@@ -81,10 +80,10 @@ pub fn update_engine_speed(
 }
 
 /*
-* Inputs: Queries for the SpatialAudioSink and Engine Components.
-* Outputs: None
-* Description: This function updates the playback speed of the engine audio sink by 
-* calculating the speed of the car using the qd of the driven wheel and the radius of the wheel.
+ * Inputs: Queries for the SpatialAudioSink and Engine Components.
+ * Outputs: None
+ * Description: This function updates the playback speed of the engine audio sink by 
+ * calculating the speed of the car using the qd of the driven wheel and the radius of the wheel.
  */
 pub fn update_engine_audio(
     music_controller: Query<&SpatialAudioSink, With<Engine>>, 
@@ -207,18 +206,18 @@ pub fn build_car(
     // Wheel
     let wheel = build_wheel(chassis_mass, fricion_coefficient);
 
-    //Calculate middle speeds
+    // Calculate middle speeds
     let lower_speed = max_speed * 0.25;
     let middle_speed = max_speed * 0.5;
 
-    // // Drive and Brake Speeds
+    // Drive and Brake Speeds
     let drive_speeds = vec![0., lower_speed, middle_speed, max_speed];
 
-    //Calculate torques
+    // Calculate torques
     let middle_torque = max_torque * 0.6;
     let low_torque = max_torque * 0.25;
 
-    // // Drive and Brake Torques
+    // Drive and Brake Torques
     let drive_torques = vec![max_torque, max_torque, middle_torque, low_torque];
 
     let rear_drive = DriveType::DrivenWheelLookup(DrivenWheelLookup::new(
@@ -602,11 +601,11 @@ impl Wheel {
         ry.qd = initial_speed;
 
         let mut wheel_e;
-        //Check which side this wheel model should be displayed as depending on index number at setup (Left or Right)
+        // Check which side this wheel model should be displayed as depending on index number at setup (Left or Right)
         if index == 1 || index == 3 {
             wheel_e = commands.spawn((
                 ry,
-                //Assign the mesh of the wheel model
+                // Assign the mesh of the wheel model
                 SceneBundle {
                     transform: (&TransformDef::Identity).into(),
                     scene: asset_server.load("models/vehicle/wheel/wheelR.glb#Scene0"),
@@ -616,7 +615,7 @@ impl Wheel {
         } else {
             wheel_e = commands.spawn((
                 ry,
-                //Assign the mesh of the wheel model
+                // Assign the mesh of the wheel model
                 SceneBundle {
                     transform: (&TransformDef::Identity).into(),
                     scene: asset_server.load("models/vehicle/wheel/wheelL.glb#Scene0"),
@@ -652,7 +651,6 @@ impl Wheel {
             self.damping,
             self.coefficient_of_friction,
             self.normalized_slip_stiffness,
-            // self.rolling_resistance,
             self.rolling_radius,
             self.low_speed,
             self.radius,

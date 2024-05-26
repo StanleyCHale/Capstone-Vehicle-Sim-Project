@@ -14,8 +14,6 @@ pub enum MeshTypeDef {
     Cylinder { height: f32, radius: f32 },
     Wheel { radius: f32, width: f32 },
     File { file_name: String },
-    // Sphere { radius: f64 },
-    // Mesh { filename: String },
 }
 
 #[derive(Debug, Clone)]

@@ -4,8 +4,7 @@ members = [
     "integrator",
     "car", 
     "grid_terrain",
-    "cameras",
-    "plane"
+    "cameras"
     ]
 resolver = "2"
 

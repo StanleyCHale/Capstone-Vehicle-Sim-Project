@@ -233,13 +233,6 @@ impl GridElement for Perlin {
                 positions.push([x_pos as f32, y_pos as f32, z_pos as f32]);
 
                 // Build normals
-
-                // let normal_array = self.normal.normal[x as usize][y as usize];
-                // normals.push([normal_array.x, normal_array.y, normal_array.z]);
-
-                // // Per vertex - Up vector
-                // // FIX THIS, edge cases not yet covered
-
                 if x == x_vertices - 1  && y == y_vertices - 1 {
                     normals.push([0.0, 0.0, -1.0]);
                 }
