@@ -5,6 +5,8 @@ use bevy_integrator::GameState;
 
 use bevy::{prelude::*, ui::FocusPolicy};
 
+use crate::preferences::CarPreferences;
+
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
@@ -14,25 +16,25 @@ impl Plugin for MainMenuPlugin {
         .add_state::<MenuState>()
         // Systems to handle the main menu screen
         .add_systems(OnEnter(MenuState::Main), main_menu_setup)
-        .add_systems(OnExit(MenuState::Main), despawn_screen::<OnMainMenuScreen>)
+        .add_systems(OnExit(MenuState::Main), despawn_recursive::<OnMainMenuScreen>)
         // Systems to handle the settings menu screen
         .add_systems(OnEnter(MenuState::Settings), settings_menu_setup)
-        .add_systems(OnExit(MenuState::Settings), despawn_screen::<OnSettingsMenuScreen>)
+        .add_systems(OnExit(MenuState::Settings), despawn_recursive::<OnSettingsMenuScreen>)
         //Systems to handle the audio settings menu screen
-        .add_systems(OnEnter(MenuState::SettingsAudio), settingsaudio_menu_setup)
-        .add_systems(OnExit(MenuState::SettingsAudio), despawn_screen::<OnAudioMenuScreen>)
+        .add_systems(OnEnter(MenuState::SettingsAudio), audio_menu_setup)
+        .add_systems(OnExit(MenuState::SettingsAudio), despawn_recursive::<OnAudioMenuScreen>)
         //SYstem to handle the vehicle settings menu screen
-        .add_systems(OnEnter(MenuState::SettingsVehicle), settingsvehicle_menu_setup)
-        .add_systems(OnExit(MenuState::SettingsVehicle), despawn_screen::<OnVehicleMenuScreen>)
+        .add_systems(OnEnter(MenuState::SettingsVehicle), vehicle_menu_setup)
+        .add_systems(OnExit(MenuState::SettingsVehicle), despawn_recursive::<OnVehicleMenuScreen>)
         //Camera system
-        .add_systems(OnEnter(MenuState::Disabled), despawn_screen::<MainMenuCamera>)
+        .add_systems(OnEnter(MenuState::Disabled), despawn_recursive::<MainMenuCamera>)
         
         .add_systems(Update, handle_menu_buttons);
     }
 }
 
-//RESOURCE
-//Manages the assets that need to be loaded for the main menu UI
+// RESOURCE
+// Manages the assets that need to be loaded for the main menu UI
 impl Resource for UiAssets {}
 struct UiAssets {
     button: Handle<Image>,
@@ -54,7 +56,7 @@ struct OnSettingsMenuScreen;
 //Tag componenet used to tag entities added on the audio settings screen
 #[derive(Component)]
 struct OnAudioMenuScreen;
-//Tag componenet used to tag entities added on the audio settings screen
+// Tag component used to tag entities added on the audio settings screen
 #[derive(Component)]
 struct OnVehicleMenuScreen;
 
@@ -82,9 +84,9 @@ enum MenuButtonAction {
     MaxSpeed25,
     MaxSpeed75,
     MaxSpeed150,
-    CarAcceleration6,
-    CarAcceleration10,
-    CarAcceleration15,
+    CarTorque600,
+    CarTorque1000,
+    CarTorque1500,
     Quit,
 }
 
@@ -100,15 +102,22 @@ enum MenuState {
     Disabled,
 }
 
-// Generic system that takes a component as a parameter, and will despawn all entities with that component
-fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+/*
+* Inputs: Query for the entities to despawn, commands
+* Outputs: None
+* Description: This function will despawn all entities with the component T
+ */
+fn despawn_recursive<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     for entity in &to_despawn {
         commands.entity(entity).despawn_recursive();
     }
 }
 
-// System to handle the main menu state
-// This system will catch each interaction event and uses a component to decide what to do
+/*
+* Inputs: Query for the children, interaction, and menu button action, menu state, game state, image query, ui assets, app exit events
+* Outputs: None
+* Description: This function will handle the interactions of the menu buttons
+ */
 fn handle_menu_buttons(
     interaction_query: Query<(&Children, &Interaction, &MenuButtonAction), (Changed<Interaction>, With<Button>)>,
     mut menu_state: ResMut<NextState<MenuState>>,
@@ -116,6 +125,7 @@ fn handle_menu_buttons(
     mut image_query: Query<&mut UiImage>,
     ui_assests: Res<UiAssets>,
     mut app_exit_events: EventWriter<AppExit>,
+    mut car_preferences: ResMut<CarPreferences>,
 ) {
     //For every button interaction found, we will run this code
     for (children, interaction, menu_button_action) in &interaction_query {
@@ -180,82 +190,100 @@ fn handle_menu_buttons(
                 MenuButtonAction::VolumeSet0 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.0");
+                    car_preferences.volume = 0.0;
                 }
                 MenuButtonAction::VolumeSet2 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.2");
+                    car_preferences.volume = 0.2;
                 }
                 MenuButtonAction::VolumeSet4 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.4");
+                    car_preferences.volume = 0.4;
                 }
                 MenuButtonAction::VolumeSet6 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.6");
+                    car_preferences.volume = 0.6;
                 }
                 MenuButtonAction::VolumeSet8 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 0.8");
+                    car_preferences.volume = 0.8;
                 }
                 MenuButtonAction::VolumeSet10 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Volume Set to 1.0");
+                    car_preferences.volume = 1.0;
                 }
 
                 //Mass settings
                 MenuButtonAction::Mass500 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Mass Set to 500");
+                    car_preferences.mass = 500.0;
                 }
                 MenuButtonAction::Mass1000 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Mass Set to 1000");
+                    car_preferences.mass = 1000.0;
                 }
                 MenuButtonAction::Mass2000 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Mass Set to 2000");
+                    car_preferences.mass = 2000.0;
                 }
 
                 //Gravity settings
                 MenuButtonAction::GravityMoon => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Gravity Set to Moon");
+                    car_preferences.gravity = 1.62;
                 }
                 MenuButtonAction::GravityEarth => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Gravity Set to Earth");
+                    car_preferences.gravity = 9.81;
                 }
                 MenuButtonAction::GravityJupiter => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Gravity Set to Jupiter");
+                    car_preferences.gravity = 24.79;
                 }   
 
                 //Max Speed settings
                 MenuButtonAction::MaxSpeed25 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Max Speed Set to 25");
+                    car_preferences.max_speed = 25.0;
                 }   
                 MenuButtonAction::MaxSpeed75 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Max Speed Set to 75");
+                    car_preferences.max_speed = 75.0;
                 }
                 MenuButtonAction::MaxSpeed150 => {
                     image.texture = ui_assests.button_pressed.clone();
                     println!("Max Speed Set to 150");
+                    car_preferences.max_speed = 150.0;
                 }
 
                 //Car Acceleration settings
-                MenuButtonAction::CarAcceleration6 => {
+                MenuButtonAction::CarTorque600 => {
                     image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 6");
+                    println!("Car Torque Set to 600");
+                    car_preferences.max_torque = 600.0;
                 }
-                MenuButtonAction::CarAcceleration10 => {
+                MenuButtonAction::CarTorque1000 => {
                     image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 10");
+                    println!("Car Torque Set to 1000");
+                    car_preferences.max_torque = 1000.0;
                 }
-                MenuButtonAction::CarAcceleration15 => {
+                MenuButtonAction::CarTorque1500 => {
                     image.texture = ui_assests.button_pressed.clone();
-                    println!("Car Acceleration Set to 15");
+                    println!("Car Torque Set to 1500");
+                    car_preferences.max_torque = 1500.0;
                 }
 
             }
@@ -263,7 +291,11 @@ fn handle_menu_buttons(
     }
 }
 
-//Function for setting up the main menu UI of the game
+/*
+* Inputs: Query for the commands, asset server, menu state, game state
+* Outputs: None
+* Description: Spawns main menu UI elements and sets up the main menu state
+ */
 fn main_menu_setup(
     mut commands: Commands, 
     asset_server: Res<AssetServer>,
@@ -499,7 +531,11 @@ fn main_menu_setup(
     commands.insert_resource(ui_assets);
 }
 
-//Function for setting up the settings menu UI of the game
+/*
+* Inputs: Query for the commands, ui assets
+* Outputs: None
+* Description: Spawns settings menu UI elements
+ */
 fn settings_menu_setup(
     mut commands: Commands, 
     ui_assets: Res<UiAssets>,
@@ -707,8 +743,12 @@ fn settings_menu_setup(
     }); 
 }
 
-//Function for setting up the audio settings menu UI of the game
-fn settingsaudio_menu_setup(
+/*
+* Inputs: Query for the commands, ui assets
+* Outputs: None
+* Description: Spawns audio settings menu UI elements
+ */
+fn audio_menu_setup(
     mut commands: Commands, 
     ui_assets: Res<UiAssets>,
 ) {
@@ -1156,7 +1196,12 @@ fn settingsaudio_menu_setup(
 
 }
 
-fn settingsvehicle_menu_setup(
+/*
+* Inputs: Query for the commands, ui assets
+* Outputs: None
+* Description: Spawns vehicle settings menu UI elements
+ */
+fn vehicle_menu_setup(
     mut commands: Commands, 
     ui_assets: Res<UiAssets>,
 ) {
@@ -1235,7 +1280,7 @@ fn settingsvehicle_menu_setup(
         .with_children(|parent| {
             parent.spawn(TextBundle {
                 text: Text::from_section(
-                    "Mass (kg)", 
+                    "Chassis Mass (kg)", 
                     TextStyle {
                         font_size: 40.0,
                         color: Color::BLACK,
@@ -1816,7 +1861,7 @@ fn settingsvehicle_menu_setup(
         .with_children(|parent| {
             parent.spawn(TextBundle {
                 text: Text::from_section(
-                    "Car Acceleration (m/s^2)", 
+                    "Car Torque (Nm)", 
                     TextStyle {
                         font_size: 40.0,
                         color: Color::BLACK,
@@ -1847,7 +1892,7 @@ fn settingsvehicle_menu_setup(
             ..default()
         }
         ).with_children(|parent| {
-            //Spawn a button for 6 acc
+            //Spawn a button for 600 torque
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -1862,7 +1907,7 @@ fn settingsvehicle_menu_setup(
                     background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                MenuButtonAction::CarAcceleration6,
+                MenuButtonAction::CarTorque600,
             ))
             .with_children(|parent| {
                 parent.spawn(ImageBundle {
@@ -1881,7 +1926,7 @@ fn settingsvehicle_menu_setup(
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            " 6 ", 
+                            " 600 ", 
                             TextStyle {
                                 font_size: 40.0,
                                 color: Color::WHITE,
@@ -1894,7 +1939,7 @@ fn settingsvehicle_menu_setup(
                 });
             });
 
-            //Spawn a button for 10 acc
+            //Spawn a button for 1000 torque
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -1909,7 +1954,7 @@ fn settingsvehicle_menu_setup(
                     background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                MenuButtonAction::CarAcceleration10,
+                MenuButtonAction::CarTorque1000,
             ))
             .with_children(|parent| {
                 parent.spawn(ImageBundle {
@@ -1928,7 +1973,7 @@ fn settingsvehicle_menu_setup(
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            " 10 ", 
+                            " 1000 ", 
                             TextStyle {
                                 font_size: 40.0,
                                 color: Color::WHITE,
@@ -1941,7 +1986,7 @@ fn settingsvehicle_menu_setup(
                 });
             });
 
-            //Spawn a button for 15 acc
+            //Spawn a button for 1500 torque
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -1956,7 +2001,7 @@ fn settingsvehicle_menu_setup(
                     background_color: BackgroundColor(Color::NONE),
                     ..Default::default()
                 },
-                MenuButtonAction::CarAcceleration15,
+                MenuButtonAction::CarTorque1500,
             ))
             .with_children(|parent| {
                 parent.spawn(ImageBundle {
@@ -1975,7 +2020,7 @@ fn settingsvehicle_menu_setup(
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            " 15 ", 
+                            " 1500 ", 
                             TextStyle {
                                 font_size: 40.0,
                                 color: Color::WHITE,
@@ -1987,7 +2032,6 @@ fn settingsvehicle_menu_setup(
                     });
                 });
             });
-
         });
         
 

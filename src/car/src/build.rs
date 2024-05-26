@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::Rng;
 
-//Flo Curves is used for the creation of bezier curves
+//Flo Curves crate is used for the definition and creation of bezier curves for audio playback
 use flo_curves::bezier;
 use flo_curves::bezier::Curve;
 use flo_curves::*;
@@ -15,12 +15,10 @@ use rigid_body::{
 };
 
 use crate::{
-    control::{CarControl, ControlType},
-    physics::{
+    control::{CarControl, ControlType}, physics::{
         BrakeWheel, DriveType, DrivenWheelLookup, SteeringCurvature, SteeringType,
         SuspensionComponent,
-    },
-    tire::PointTire,
+    }, preferences::CarPreferences, tire::PointTire
 };
 
 #[derive(Resource)]
@@ -31,12 +29,11 @@ pub struct CarDefinition {
     drives: Vec<DriveType>,
     brake: Brake,
     pub carcontrol: CarControl,
-    //pub joint: Joint,
     pub id: i32,
-} // Try to add camera and wheels to this later
+} 
 
 /*
- * struct CarList
+ * Struct CarList
  * Contains the list of car that are currently a part of this game session
  */
 #[derive(Resource, Default)]
@@ -50,29 +47,90 @@ pub struct Engine {
     curve: Curve<Coord2>,
 }
 
-const CHASSIS_MASS: f64 = 1000.;
+//const CHASSIS_MASS: f64 = 1000.;
 const SUSPENSION_MASS: f64 = 20.;
 const GRAVITY: f64 = 9.81;
 
-// List of cameras
-// let mut camera_list = Vec::new();
+/*
+* Inputs: Queries for Brake joints, Players, and Engine Components.
+* Outputs: None
+* Description: This function updates the engine speed of the car by calculating the 
+* speed of the car using the qd of the driven wheel and the radius of the wheel.
+ */
+pub fn update_engine_speed(
+    joints: Query<(&Joint, &BrakeWheel)>,
+    mut players: ResMut<CarList>,
+    mut engine_q: Query<&mut Engine>,
+) {
+
+    let playerlist = &mut players.cars;
+
+    let joint_list: Vec<(&Joint, &BrakeWheel)> = joints.iter().collect();
+
+    let mut count = 0;
+    for mut engine in engine_q.iter_mut() {
+        let car_joint = count * 2;
+        let qd = joint_list[car_joint].0.qd.abs();
+        let radius = playerlist[count].wheel.radius;
+
+        //Update the speed
+        engine.speed = (qd * radius) as f32; 
+        count += 1;
+    } 
+}
 
 /*
- * Defines a car's specifications to later be built by car_startup_system().
- *
+* Inputs: Queries for the SpatialAudioSink and Engine Components.
+* Outputs: None
+* Description: This function updates the playback speed of the engine audio sink by 
+* calculating the speed of the car using the qd of the driven wheel and the radius of the wheel.
+ */
+pub fn update_engine_audio(
+    music_controller: Query<&SpatialAudioSink, With<Engine>>, 
+    engine_q: Query<&Engine>,
+) {
+    let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
+
+    let engine_list: Vec<&Engine> = engine_q.iter().collect();
+
+    //For loop for the length of the music_controller
+    for i in 0..music_controller.len() {
+        //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
+        let mut speed_curve = 
+            engine_list[i].curve.point_at_pos(                                          //Get the position from the bezier curve
+                (( (engine_list[i].speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
+            ).y()                                                                       //Grab the Y-value of from this position on the bezier curve
+            as f32;                                                                     //Cast this value to a f32
+                
+        //Calculate the offset
+        let offset = engine_list[i].speed * 0.030;
+
+        //Make the value smaller and apply an offset
+        speed_curve = speed_curve + offset;
+
+        //Set the playback speed to our calculated speed_curve of this specific engine audio sink
+        music_controller[i].set_speed(speed_curve);
+    }
+}
+
+/*
  * Inputs: none
  * Outputs: CarDefinition - The struct containing the car's specifications
+ * Description: Defines a car's specifications to later be built by car_startup_system().
  */
 pub fn build_car(
     startposition: [f64; 3], 
     control_type: ControlType, 
-    id: i32
+    id: i32,
+    max_speed: f64,
+    chassis_mass: f64,
+    max_torque: f64,
 ) -> CarDefinition {
     // Separate the start position into x, y, z coordinates
     let xpos = startposition[0];
     let ypos = startposition[1];
     let zpos = startposition[2];
-
+    
     // Chassis
     let mass = 1000.;
     let dimensions = [3.0_f64, 1.2, 0.4]; // shape of rectangular chassis
@@ -84,6 +142,7 @@ pub fn build_car(
     .map(|x| mass * (1. / 12.) * x);
 
     let chassis = Chassis {
+        //Get our mass
         mass,
         cg_position: [0., 0., 0.],
         moi,
@@ -142,12 +201,21 @@ pub fn build_car(
         .collect();
 
     // Wheel
-    let wheel = build_wheel();
+    let wheel = build_wheel(chassis_mass);
 
+    //Calculate middle speeds
+    let lower_speed = max_speed * 0.25;
+    let middle_speed = max_speed * 0.5;
 
-    // // Drive and Brake
-    let drive_speeds = vec![0., 25., 50., 75. /* <-- Max Speed*/];
-    let drive_torques = vec![1000., 1000., 600., 250.];
+    // // Drive and Brake Speeds
+    let drive_speeds = vec![0., lower_speed, middle_speed, max_speed];
+
+    //Calculate torques
+    let middle_torque = max_torque * 0.6;
+    let low_torque = max_torque * 0.25;
+
+    // // Drive and Brake Torques
+    let drive_torques = vec![max_torque, max_torque, middle_torque, low_torque];
 
     let rear_drive = DriveType::DrivenWheelLookup(DrivenWheelLookup::new(
         "fl".to_string(),
@@ -188,12 +256,12 @@ pub fn build_car(
     }
 }
 
-pub fn build_wheel() -> Wheel {
+pub fn build_wheel(chassis_mass: f64) -> Wheel {
     let wheel_mass = 20.;
     let wheel_radius = 0.325_f64;
     let wheel_moi_y = wheel_mass * wheel_radius.powi(2);
     let wheel_moi_xz = 1. / 12. * 10. * (3. * wheel_radius.powi(2));
-    let corner_mass = CHASSIS_MASS / 4. + SUSPENSION_MASS + wheel_mass;
+    let corner_mass = chassis_mass / 4. + SUSPENSION_MASS + wheel_mass;
     let wheel_stiffness = corner_mass * GRAVITY / 0.005;
     let wheel_damping = 0.01 * 2. * (wheel_stiffness * wheel_mass).sqrt();
     Wheel {
@@ -216,10 +284,11 @@ pub fn car_startup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut players: ResMut<CarList>,
-    mut car_state: ResMut<NextState<CarState>>
+    mut car_state: ResMut<NextState<CarState>>,
+    car_preferences: Res<CarPreferences>,
 ) {
-    //Motion here is for gravity   (9.81 m/s)
-    let base = Joint::base(Motion::new([0., 0., 9.81], [0., 0., 0.]));
+    //Motion here is for gravity   (9.81 m/s by default)
+    let base = Joint::base(Motion::new([0., 0., car_preferences.gravity], [0., 0., 0.]));
     let base_id = commands.spawn((base, Base)).id();
 
     let mut camera_parent_list = Vec::new();
@@ -367,7 +436,7 @@ impl Chassis {
         rx_e.set_parent(ry_id);
         let rx_id = rx_e.id();
 
-        //Create a bezier curve for curving playback audio
+        //Create a bezier curve for curving playback audio (to simulate changing of gears)
         let sound_curve = bezier::Curve::from_points(
             Coord2(0.0, 0.6),
             (Coord2(1.0, 1.4), Coord2(0.84, 0.55)),
@@ -424,58 +493,6 @@ fn f64_to_f32(x: f64) -> f32 {
         "f32 overflow during conversion"
     );
     y
-}
-
-//Function to update the engine speed's component using the driven wheel's q dirivitive and the wheel's radius
-pub fn update_engine_speed(
-    joints: Query<(&Joint, &BrakeWheel)>,
-    mut players: ResMut<CarList>,
-    mut engine_q: Query<&mut Engine>,
-) {
-
-    let playerlist = &mut players.cars;
-
-    let joint_list: Vec<(&Joint, &BrakeWheel)> = joints.iter().collect();
-
-    let mut count = 0;
-    for mut engine in engine_q.iter_mut() {
-        let car_joint = count * 2;
-        let qd = joint_list[car_joint].0.qd.abs();
-        let radius = playerlist[count].wheel.radius;
-
-        //Update the speed
-        engine.speed = f64_to_f32(qd * radius); 
-        count += 1;
-    } 
-}
-
-//Used to update the playback speed of the engine audio sink
-pub fn update_engine_audio(
-    music_controller: Query<&SpatialAudioSink, With<Engine>>, 
-    engine_q: Query<&Engine>,
-) {
-    let music_controller: Vec<&SpatialAudioSink> = music_controller.iter().collect();
-
-    let engine_list: Vec<&Engine> = engine_q.iter().collect();
-
-    //For loop for the length of the music_controller
-    for i in 0..music_controller.len() {
-        //Grab our value from bezier curve using our modified speed value (15% of current speed, always between [0.0, 1.0])
-        let mut speed_curve = f64_to_f32(                                  //Convert from f64 to f32
-            engine_list[i].curve.point_at_pos(                                          //Get the position from the bezier curve
-                (( (engine_list[i].speed * 0.05) % 1.0)).into()                         //Modulate the current speed by 1.0, so it always stays between [0.0, 1.0]
-            ).y()                                                               //Grab the Y-value of from this position on the bezier curve
-        );
-                
-        //Calculate the offset
-        let offset = engine_list[i].speed * 0.030;
-
-        //Make the value smaller and apply an offset
-        speed_curve = speed_curve + offset;
-
-        //Set the playback speed to our calculated speed_curve of this specific engine audio sink
-        music_controller[i].set_speed(speed_curve);
-    }
 }
 
 #[derive(Clone)]

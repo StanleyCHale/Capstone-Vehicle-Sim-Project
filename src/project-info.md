@@ -15,6 +15,8 @@ The examples are:
 Keyboard controls for the car demo:
 - `W`/`S`: Accelerate/brake
 - `A`/`D`: Steer left/right
+- `Arrow Up`/`Arrow Down`: Accelerate/brake
+- `Arrow Left`/`Arrow Right`: Steer left/right
 
 Gamepad controls for the car demo:
 - `Right Stick`: Accelerate/brake
@@ -36,3 +38,18 @@ Gamepad controls for the car demo:
 - `grid_terrain`: used to generate terrain meshes that the car can drive on. 
     - a rectangular grid of terrain elements (ramp, step, function, etc.) is use to specify the terrain. 
 - `cameras`: basic camera controls for bevy
+
+## System Features
+- `Main Menu` - [/car/src/main_menu.rs](car/src/main_menu.rs)
+    - Houses all of the functions and definitions for the main menu of the game.
+    - Button assets are creditted to: KennyNL - [Link](https://kenney.nl/assets/ui-pack)
+- `Vehicle Audio` - [/car/src/build.rs](car/src/main_menu.rs)
+    - Utilizes `flo_curves` crate to define bezier curves for audio playback speed.
+    - Manages engine audio emitter components by calculating vehicle speed and updating the audio playback based off the speed.
+- `Terrain Generation` - [/car/src/environment.rs](car/src/environment.rs)
+    - Uses perlin noise to generate a height map for randomly generated terrain.
+- `Terrain Shaders` - [/car/assets/custom_material.wgsl](car/assets/shaders/custom_material.wgsl)
+    - Written WGSL to add colour transitions for the terrain.
+- `Multiple Vehicles` - [/car/src/build.rs](car/src/main_menu.rs)
+    - Car resources defined and built as a list of players.
+    - Can define control layouts for each car.
