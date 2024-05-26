@@ -11,10 +11,10 @@ You can follow this link to view it [here](https://stanleychale.github.io/Capsto
 ├── docs/  
 ├── src/  
     ├── src/cameras
+    ├── src/rigid_body
     ├── src/car
     ├── src/grid_terrain
     ├── src/integrator
-    ├── src/rigid_body
 ├── wip/  
 ├── .gitignore  
 ├── LICENSE  
@@ -22,11 +22,11 @@ You can follow this link to view it [here](https://stanleychale.github.io/Capsto
 
 The docs/ directory contains our supporting team documents for our team deliverables and assignments. Please note that this project's github pages website is hosted from the "astro" branch of this repository.
 
-The src/ directory contains our codebase for the project.
+The `src/` directory contains our codebase for the project.
 
-Within the src/ directory, there is a series of other folders that contain the actual code for this project.
+Within the `src/` directory, there is a series of other folders that contain the actual code for this project.
 
-The src/cameras/ directory contains the code that controls and updates the camera that is attached to the car.
+The `src/cameras/` directory contains the code that controls and updates the camera that is attached to the car.
 
 The src/car/ directory contains the main function and the App struct, which contains the entire ECS and world, and is the "center" of the program. All the other folders and files branch off of this one. 
 As a reminder, the program can be run with the following command run inside of the src/ folder: 
@@ -34,13 +34,13 @@ As a reminder, the program can be run with the following command run inside of t
 cargo run --example <example_name>
 ```
 
-The src/grid_terrain/ directory contains the files that are responsible for terrain
+The `src/grid_terrain/` directory contains the files that are responsible for terrain
 generation, including the bumpy, mountainous terrain simulated by perlin noise.
 
-The src/integrator/ directory is relatively small, and contains some of the program's 
+The `src/integrator/` directory is relatively small, and contains some of the program's 
 physics and game state functionality.
 
-The src/rigid_body/ directory contains a lot of the lower-level physics and collision
+The `src/rigid_body/` directory contains a lot of the lower-level physics and collision
 functionality, particularly relating to the player-controlled vehicle.
 
 # How to Run This Project:
@@ -55,7 +55,7 @@ The original project repository can be found [here](https://github.com/crispyDyn
 Team Members:
 - Stanley Hale - halesta@oregonstate.edu
   - UI, Engine Audio System, Car Model Implementation
-- Ezra McDonald-Muelle - mcdonaez@oregonstate.edu
+- Ezra McDonald-Mueller - mcdonaez@oregonstate.edu
   - Terrain Generation
 - Greggory Hickman​ - hickmang@oregonstate.edu
   - Multiple Cars Functionality, UI
@@ -73,7 +73,5 @@ Project Partner:
 ## Assets:
 - Vehicle Model: 
     - Diw3D - [Link](https://www.turbosquid.com/FullPreview/2087206)
-- Button Icons:
-    - KennyNL - [Link](https://kenney.nl/assets/ui-pack)
 - Engine Audio: 
     - Mixkit ATV engine motor hum - [Link](https://mixkit.co/free-sound-effects/hum/)

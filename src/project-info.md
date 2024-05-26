@@ -40,9 +40,8 @@ Gamepad controls for the car demo:
 - `cameras`: basic camera controls for bevy
 
 ## System Features
-- `Main Menu` - [/car/src/main_menu.rs](car/src/main_menu.rs)
+- `Main Menu` - [/car/src/egui_main_menu.rs](car/src/main_menu.rs)
     - Houses all of the functions and definitions for the main menu of the game.
-    - Button assets are creditted to: KennyNL - [Link](https://kenney.nl/assets/ui-pack)
 - `Vehicle Audio` - [/car/src/build.rs](car/src/main_menu.rs)
     - Utilizes `flo_curves` crate to define bezier curves for audio playback speed.
     - Manages engine audio emitter components by calculating vehicle speed and updating the audio playback based off the speed.
