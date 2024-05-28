@@ -74,6 +74,10 @@ Project Partner:
 ## 3rd Party Crates
 - `flo_curves` - [Link](https://docs.rs/flo_curves/latest/flo_curves/)
     - Library of routines for inspecting and manipulating curves, with a focus on cubic Bézier curves.
+- `bevy_egui` - [Link](https://docs.rs/bevy_egui/latest/bevy_egui/)
+    - This crate provides an Egui integration for the Bevy game engine.
+-  `noise` - [Link](https://crates.io/crates/noise)
+    - Noise-rs is a Rust library to generate smoothly varying noise for textural use and graphical display.
 ## Assets:
 - Vehicle Model: 
     - Diw3D - [Link](https://www.turbosquid.com/FullPreview/2087206)
